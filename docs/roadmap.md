@@ -22,13 +22,17 @@ Prazos são estimativas, não compromissos.
 
 Objetivo: descobrir quanto histórico M1 de WIN/WDO é acessível de graça, com qualidade medida.
 
-- [ ] Ativar MT5 demo da Clear (confirmar custo na ativação: R$ 0 informado vs. R$ 9,90 da página)
+Guia: [mt5-windows.md](mt5-windows.md). Ordem: MT5 agora; Profit Pro só no início do próximo mês
+(alinhado ao ciclo mensal da isenção).
+
+- [x] Ativar MT5 demo da Clear — contratado em 27/10/2026: painel mostra **Grátis**, conta netting
+- [ ] Instalar MT5 no Windows, logar no simulador, "Máx. barras no gráfico" = Ilimitado
 - [ ] Identificar símbolos contínuos (`WIN$N`, `WDO$N`? confirmar definição de rolagem na Clear)
-- [ ] Exportar M1 desde 10/2018 (o pedido não garante o recebido) — começar no MT5 **Windows**
+- [ ] Exportar M1 desde 10/2018 com `scripts/mt5_exportar.py` (o pedido não garante o recebido)
 - [ ] Enviar CSVs para `data/raw/` da VPS (`scp`, ver `vps-setup.md`)
 - [ ] `robob3 relatorio-dados` em cada arquivo; registrar no Notion: servidor, símbolo, datas efetivas,
       nº de barras, lacunas, duplicados, SHA-256 do arquivo, data da extração
-- [ ] Comparar amostras com o Profit (mesmo dia, mesmos horários)
+- [ ] Comparar amostras com o Profit (mesmo dia, mesmos horários) — quando o Profit for ativado
 - [ ] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas
 - [ ] Se o período for curto: testar outra corretora MT5 / Kaggle 2014–2018 (validar licença e qualidade)
 

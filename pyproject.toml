@@ -16,6 +16,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
+# só Windows: exportação/ponte com o terminal MT5
+mt5 = ["MetaTrader5>=5.0.45; sys_platform == 'win32'"]
 
 [project.scripts]
 robob3 = "robob3.cli:main"

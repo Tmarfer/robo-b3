@@ -69,3 +69,34 @@ def _parse_datas(texto: pd.Series) -> pd.Series:
         except ValueError:
             continue
     raise ValueError(f"Formato de data não reconhecido, ex.: {texto.iloc[0]!r}")
+
+
+def escrever_barras_mt5(df: pd.DataFrame, caminho: str | Path) -> Path:
+    """Grava barras no mesmo formato do export manual do MT5 (tabulação, UTF-8).
+
+    `df` indexado por timestamp, com colunas open/high/low/close e opcionalmente
+    tick_volume/real_volume/spread.
+    """
+    caminho = Path(caminho)
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    inverso = {v: k for k, v in COLUNAS.items()}
+    out = pd.DataFrame(
+        {"<DATE>": df.index.strftime("%Y.%m.%d"), "<TIME>": df.index.strftime("%H:%M:%S")}
+    )
+    for c in ("open", "high", "low", "close", "tick_volume", "real_volume", "spread"):
+        if c in df.columns:
+            out[inverso[c]] = df[c].to_numpy()
+    out.to_csv(caminho, sep="\t", index=False, encoding="utf-8")
+    return caminho
+
+
+def rates_para_df(rates) -> pd.DataFrame:
+    """Converte o retorno de `MetaTrader5.copy_rates_*` (array estruturado) em DataFrame.
+
+    O MT5 entrega `time` em segundos no horário do servidor (codificado como se fosse UTC);
+    convertendo sem fuso, o resultado bate com o export manual.
+    """
+    df = pd.DataFrame(rates)
+    df["time"] = pd.to_datetime(df["time"], unit="s")
+    colunas = [c for c in COLUNAS.values() if c in df.columns and c not in ("date", "time")]
+    return df.set_index("time")[colunas]

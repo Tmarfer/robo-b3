@@ -79,3 +79,30 @@ def test_reamostrar_recusa_duplicados_e_timeframe_invalido():
         reamostrar(df, 7)
     with pytest.raises(ValueError, match="duplicados"):
         reamostrar(pd.concat([df, df.iloc[:1]]), 5)
+
+
+def test_escrever_e_ler_formato_mt5_ida_e_volta(tmp_path):
+    from robob3.data import escrever_barras_mt5
+
+    df = _m1("2024-01-02 09:00", 3).assign(tick_volume=7, spread=0)
+    p = escrever_barras_mt5(df, tmp_path / "sub" / "x.csv")
+    lido = ler_barras_mt5(p)
+    pd.testing.assert_frame_equal(
+        lido[["open", "high", "low", "close"]], df[["open", "high", "low", "close"]],
+        check_freq=False, check_names=False,
+    )
+
+
+def test_rates_para_df():
+    import numpy as np
+
+    from robob3.data.mt5_csv import rates_para_df
+
+    dtype = [("time", "<i8"), ("open", "<f8"), ("high", "<f8"), ("low", "<f8"),
+             ("close", "<f8"), ("tick_volume", "<u8"), ("spread", "<i4"), ("real_volume", "<u8")]
+    rates = np.array([(1704186000, 1, 2, 0.5, 1.5, 10, 0, 20)], dtype=dtype)  # 2024-01-02 09:00
+    df = rates_para_df(rates)
+    assert df.index[0] == pd.Timestamp("2024-01-02 09:00")
+    assert list(df.columns) == [
+        "open", "high", "low", "close", "tick_volume", "real_volume", "spread"
+    ]

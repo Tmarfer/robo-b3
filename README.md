@@ -16,9 +16,11 @@ robo-b3/
 ├── docs/
 │   ├── roadmap.md            # fases, tarefas e critérios para avançar
 │   ├── vps-setup.md          # passo a passo da VPS Hostinger + Antigravity via SSH
+│   ├── mt5-windows.md        # MT5 demo da Clear no Windows + exportação de histórico
 │   ├── fluxo-git.md          # como o código vai daqui → GitHub → VPS
 │   └── estrategias/          # especificação escrita de cada estratégia ANTES do código
 ├── infra/vps/                # scripts numerados para preparar a VPS
+├── scripts/                  # utilitários avulsos (ex.: mt5_exportar.py, roda no Windows)
 ├── src/robob3/               # pacote Python (dados, instrumentos, sinais, config)
 ├── tests/                    # pytest
 ├── config/                   # risk.example.yaml (copiar para risk.yaml)
