@@ -1,0 +1,22 @@
+# Copiar para config/risk.yaml (fora do git) e ajustar.
+# Validar com: robob3 validar-config
+
+modo: demo   # único valor aceito nesta fase
+
+limites:
+  WIN: { max_contratos: 1 }
+  WDO: { max_contratos: 1 }
+
+# Disjuntor: atingido, desarma até o dia seguinte. Valor de exemplo — definir no Notion.
+perda_maxima_diaria_brl: 100
+
+horario:
+  inicio_entradas: "09:15"
+  fim_entradas: "17:00"
+  zeragem: "17:45"   # confirmar o horário de zeragem compulsória da Clear
+
+sinais_ia:
+  # v1: IA só reduz risco. Nunca incluir AMPLIAR ou REARMAR nesta fase.
+  acoes_permitidas: [DESARMAR, REDUZIR]
+  confianca_minima: 0.7
+  max_sinais_hora: 6

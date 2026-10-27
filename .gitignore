@@ -1,0 +1,29 @@
+# segredos e configuração local
+.env
+config/risk.yaml
+
+# dados de mercado (licença/volume) e estado de runtime
+data/raw/*
+data/processed/*
+!data/**/.gitkeep
+logs/
+mt5-data/
+redis-data/
+backup/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+build/
+dist/
+
+# editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

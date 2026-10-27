@@ -1,0 +1,12 @@
+.git
+.venv
+.env
+data
+logs
+mt5-data
+redis-data
+backup
+**/__pycache__
+.pytest_cache
+.ruff_cache
+config/risk.yaml
