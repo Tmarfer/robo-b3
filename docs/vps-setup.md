@@ -27,9 +27,9 @@ Host robo-b3
     User robo
     IdentityFile ~/.ssh/robo-b3
     ForwardAgent yes
-    # túneis: dashboard (8080) e noVNC do MT5 (3000)
+    # túneis da tela do MT5 (noVNC): página 8080 e websocket 5901
     LocalForward 8080 127.0.0.1:8080
-    LocalForward 3000 127.0.0.1:3000
+    LocalForward 5901 127.0.0.1:5901
 
 Host *
     AddKeysToAgent yes

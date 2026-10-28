@@ -1,88 +1,120 @@
-# MT5 — conta demo da Clear e exportação de histórico
+# MT5 — conta demo da Clear na VPS e exportação de histórico
 
 **Conta:** MetaTrader 5 (Simulador) contratado em 27/10/2026. Painel da Clear: custo mensal
 **Grátis**, conta **netting** (uma posição líquida por ativo, como na B3).
 "Resetar limite" no painel volta o saldo simulado ao inicial.
 
-**Ambiente:** não há computador Windows no projeto — só **Mac** e a **VPS Linux**.
+**Ambiente:** Mac (M4 Pro) + VPS Linux Hostinger. Sem computador Windows. Decisão de 28/10/2026:
+concentrar o MT5 **na VPS**, dentro de Docker/Wine, com a tela aberta no **navegador do Mac** por
+túnel SSH.
 
-| Onde | Para quê | Fase |
-| --- | --- | --- |
-| MT5 no Mac | Conferir a conta, símbolos e exportar o histórico M1 **à mão** | 1 (agora) |
-| MT5 na VPS (Docker/Wine), tela via navegador do Mac | Terminal sempre ligado; ponte com Python; gravador de dados; execução simulada | 4 |
+| Fase | O que usa do MT5 na VPS |
+| --- | --- |
+| 1 — dados (agora) | Tela no navegador: login, símbolos, **exportação manual** das barras M1 |
+| 4 — ponte | Python ↔ MT5 por `mt5linux` (RPyC, porta 18812, só rede interna) |
+| 5 — simulação | Execução em demo pela ponte, com os limites de `config/risk.yaml` |
 
-O pacote Python `MetaTrader5` só existe para Windows. No Mac ele não roda; na VPS ele roda
-**dentro do Wine**, junto com o terminal. Por isso a exportação da Fase 1 é manual.
+Pré-requisito: Fase 0 (bootstrap, Docker e clone na VPS — `docs/vps-setup.md`).
 
-## 1. Instalar no Mac e entrar
+## Imagem
 
-1. Baixe o **MetaTrader 5 para macOS** no site da MetaQuotes (metatrader5.com → Download → macOS).
-   É o terminal Windows empacotado com Wine; em Macs com chip Apple roda via Rosetta.
-   O botão "Baixar MT5" do painel da Clear provavelmente entrega o instalador Windows (`.exe`).
-2. Arquivo → Abrir conta → digite o nome do **servidor do simulador da Clear** (enviado pela Clear
-   por e-mail ou no painel) → "Conectar com conta existente" → login e senha → salvar senha.
-3. Confirme no canto inferior direito que conectou (barra com a latência).
-4. Anote no Notion: nome exato do servidor e build do terminal (Ajuda → Sobre).
+`lprett/mt5linux` — mantida pelo autor do pacote `mt5linux` (github.com/lucas-campagna/mt5linux,
+pasta `docker/`). Alpine + Wine + MT5 em modo *portable* em `C:\MT5`, tela via noVNC, servidor RPyC
+e um *watchdog* que reinicia o terminal se ele travar. Na 1ª execução vem com negociação
+algorítmica **desligada** e "Máx. barras" = 1.000.000.
 
-Se o servidor da Clear não aparecer no app do Mac, peça à Clear o endereço do servidor demo
-(`IP:porta`) ou passe direto para o MT5 na VPS (Fase 4, `docker compose --profile mt5`).
+Por que não `gmag11/metatrader5_vnc` (a do rascunho no Notion): sem atualização desde 12/2025 e o
+script de partida instala `mt5linux>=0.1.9` sem fixar versão — hoje isso puxa a 1.x reescrita, cujo
+servidor não aceita mais os parâmetros que a imagem usa. A ponte Python ali provavelmente quebrou.
 
-## 2. Ajustes antes de puxar histórico
+Riscos da escolhida: projeto jovem e com mudanças frequentes. Por isso **fixar o digest** depois do
+primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da MetaQuotes para Wine.
 
-- Ferramentas → Opções → Gráficos → **Máx. barras no gráfico: Ilimitado** → OK → reiniciar o MT5.
-  Sem isso o terminal corta o histórico.
-- Ferramentas → Opções → Expert Advisors → "Permitir algoritmo de negociação" **desligado**.
-  Nesta fase só lemos dados.
+## 1. Subir
 
-## 3. Achar os símbolos contínuos
-
-Exibir → Símbolos (⌘U / Ctrl+U) → pesquisar `WIN` e `WDO`. Candidatos: `WIN$N`, `WDO$N`
-(e variações como `WIN$`, `WIN@`). Para cada um anote **descrição** e **caminho**, e pergunte à
-Clear qual a regra de rolagem (quando troca de vencimento e se há ajuste de preço).
-
-## 4. Exportar M1
-
-Símbolos → aba **Barras** → símbolo `WIN$N`, período **M1**, de **01/10/2018** até hoje →
-**Solicitar** → esperar terminar → **Exportar barras** → salvar como
-`WIN-N_M1_clear-mt5_AAAAMMDD.csv`. Repetir para `WDO$N`.
-
-A data pedida não garante a recebida: anote a **primeira linha** que veio. Se vier curto, clique
-em Solicitar de novo (o terminal baixa do servidor aos poucos) ou abra um gráfico M1 do símbolo e
-role para trás.
-
-## 5. Relatório de qualidade e envio para a VPS
-
-No Mac (Terminal), com Python 3.11+:
+Na VPS, em `~/robo-b3`:
 
 ```bash
-git clone git@github.com:Tmarfer/robo-b3.git && cd robo-b3
-python3 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-robob3 relatorio-dados ~/Downloads/WIN-N_M1_clear-mt5_*.csv
+nano .env                     # defina MT5_UI_PASSWORD (senha da tela)
+mkdir -p mt5-data data/raw
+docker compose --profile mt5 up -d mt5
+docker compose logs -f mt5    # esperar "All services started" (1ª vez leva alguns minutos)
 ```
 
-Enviar para a VPS (depois do bootstrap):
+## 2. Abrir a tela no Mac
+
+Com o `~/.ssh/config` do `docs/vps-setup.md` (túneis 8080 e 5901):
 
 ```bash
-scp ~/Downloads/W*-N_M1_clear-mt5_*.csv robo-b3:~/robo-b3/data/raw/
+ssh robo-b3
+```
+
+Deixe essa sessão aberta e acesse **http://localhost:8080** no navegador do Mac → Connect →
+senha `MT5_UI_PASSWORD`.
+
+## 3. Entrar na conta demo
+
+Arquivo → Abrir conta → digite o nome do **servidor do simulador da Clear** (enviado pela Clear) →
+"Conectar com conta existente" → login e senha → **salvar senha**. Confirme a conexão no canto
+inferior direito. Anote no Notion: nome exato do servidor e build (Ajuda → Sobre).
+
+Se o servidor não aparecer na busca, peça à Clear o endereço do servidor demo (`IP:porta`).
+
+## 4. Ajustes
+
+- Ferramentas → Opções → Gráficos → **Máx. barras no gráfico: Ilimitado** → reiniciar o terminal
+  (`docker compose restart mt5`).
+- Ferramentas → Opções → Expert Advisors → "Permitir algoritmo de negociação" **desligado**.
+
+## 5. Símbolos e exportação M1
+
+1. Exibir → Símbolos → pesquisar `WIN` e `WDO`. Candidatos: `WIN$N`, `WDO$N` (ou `WIN$`, `WIN@`).
+   Anote **descrição** e **caminho**; pergunte à Clear a regra de rolagem.
+2. Aba **Barras** → símbolo, período **M1**, de **01/10/2018** até hoje → **Solicitar** → esperar.
+3. **Exportar barras** → salvar em **`C:\export\`** com o nome `WIN-N_M1_clear-mt5_AAAAMMDD.csv`.
+   `C:\export` é a pasta `data/raw/` da VPS.
+4. Repetir para `WDO$N`. A data pedida não garante a recebida: anote a primeira linha que veio.
+   Se vier curto, Solicitar de novo ou abrir um gráfico M1 e rolar para trás.
+
+## 6. Relatório de qualidade
+
+```bash
+sudo chown -R "$USER" data/raw   # arquivos gravados pelo container saem como root
+make docker-build                 # primeira vez
+docker compose run --rm lab relatorio-dados data/raw/WIN-N_M1_clear-mt5_AAAAMMDD.csv
 ```
 
 Registrar no Notion, seção 4.1, por ativo: servidor, símbolo, primeira/última barra, pregões,
 lacunas, duplicados, SHA-256 e data da extração. Esse é o critério de saída da Fase 1.
 
-## Script `scripts/mt5_exportar.py`
+## 7. Fixar a versão da imagem
 
-Faz o mesmo que o passo 4 de forma reprodutível e grava um manifesto JSON, mas precisa do pacote
-`MetaTrader5`, ou seja, de um Python Windows: o Python dentro do Wine na VPS (Fase 4) ou uma VM
-Windows. Fica pronto para quando esse ambiente existir.
+Depois que login e exportação funcionarem:
+
+```bash
+docker inspect --format '{{index .RepoDigests 0}}' lprett/mt5linux:latest
+# colar o resultado (lprett/mt5linux@sha256:...) em MT5_IMAGE no .env e registrar no Notion
+```
+
+## Alternativa rápida: MT5 para macOS
+
+Para só olhar a conta ou comparar algo antes da VPS estar pronta: baixar o MT5 para macOS no site
+da MetaQuotes (é o terminal Windows empacotado com Wine; no chip Apple roda via Rosetta), entrar no
+servidor do simulador e usar os mesmos passos 4 e 5, salvando em `~/Downloads`. Depois
+`scp ~/Downloads/W*-N_M1_*.csv robo-b3:~/robo-b3/data/raw/`.
+
+## Ponte Python (Fase 4)
+
+- Cliente: `mt5linux==1.1.1` (fixar junto com o digest da imagem), conectando em `mt5:18812` pela
+  rede `trading` — **não** usar o modo em que a biblioteca cria containers sozinha.
+- `scripts/mt5_exportar.py` usa o pacote `MetaTrader5` (só Windows). Na Fase 4 ele será adaptado
+  para o cliente `mt5linux`, que expõe a mesma API.
 
 ## Cuidados
 
-- Os horários são os do **servidor** da corretora. Confirmar o fuso comparando um candle conhecido
-  (ex.: abertura das 9:00) com outra fonte.
-- `<VOL>` é o volume real (contratos); `<TICKVOL>` é o número de negócios/ticks.
+- Horários são os do **servidor** da corretora; confirmar o fuso com um candle conhecido.
+- `<VOL>` = volume real (contratos); `<TICKVOL>` = número de negócios/ticks.
 - Lacunas não são corrigidas, só identificadas.
-- `mt5linux` (ponte Python Linux ↔ MT5 no Wine): a versão 1.x no PyPI (jul–ago/2026) foi reescrita
-  pelo mesmo autor, cria o próprio container (`lprett/mt5linux`) e mudou a API. Não combina com a
-  imagem `gmag11/metatrader5_vnc` usada no rascunho do Notion. Escolher **uma** das duas na Fase 4 e
-  fixar versões.
+- Se a VPS reiniciar, o container volta sozinho (`restart: unless-stopped`); o histórico em
+  `mt5-data/` persiste. Na recriação do container a imagem reaplica a configuração inicial —
+  conferir login e "Máx. barras".

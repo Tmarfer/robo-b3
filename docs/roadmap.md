@@ -22,18 +22,19 @@ Prazos são estimativas, não compromissos.
 
 Objetivo: descobrir quanto histórico M1 de WIN/WDO é acessível de graça, com qualidade medida.
 
-Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). Ordem: MT5 agora;
-Profit Pro reavaliado no início do próximo mês.
+Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). Decisão de
+28/10/2026: só MT5 demo nesta fase, **na VPS**; Profit Pro adiado sem previsão. Depende da Fase 0.
 
 - [x] Ativar MT5 demo da Clear — contratado em 27/10/2026: painel mostra **Grátis**, conta netting
-- [ ] Instalar MT5 para macOS, logar no simulador da Clear, "Máx. barras no gráfico" = Ilimitado
+- [ ] Subir MT5 na VPS (`docker compose --profile mt5 up -d mt5`, imagem `lprett/mt5linux`)
+- [ ] Abrir a tela pelo túnel (http://localhost:8080), logar no simulador, "Máx. barras" = Ilimitado
+- [ ] Fixar o digest da imagem em `MT5_IMAGE` e registrar no Notion
 - [ ] Identificar símbolos contínuos (`WIN$N`, `WDO$N`? confirmar definição de rolagem na Clear)
-- [ ] Exportar M1 desde 10/2018 à mão (Símbolos > Barras); o pedido não garante o recebido
-- [ ] Enviar CSVs para `data/raw/` da VPS (`scp`, ver `vps-setup.md`)
+- [ ] Exportar M1 desde 10/2018 à mão (Símbolos > Barras) para `C:\export` (= `data/raw/`);
+      o pedido não garante o recebido
 - [ ] `robob3 relatorio-dados` em cada arquivo; registrar no Notion: servidor, símbolo, datas efetivas,
       nº de barras, lacunas, duplicados, SHA-256 do arquivo, data da extração
-- [ ] Conferir amostras com outra fonte (ex.: amostra Nelogica de WDO 02/03/2022, Profit se houver)
-- [ ] Decidir sobre o Profit Pro (precisa de Windows: VM no Mac ou Windows na nuvem) — ver Notion
+- [ ] Conferir amostras com outra fonte independente (ex.: amostra Nelogica de WDO 02/03/2022)
 - [ ] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas
 - [ ] Se o período for curto: testar outra corretora MT5 / Kaggle 2014–2018 (validar licença e qualidade)
 
@@ -62,10 +63,10 @@ iniciar o backtest". 10 anos é meta desejável, não condição.
 ## Fase 4 — MT5 demo na VPS + gravador de dados próprio
 
 Sem computador Windows, a VPS é o **único** lugar onde o MT5 fica ligado e conversa com Python.
+O container do MT5 já sobe na Fase 1; aqui entra a ponte.
 
-- [ ] Escolher a ponte: imagem `gmag11/metatrader5_vnc` + `mt5linux` 0.1.x **ou** `mt5linux` 1.x
-      com a imagem `lprett/mt5linux` (APIs diferentes — ver `docs/mt5.md`); fixar versões
-- [ ] Subir `docker compose --profile mt5 up -d mt5`, primeiro login via túnel noVNC
+- [ ] Cliente `mt5linux==1.1.1` (mesmo autor da imagem) num serviço na rede `trading` → `mt5:18812`
+- [ ] Adaptar `scripts/mt5_exportar.py` para o cliente `mt5linux`
 - [ ] Validar ponte Python ↔ MT5 (mt5linux/RPyC): `account_info`, `symbol_info`, `copy_rates_range`
 - [ ] Testar estabilidade: reinício do container, queda de rede, reconexão
 - [ ] Gravador **separado da execução**: M1 + ticks (se autorizados), com metadados de coleta, em Parquet

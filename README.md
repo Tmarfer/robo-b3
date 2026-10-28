@@ -25,7 +25,7 @@ robo-b3/
 ├── tests/                    # pytest
 ├── config/                   # risk.example.yaml (copiar para risk.yaml)
 ├── data/                     # raw/ e processed/ — fora do git
-├── docker-compose.yml        # lab (padrão) e mt5 (perfil experimental)
+├── docker-compose.yml        # lab (padrão) e mt5 (perfil: MT5 demo no Wine, tela via túnel)
 └── Dockerfile                # imagem do laboratório Python
 ```
 

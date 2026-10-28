@@ -1,6 +1,7 @@
 # Serviços por fase:
-#   lab  (padrão)  — Fase 1–3: dados e backtest.       docker compose run --rm lab <comando>
-#   mt5  (perfil)  — Fase 4: experimental, não validado. docker compose --profile mt5 up -d mt5
+#   lab  (padrão)  — dados e backtest.                 docker compose run --rm lab <comando>
+#   mt5  (perfil)  — MT5 demo no Wine, tela no navegador. docker compose --profile mt5 up -d mt5
+#                    Fase 1: tela + exportação manual. Fase 4: ponte Python (mt5linux/RPyC).
 # Os serviços da Fase 5 (bot, ponte de sinais, news-llm, dashboard) entram quando existirem.
 #
 # Docker publica portas por fora do ufw: toda porta fica presa a 127.0.0.1 (acesso via túnel SSH).
@@ -20,27 +21,38 @@ services:
 
   mt5:
     profiles: [mt5]
-    # Fixar uma tag específica depois de validar; confirmar no README da imagem os caminhos de
-    # volume, a porta do noVNC e como ativar o servidor mt5linux (RPyC, 8001).
-    image: gmag11/metatrader5_vnc:latest
+    # Imagem do autor do mt5linux (github.com/lucas-campagna/mt5linux, pasta docker/).
+    # Depois do 1º teste OK, fixar pelo digest: docker inspect --format '{{index .RepoDigests 0}}'
+    # lprett/mt5linux:latest  -> colar em MT5_IMAGE no .env. Atualizações só fora do pregão.
+    image: ${MT5_IMAGE:-lprett/mt5linux:latest}
     container_name: mt5
-    env_file:
-      - path: .env
-        required: false
+    environment:
+      # senha da tela (noVNC); vazia = sem senha — só aceitável porque a porta é local + túnel
+      UI_PASSWORD: ${MT5_UI_PASSWORD:-}
+      NOVNC_HOST: localhost        # o navegador do Mac chega pelo túnel SSH
+      # login automático opcional; vazio = entrar pela tela e salvar a senha no terminal
+      MT5_LOGIN: ${MT5_LOGIN:-}
+      MT5_SERVER: ${MT5_SERVER:-}
+      MT5_PASSWORD: ${MT5_PASSWORD:-}
     volumes:
-      - ./mt5-data:/config
+      # MT5 roda em modo portable em C:\MT5: histórico (Bases), perfis e MQL5 persistem aqui
+      - ./mt5-data:/opt/wineprefix/drive_c/MT5
+      # C:\export dentro do MT5 = data/raw/ no host — destino das exportações de barras
+      - ./data/raw:/opt/wineprefix/drive_c/export
     ports:
-      - "127.0.0.1:3000:3000"   # noVNC — via túnel SSH
+      - "127.0.0.1:8080:8080"   # página noVNC — via túnel SSH
+      - "127.0.0.1:5901:5901"   # websocket do noVNC — via túnel SSH
     expose:
-      - "8001"                  # mt5linux/RPyC — só rede interna
+      - "18812"                 # mt5linux/RPyC — só rede interna (Fase 4)
     networks: [trading]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8001 || exit 1"]
+      # mostra estado; não reinicia sozinho (a imagem tem watchdog próprio para o terminal)
+      test: ["CMD-SHELL", "nc -z localhost 18812 || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 5
-      start_period: 120s
+      start_period: 180s
     deploy:
       resources:
         limits:
