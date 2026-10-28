@@ -115,3 +115,12 @@ locais não commitadas. Fazer fora do pregão quando o MT5 estiver rodando.
 - `.env` e `config/risk.yaml` ficam fora do git (`chmod 600 .env`).
 - A senha do MT5 fica no próprio terminal (salvar senha no primeiro login), não no `.env`.
 - O painel da Hostinger tem um firewall próprio; se ativar, libere só a porta 22.
+
+## O que NÃO roda na VPS: Profit Pro
+
+Resposta da Nelogica (27/10/2026, solicitação 3427474): no Linux, editor NTSL, automação em
+simulação e exportação de dados não estão disponíveis, e a licença do Profit Pro vendido pela Clear
+ainda depende de validação para Linux. A alternativa (VM Windows na VPS) não tem suporte deles.
+
+Decisão: **Profit Pro fica no computador Windows**. A VPS cuida de Python, dados, backtest,
+monitoramento e MT5 demo. Detalhes no Notion, seção "Compatibilidade do Profit Pro com a VPS Linux".

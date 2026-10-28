@@ -33,6 +33,8 @@ Guia: [mt5-windows.md](mt5-windows.md). Ordem: MT5 agora; Profit Pro só no iní
 - [ ] `robob3 relatorio-dados` em cada arquivo; registrar no Notion: servidor, símbolo, datas efetivas,
       nº de barras, lacunas, duplicados, SHA-256 do arquivo, data da extração
 - [ ] Comparar amostras com o Profit (mesmo dia, mesmos horários) — quando o Profit for ativado
+- [ ] Antes de contratar o Profit Pro: confirmar com a Clear a licença (automação no simulador e
+      exportação no Desktop Windows). O Profit roda no PC Windows, não na VPS
 - [ ] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas
 - [ ] Se o período for curto: testar outra corretora MT5 / Kaggle 2014–2018 (validar licença e qualidade)
 
