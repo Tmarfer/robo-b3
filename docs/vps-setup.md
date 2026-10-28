@@ -5,7 +5,7 @@ numerados na ordem de execução. Todos podem ser rodados de novo sem estragar o
 
 ## 1. Chave SSH no seu computador (uma vez)
 
-No Windows (PowerShell) ou Linux/macOS:
+No Terminal do Mac:
 
 ```bash
 ssh-keygen -t ed25519 -C "robo-b3" -f ~/.ssh/robo-b3
@@ -14,7 +14,7 @@ ssh-keygen -t ed25519 -C "robo-b3" -f ~/.ssh/robo-b3
 No hPanel da Hostinger: **VPS → Configurações → Chaves SSH → Adicionar** e cole o conteúdo de
 `~/.ssh/robo-b3.pub`. (Ou, se ainda entra com senha: `ssh-copy-id -i ~/.ssh/robo-b3.pub root@IP_DA_VPS`.)
 
-Adicione ao `~/.ssh/config` do seu computador (no Windows: `C:\Users\SEU_USUARIO\.ssh\config`):
+Adicione ao `~/.ssh/config` do Mac:
 
 ```sshconfig
 Host robo-b3-root
@@ -30,7 +30,15 @@ Host robo-b3
     # túneis: dashboard (8080) e noVNC do MT5 (3000)
     LocalForward 8080 127.0.0.1:8080
     LocalForward 3000 127.0.0.1:3000
+
+Host *
+    AddKeysToAgent yes
+    UseKeychain yes
 ```
+
+Para o `ForwardAgent` levar sua chave do **GitHub** até a VPS (push a partir do Antigravity),
+carregue-a no agente do macOS uma vez: `ssh-add --apple-use-keychain ~/.ssh/id_ed25519`
+(troque pelo nome da sua chave do GitHub). Confira com `ssh-add -l`.
 
 ## 2. Bootstrap (como root, uma vez)
 
@@ -122,5 +130,6 @@ Resposta da Nelogica (27/10/2026, solicitação 3427474): no Linux, editor NTSL,
 simulação e exportação de dados não estão disponíveis, e a licença do Profit Pro vendido pela Clear
 ainda depende de validação para Linux. A alternativa (VM Windows na VPS) não tem suporte deles.
 
-Decisão: **Profit Pro fica no computador Windows**. A VPS cuida de Python, dados, backtest,
-monitoramento e MT5 demo. Detalhes no Notion, seção "Compatibilidade do Profit Pro com a VPS Linux".
+Não há computador Windows no projeto (só Mac). Decisão sobre o Profit Pro adiada para o início do
+próximo mês — opções no Notion, seção "Compatibilidade do Profit Pro com a VPS Linux". A VPS cuida
+de Python, dados, backtest, monitoramento e MT5 demo.

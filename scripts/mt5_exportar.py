@@ -1,6 +1,8 @@
 """Exporta barras do MT5 para data/raw/ no mesmo formato do export manual + manifesto JSON.
 
-Roda no WINDOWS, com o terminal MT5 aberto e logado na conta demo (só leitura: não envia ordens).
+Requer o pacote MetaTrader5, que só existe para Python WINDOWS: rodar no Python dentro do Wine
+(MT5 na VPS, Fase 4) ou numa VM Windows, com o terminal aberto e logado na conta demo.
+Só leitura: não envia ordens. No Mac, exportar à mão (docs/mt5.md).
 
     pip install -e ".[mt5]"
     python scripts/mt5_exportar.py --listar WIN
@@ -9,7 +11,7 @@ Roda no WINDOWS, com o terminal MT5 aberto e logado na conta demo (só leitura: 
 No PowerShell use aspas SIMPLES em 'WIN$N' (sem elas, $N vira variável vazia).
 
 Antes: no MT5, Ferramentas > Opções > Gráficos > "Máx. barras no gráfico" = Ilimitado.
-Ver docs/mt5-windows.md.
+Ver docs/mt5.md.
 """
 
 from __future__ import annotations
