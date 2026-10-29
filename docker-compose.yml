@@ -26,7 +26,17 @@ services:
     # lprett/mt5linux:latest  -> colar em MT5_IMAGE no .env. Atualizações só fora do pregão.
     image: ${MT5_IMAGE:-lprett/mt5linux:latest}
     container_name: mt5
+    entrypoint:
+      - sh
+      - -c
+      - |
+        rm -f /opt/wineprefix/drive_c/server
+        sed -i 's/1024x768x16/$${SCREEN_RESOLUTION:-1440x900x24}/g' /app/src/xvfb.sh 2>/dev/null || true
+        sed -i 's|mkfifo -m 666 .*|rm -f /opt/wineprefix/drive_c/server; mkfifo -m 666 /opt/wineprefix/drive_c/server|' /app/src/automation.sh 2>/dev/null || true
+        exec /app/src/main.sh
     environment:
+      # resolução da tela virtual (padrão 1440x900 widescreen para caber no Mac sem cortar)
+      SCREEN_RESOLUTION: ${SCREEN_RESOLUTION:-1440x900x24}
       # senha da tela (noVNC); vazia = sem senha — só aceitável porque a porta é local + túnel
       UI_PASSWORD: ${MT5_UI_PASSWORD:-}
       NOVNC_HOST: localhost        # o navegador do Mac chega pelo túnel SSH
