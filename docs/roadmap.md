@@ -18,7 +18,7 @@ Prazos são estimativas, não compromissos.
 
 **Saída:** `make test` passa no GitHub Actions **e** dentro do container `lab` na VPS (27 passed).
 
-## Fase 1 — Dados (prioridade) ✅ concluída em 29/10/2026
+## Fase 1 — Dados (atual — 1ª extração feita em 29/10/2026)
 
 Objetivo: descobrir quanto histórico M1 de WIN/WDO é acessível de graça, com qualidade medida.
 
@@ -28,19 +28,27 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 - [x] Ativar MT5 demo da Clear — contratado em 27/10/2026: painel mostra **Grátis**, conta netting
 - [x] Subir MT5 na VPS (`docker compose --profile mt5 up -d mt5`, imagem `lprett/mt5linux`) — 28/10
 - [x] Fixar o digest da imagem em `MT5_IMAGE` e registrar no Notion — 29/10
-- [x] Abrir a tela pelo túnel (http://localhost:8080), logar no simulador, "Máx. barras" = Ilimitado
+- [x] Abrir a tela pelo túnel (http://localhost:8080) e logar no simulador (`ClearInvestimentos-DEMO`)
+- [ ] "Máx. barras no gráfico" = Ilimitado, reiniciar o terminal e **reexportar** — a 1ª extração parou
+      em ~100 mil barras (WDO exatamente 100.000), sinal de limite do terminal
+- [ ] Confirmar negociação algorítmica desligada
 - [x] Confirmar `healthy` em `docker compose ps` (healthcheck revisado: lê `/proc/net/tcp`)
 - [x] Identificar símbolos contínuos (`WIN$N`, `WDO$N`)
+- [ ] Identificar a regra de rolagem da Clear para as séries `$N`
 - [x] Exportar M1 desde 10/2018 à mão (Símbolos > Barras) para `C:\export` (= `data/raw/`);
-      Clear Demo entregou ~100k barras/177-180 pregões de M1 (cobertura efetiva de 02/2026 a 10/2026)
+      1ª extração: ~100 mil barras, 177–180 pregões (02/2026 → 29/10/2026) — ver Notion, seção 4.1
 - [x] `robob3 relatorio-dados` em cada arquivo; registrar no Notion: servidor, símbolo, datas efetivas,
       nº de barras, lacunas, duplicados, SHA-256 do arquivo, data da extração
 - [ ] Conferir amostras com outra fonte independente (ex.: amostra Nelogica de WDO 02/03/2022)
 - [x] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas (Parquet salvo em `data/processed/`)
-- [x] Se o período for curto: testar outra corretora MT5 / Kaggle 2014–2018 (validar licença e qualidade)
+- [ ] Se o período continuar curto após a reexportação: outra corretora MT5 / Kaggle 2014–2018
+      (validar licença e qualidade)
+- [ ] Remover pregões parciais das pontas (1º dia começa no meio do pregão; último dia da extração)
 
 **Saída:** tabela no Notion com cobertura real por ativo e decisão "o período disponível basta para
-iniciar o backtest" (100k barras M1 de WIN e WDO cobrem 180 pregões com integridade 100%, suficiente para iniciar). 10 anos é meta desejável, não condição.
+iniciar o backtest". 10 anos é meta desejável, não condição. Situação em 29/10: dados da 1ª extração
+limpos (sem OHLC inconsistente, duplicados ou volume zero), mas só ~8,5 meses — suficiente para
+prototipar regras (Fase 2), insuficiente para validação fora da amostra (Fase 3).
 
 ## Fase 2 — Especificação da estratégia
 
