@@ -6,15 +6,15 @@ Prazos são estimativas, não compromissos.
 
 ---
 
-## Fase 0 — Infraestrutura e repositório
+## Fase 0 — Infraestrutura e repositório ✅ concluída em 29/10/2026
 
-- [ ] Criar repositório privado `robo-b3` no GitHub e subir este código
-- [ ] VPS: rodar `infra/vps/00-bootstrap.sh` (usuário, SSH por chave, firewall, fuso, swap)
-- [ ] Confirmar login `ssh robo-b3` (alias) **antes** de fechar a sessão root
-- [ ] Antigravity conectado via Remote-SSH no alias `robo-b3`
-- [ ] VPS: `01-docker.sh`, `02-github.sh`, clonar o repo
-- [ ] VPS: `03-diagnostico.sh` → colar o resultado no Notion (CPU, RAM, disco, virtualização aninhada)
-- [ ] CI verde no GitHub (ruff + pytest)
+- [x] Criar repositório privado `robo-b3` no GitHub e subir este código
+- [x] VPS: rodar `infra/vps/00-bootstrap.sh` (usuário, SSH por chave, firewall, fuso, swap)
+- [x] Confirmar login `ssh robo-b3` (alias) **antes** de fechar a sessão root
+- [x] Antigravity conectado via Remote-SSH no alias `robo-b3`
+- [x] VPS: `01-docker.sh`, `02-github.sh`, clonar o repo
+- [x] VPS: `03-diagnostico.sh` → resultado no Notion (sem virtualização aninhada; 7,8 GiB RAM)
+- [x] CI verde no GitHub (ruff + pytest)
 
 **Saída:** `make test` passa no GitHub Actions **e** dentro do container `lab` na VPS.
 
@@ -26,9 +26,10 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 28/10/2026: só MT5 demo nesta fase, **na VPS**; Profit Pro adiado sem previsão. Depende da Fase 0.
 
 - [x] Ativar MT5 demo da Clear — contratado em 27/10/2026: painel mostra **Grátis**, conta netting
-- [ ] Subir MT5 na VPS (`docker compose --profile mt5 up -d mt5`, imagem `lprett/mt5linux`)
+- [x] Subir MT5 na VPS (`docker compose --profile mt5 up -d mt5`, imagem `lprett/mt5linux`) — 28/10
 - [ ] Abrir a tela pelo túnel (http://localhost:8080), logar no simulador, "Máx. barras" = Ilimitado
-- [ ] Fixar o digest da imagem em `MT5_IMAGE` e registrar no Notion
+- [x] Fixar o digest da imagem em `MT5_IMAGE` e registrar no Notion — 29/10
+- [ ] Confirmar `healthy` em `docker compose ps` (healthcheck revisado: lê `/proc/net/tcp`)
 - [ ] Identificar símbolos contínuos (`WIN$N`, `WDO$N`? confirmar definição de rolagem na Clear)
 - [ ] Exportar M1 desde 10/2018 à mão (Símbolos > Barras) para `C:\export` (= `data/raw/`);
       o pedido não garante o recebido

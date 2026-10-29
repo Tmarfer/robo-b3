@@ -116,7 +116,20 @@ bash infra/vps/deploy.sh
 Faz `git pull --ff-only`, reconstrói a imagem e roda os testes. Recusa se houver alterações
 locais não commitadas. Fazer fora do pregão quando o MT5 estiver rodando.
 
+## VPS compartilhada
+
+A VPS também roda outros serviços que **não fazem parte do projeto** e devem ser preservados:
+`hermes-dashboard` (porta 8000), `hermes-gateway` e a stack `buzz-prod` (porta 80; Postgres,
+Redis, MinIO). O ufw libera 22, 80, 443 e 8000. O `00-bootstrap.sh` não apaga regras existentes
+do ufw. Antes de subir serviços novos do robô, rodar o diagnóstico e conferir a memória livre
+(o `mt5` tem limite de 3 GB).
+
 ## Segurança — lembretes
+
+- `sudo` do usuário `robo` deve pedir senha. Se estiver sem senha (NOPASSWD), quem entrar nessa
+  conta vira root. Para conferir: `sudo -l`; para voltar a pedir senha, remover o arquivo
+  correspondente em `/etc/sudoers.d/` (com `sudo visudo -c` antes de sair da sessão).
+- `MT5_UI_PASSWORD` no `.env`: senha forte, mesmo com a porta presa em 127.0.0.1.
 
 - Docker publica portas **por fora do ufw**. No `docker-compose.yml` toda porta é presa a
   `127.0.0.1`; acesso só pelos túneis SSH.

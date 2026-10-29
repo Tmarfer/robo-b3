@@ -47,8 +47,9 @@ services:
     networks: [trading]
     restart: unless-stopped
     healthcheck:
-      # mostra estado; não reinicia sozinho (a imagem tem watchdog próprio para o terminal)
-      test: ["CMD-SHELL", "nc -z localhost 18812 || exit 1"]
+      # mostra estado; não reinicia sozinho (a imagem tem watchdog próprio para terminal e RPyC).
+      # Lê /proc/net/tcp em vez de depender do nc da imagem: 18812 = 0x4974, estado 0A = LISTEN
+      test: ["CMD-SHELL", "grep -qiE ':4974 [0-9a-f]{8}:0000 0A' /proc/net/tcp /proc/net/tcp6"]
       interval: 30s
       timeout: 5s
       retries: 5

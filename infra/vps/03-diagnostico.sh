@@ -45,6 +45,12 @@ if command -v docker >/dev/null; then
   docker --version
   docker compose version
   docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+  echo
+  echo "Memória por container:"
+  docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}'
+  echo
+  echo "Portas publicadas em todas as interfaces (abertas à internet, passam por fora do ufw):"
+  docker ps --format '{{.Names}}: {{.Ports}}' | grep -E '0\.0\.0\.0:|\[::\]:|:::' || echo "nenhuma"
 else
   echo "Docker não instalado"
 fi
