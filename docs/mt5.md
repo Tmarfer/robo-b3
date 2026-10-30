@@ -43,6 +43,12 @@ primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da
   o terminal também pode não responder). **Feito:** imagem própria `infra/mt5/Dockerfile` (base
   `lprett/mt5linux` fixada por digest, Alpine 3.20, com o Wine do Alpine edge). Em 30/10 o terminal
   subiu em `Wine 11.0` sem o aviso. A ponte ainda não foi validada: falta a conta demo logada.
+- **Loop de reinício com o Wine 11** (achado pelo Codex em 30/10, 187 reinícios). No reinício, a
+  função `apply_mt5_config` da imagem devolve 1 quando não é a primeira execução, e o `set -e` do
+  script principal encerra o container antes do MT5. Além disso, o Wine 11 rejeita
+  `wineboot -init` (o certo é `-i`) e precisa de GnuTLS. Os três ajustes estão no
+  `infra/mt5/Dockerfile`, com `grep -q` para o build falhar se a imagem base mudar. Wine instalado:
+  `11.0-r0` (Alpine edge, 30/10/2026).
 - **Não** alterar nem desmontar o `terminal64.exe` e não usar chaves não documentadas no
   `common.ini`: além de frágil a cada atualização, sai do uso permitido do terminal.
 - O healthcheck procurava a porta errada (`0x4974` = 18804); o certo é `0x497C` = 18812.
