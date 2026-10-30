@@ -103,8 +103,9 @@ na 1ª nota) com sensibilidade a R$ 0,50/lado como critério de aprovação.
       com commit completo, SHA-256 dos dados, custos, derrapagem, modo de ambiguidade, trecho e **uma
       linha por combinação** (expectativa, acerto, percentil contra o aleatório, barras ambíguas…).
       Rodar sempre por `infra/vps/lab.sh`, que reconstrói a imagem e passa o hash do commit
-- [ ] Regerar os manifestos da `win-orb-v1` no desenvolvimento (conservadora e otimista) e substituir
-      as linhas do DB Backtests no Notion por uma linha por combinação
+- [x] Manifestos da `win-orb-v1` no desenvolvimento (30/10, commit `125823d`): números idênticos aos
+      registrados. Percentil contra o aleatório: 0 a 27 (conservadora) e 4 a 56 (otimista), sempre
+      abaixo de 95. As 18 linhas do DB Backtests no Notion saem desses arquivos
 - [ ] Fora da amostra (só se o desenvolvimento aprovar): `--periodo fora-da-amostra
       --confirmo-fora-da-amostra`, uma única vez
 - [ ] Tratamento de rolagem (comparar série ajustada × não ajustada)

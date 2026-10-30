@@ -21,10 +21,10 @@ services:
 
   mt5:
     profiles: [mt5]
-    # Imagem do autor do mt5linux (github.com/lucas-campagna/mt5linux, pasta docker/).
-    # Depois do 1º teste OK, fixar pelo digest: docker inspect --format '{{index .RepoDigests 0}}'
-    # lprett/mt5linux:latest  -> colar em MT5_IMAGE no .env. Atualizações só fora do pregão.
-    image: ${MT5_IMAGE:-lprett/mt5linux:latest}
+    # lprett/mt5linux (autor do mt5linux) fixada por digest + Wine >= 10: infra/mt5/Dockerfile.
+    # Refazer só de propósito e fora do pregão: docker compose --profile mt5 build mt5
+    build: infra/mt5
+    image: ${MT5_IMAGE:-robo-b3-mt5:wine11}
     container_name: mt5
     # Nome de máquina fixo: o MT5 apaga Config/accounts.dat ("deleted due security reason") quando a
     # identidade da máquina muda, e cada recriação do container trazia um hostname novo.

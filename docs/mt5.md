@@ -40,8 +40,9 @@ primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da
   6092 e avisa `unstable and unsupported Wine 9.0 ... please upgrade to Wine 10.0 or later`; a
   imagem `lprett/mt5linux` usa Wine 9.0. Hipótese do Antigravity: nesse build o pipe IPC usado pelo
   pacote `MetaTrader5` não abre em Wine < 10. A confirmar depois de a conta estar logada (sem conta
-  o terminal também pode não responder). Caminho previsto: imagem própria, versionada no repositório,
-  com Wine ≥ 10 (a base é Alpine; a versão do Wine vem da versão do Alpine).
+  o terminal também pode não responder). **Feito:** imagem própria `infra/mt5/Dockerfile` (base
+  `lprett/mt5linux` fixada por digest, Alpine 3.20, com o Wine do Alpine edge). Em 30/10 o terminal
+  subiu em `Wine 11.0` sem o aviso. A ponte ainda não foi validada: falta a conta demo logada.
 - **Não** alterar nem desmontar o `terminal64.exe` e não usar chaves não documentadas no
   `common.ini`: além de frágil a cada atualização, sai do uso permitido do terminal.
 - O healthcheck procurava a porta errada (`0x4974` = 18804); o certo é `0x497C` = 18812.
