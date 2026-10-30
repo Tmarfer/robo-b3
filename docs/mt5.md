@@ -92,7 +92,8 @@ O relatório mostra a abertura/fechamento típicos e lista os **pregões incompl
   (ex.: Quarta-feira de Cinzas abre às 13:00 — dia real de negociação, não remover) ou problema
   nos dados. Só remover com `--remover-internos`, depois de investigar e registrar no Notion.
 
-Para ver dia a dia: `robob3 pregoes ARQUIVO`. Antes do backtest, descartar as pontas:
+Para ver dia a dia: `robob3 pregoes ARQUIVO`. Para os maiores saltos entre o fechamento de um dia e
+a abertura do seguinte (rolagem da série `$N`, eventos): `robob3 gaps ARQUIVO --top 15`. Antes do backtest, descartar as pontas:
 
 ```bash
 docker compose run --rm lab remover-incompletos data/raw/WIN-N_M1_clear-mt5_AAAAMMDD.csv \

@@ -112,3 +112,22 @@ def test_cli_remover_e_reamostrar(extracao, tmp_path, capsys):
     assert main(["pregoes", str(bruto)]) == 0
     saida = capsys.readouterr().out
     assert "2026-02-13,15:35,18:29," in saida
+
+
+def test_gaps_abertura_ordena_pelo_maior_salto():
+    from robob3.data import gaps_abertura
+
+    df = _barras(_dia("2026-10-13"), _dia("2026-10-14"), _dia("2026-10-15"))
+    # simula rolagem não ajustada: série inteira de 15/10 sobe 2.000 pontos
+    df.loc["2026-10-15", ["open", "high", "low", "close"]] += 2000
+    gaps = gaps_abertura(df)
+    assert list(gaps.index.strftime("%Y-%m-%d")) == ["2026-10-15", "2026-10-14"]
+    assert gaps.iloc[0]["gap_pts"] == 2001  # +1 da sequência sintética + 2.000 do salto
+    assert gaps.iloc[1]["gap_pts"] == 1
+
+
+def test_cli_gaps(capsys, tmp_path):
+    df = _barras(_dia("2026-10-13"), _dia("2026-10-14"))
+    arq = escrever_barras_mt5(df, tmp_path / "x.csv")
+    assert main(["gaps", str(arq), "--top", "5"]) == 0
+    assert "2026-10-14,Wed,5569,5570,+1,+0.02" in capsys.readouterr().out

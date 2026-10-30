@@ -117,3 +117,21 @@ def remover_pregoes_incompletos(
     removidos = [p for p in incompletos if p.ponta or internos]
     fora = pd.to_datetime([p.data for p in removidos])
     return df[~df.index.normalize().isin(fora)], removidos
+
+
+def gaps_abertura(df: pd.DataFrame) -> pd.DataFrame:
+    """Salto entre o fechamento de um pregão e a abertura do seguinte, por dia.
+
+    Em série contínua (`WIN$N`, `WDO$N`), saltos grandes nas datas de vencimento indicam a
+    rolagem e se a série é ajustada (sem salto) ou não; fora delas, eventos de mercado.
+    Ordenado pelo tamanho do salto, maior primeiro.
+    """
+    limpo = df[~df.index.duplicated(keep="first")].sort_index()
+    g = limpo.groupby(limpo.index.normalize())
+    dia = pd.DataFrame({"abertura": g["open"].first(), "fechamento": g["close"].last()})
+    dia["fech_anterior"] = dia["fechamento"].shift()
+    dia["gap_pts"] = dia["abertura"] - dia["fech_anterior"]
+    dia["gap_pct"] = 100 * dia["gap_pts"] / dia["fech_anterior"]
+    dia.index.name = "data"
+    dia = dia.dropna(subset=["fech_anterior"])
+    return dia.reindex(dia["gap_pct"].abs().sort_values(ascending=False).index)

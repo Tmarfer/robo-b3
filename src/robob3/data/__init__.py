@@ -4,6 +4,7 @@ from robob3.data.resample import reamostrar
 from robob3.data.sessions import (
     PregaoIncompleto,
     detectar_incompletos,
+    gaps_abertura,
     remover_pregoes_incompletos,
     resumo_pregoes,
 )
@@ -16,6 +17,7 @@ __all__ = [
     "reamostrar",
     "PregaoIncompleto",
     "detectar_incompletos",
+    "gaps_abertura",
     "remover_pregoes_incompletos",
     "resumo_pregoes",
 ]

@@ -13,6 +13,7 @@ from robob3.config import carregar_config
 from robob3.data import (
     avaliar_barras,
     escrever_barras_mt5,
+    gaps_abertura,
     ler_barras_mt5,
     reamostrar,
     remover_pregoes_incompletos,
@@ -81,6 +82,17 @@ def cmd_pregoes(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_gaps(args: argparse.Namespace) -> int:
+    gaps = gaps_abertura(ler_barras_mt5(args.arquivo)).head(args.top)
+    print("data,dia_semana,fech_anterior,abertura,gap_pts,gap_pct")
+    for dia, r in gaps.iterrows():
+        print(
+            f"{dia:%Y-%m-%d},{dia:%a},{r.fech_anterior:g},{r.abertura:g},"
+            f"{r.gap_pts:+g},{r.gap_pct:+.2f}"
+        )
+    return 0
+
+
 def cmd_remover_incompletos(args: argparse.Namespace) -> int:
     df = ler_barras_mt5(args.arquivo)
     limpo = _remover_incompletos(df, args)
@@ -133,6 +145,13 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("pregoes", help="primeira/última barra e nº de barras de cada dia (CSV)")
     g.add_argument("arquivo")
     g.set_defaults(func=cmd_pregoes)
+
+    v = sub.add_parser(
+        "gaps", help="maiores saltos fechamento -> abertura seguinte (rolagem, eventos)"
+    )
+    v.add_argument("arquivo")
+    v.add_argument("--top", type=int, default=15)
+    v.set_defaults(func=cmd_gaps)
 
     x = sub.add_parser(
         "remover-incompletos", parents=[pregao], help="descarta pregões cortados nas pontas"
