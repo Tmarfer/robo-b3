@@ -35,7 +35,6 @@ services:
       - |
         rm -f /opt/wineprefix/drive_c/server
         sed -i 's/1024x768x16/$${SCREEN_RESOLUTION:-1440x900x24}/g' /app/src/xvfb.sh 2>/dev/null || true
-        sed -i 's|mkfifo -m 666 .*|rm -f /opt/wineprefix/drive_c/server; mkfifo -m 666 /opt/wineprefix/drive_c/server|' /app/src/automation.sh 2>/dev/null || true
         exec /app/src/main.sh
     environment:
       # resolução da tela virtual (padrão 1440x900 widescreen para caber no Mac sem cortar)
