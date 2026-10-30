@@ -5,6 +5,7 @@ config/risk.yaml
 # dados de mercado (licença/volume) e estado de runtime
 data/raw/*
 data/processed/*
+data/resultados/
 !data/**/.gitkeep
 logs/
 mt5-data/

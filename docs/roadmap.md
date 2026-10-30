@@ -90,7 +90,15 @@ na 1ª nota) com sensibilidade a R$ 0,50/lado como critério de aprovação.
 
 ## Fase 3 — Backtest em Python (atual)
 
-- [ ] Motor de backtest barra a barra com custos, spread e derrapagem configuráveis
+- [x] Motor de backtest barra a barra da `win-orb-v1` (`src/robob3/backtest/orb.py`), com custos e
+      derrapagem configuráveis; 14 testes reproduzem o exemplo da especificação e cada regra de barra
+      ambígua. Sanidade: em passeio aleatório, fator de lucro ~1,0 e percentil ~65 contra o aleatório
+- [ ] Rodar o desenvolvimento na VPS:
+      `docker compose run --rm lab backtest-orb data/raw/WIN-N_M5_clear-mt5_20261030.csv --grade`,
+      escolher a combinação pela região estável e rodar a escolhida com `--aleatorio 1000`;
+      registrar no Notion e avaliar os 7 critérios da especificação
+- [ ] Fora da amostra (só se o desenvolvimento aprovar): `--periodo fora-da-amostra
+      --confirmo-fora-da-amostra`, uma única vez
 - [ ] Tratamento de rolagem (comparar série ajustada × não ajustada)
 - [ ] Métricas: resultado líquido, drawdown máximo, expectativa por operação, frequência, por ano/regime
 - [ ] Validação temporal progressiva (walk-forward)

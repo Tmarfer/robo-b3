@@ -9,6 +9,7 @@ import sys
 from datetime import time
 from pathlib import Path
 
+from robob3.backtest import PERIODOS, ParametrosORB, backtest_orb, entrada_aleatoria, resumo
 from robob3.config import carregar_config
 from robob3.data import (
     ajustar_rolagem,
@@ -157,6 +158,59 @@ def cmd_reamostrar(args: argparse.Namespace) -> int:
     return 0
 
 
+GRADE_ORB = [(s, a) for s in (150, 200, 300) for a in (1.5, 2.0, 3.0)]
+
+
+def cmd_backtest_orb(args: argparse.Namespace) -> int:
+    if args.periodo == "fora-da-amostra" and not args.confirmo_fora_da_amostra:
+        print(
+            "O período fora da amostra roda UMA vez, com a combinação escolhida no\n"
+            "desenvolvimento. Se é isso, repita com --confirmo-fora-da-amostra."
+        )
+        return 2
+    inicio, fim = PERIODOS[args.periodo]
+    df = ler_barras_mt5(args.arquivo)
+    print(f"win-orb-v1 | {args.periodo}: {inicio} a {fim} | custo R$ {args.custo:.2f}/lado")
+
+    if args.grade:
+        print(
+            "stop,alvo,operacoes,resultado_brl,resultado_custo_0.50,fator_lucro,acerto_pct,"
+            "drawdown_max,por_ano"
+        )
+        for stop, alvo in GRADE_ORB:
+            p = ParametrosORB(stop=stop, alvo=alvo, custo_lado=args.custo)
+            r = resumo(backtest_orb(df, p, inicio, fim).operacoes)
+            if not r["operacoes"]:
+                print(f"{stop:g},{alvo:g},0")
+                continue
+            estresse = r["resultado_brl"] - r["operacoes"] * 2 * (0.50 - args.custo)
+            anos = " ".join(f"{a}:{v:+.2f}" for a, v in r["por_ano"].items())
+            print(
+                f"{stop:g},{alvo:g},{r['operacoes']},{r['resultado_brl']:.2f},{estresse:.2f},"
+                f"{r['fator_lucro']},{r['acerto_pct']},{r['drawdown_max']:.2f},{anos}"
+            )
+        return 0
+
+    p = ParametrosORB(stop=args.stop, alvo=args.alvo, custo_lado=args.custo)
+    res = backtest_orb(df, p, inicio, fim)
+    r = resumo(res.operacoes)
+    saida = {"parametros": {"stop": p.stop, "alvo": p.alvo, "custo_lado": p.custo_lado}} | r
+    if r["operacoes"]:
+        saida["resultado_custo_0.50"] = round(
+            r["resultado_brl"] - r["operacoes"] * 2 * (0.50 - args.custo), 2
+        )
+        saida["dias_sem_operacao"] = res.sem_operacao["motivo"].value_counts().to_dict()
+        if args.aleatorio:
+            saida["entrada_aleatoria"] = entrada_aleatoria(df, res, sorteios=args.aleatorio)
+    print(json.dumps(saida, ensure_ascii=False, indent=2))
+    if args.operacoes:
+        destino = Path(args.operacoes)
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        res.operacoes.to_csv(destino, index=False)
+        print(f"operações: {destino}")
+    return 0
+
+
 def cmd_validar_config(args: argparse.Namespace) -> int:
     cfg = carregar_config(args.arquivo)
     print(json.dumps(cfg.model_dump(mode="json"), ensure_ascii=False, indent=2))
@@ -234,6 +288,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     a.add_argument("--remover-internos", action="store_true", help=_AJUDA_INTERNOS)
     a.set_defaults(func=cmd_reamostrar)
+
+    b = sub.add_parser("backtest-orb", help="backtest da win-orb-v1 (docs/estrategias)")
+    b.add_argument("arquivo", help="CSV M5 do WIN (formato MT5)")
+    b.add_argument("--periodo", choices=sorted(PERIODOS), default="desenvolvimento")
+    b.add_argument("--confirmo-fora-da-amostra", action="store_true")
+    b.add_argument("--grade", action="store_true", help="as 9 combinações da especificação")
+    b.add_argument("--stop", type=float, default=200)
+    b.add_argument("--alvo", type=float, default=2.0, help="múltiplo do stop")
+    b.add_argument("--custo", type=float, default=0.25, help="R$ por contrato por lado")
+    b.add_argument("--aleatorio", type=int, default=1000, help="sorteios (0 = não rodar)")
+    b.add_argument("--operacoes", help="CSV de saída com cada operação")
+    b.set_defaults(func=cmd_backtest_orb)
 
     c = sub.add_parser("validar-config", help="valida config/risk.yaml")
     c.add_argument("arquivo", nargs="?", default="config/risk.yaml")
