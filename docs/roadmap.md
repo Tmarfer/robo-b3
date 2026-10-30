@@ -93,10 +93,11 @@ na 1ª nota) com sensibilidade a R$ 0,50/lado como critério de aprovação.
 - [x] Motor de backtest barra a barra da `win-orb-v1` (`src/robob3/backtest/orb.py`), com custos e
       derrapagem configuráveis; 14 testes reproduzem o exemplo da especificação e cada regra de barra
       ambígua. Sanidade: em passeio aleatório, fator de lucro ~1,0 e percentil ~65 contra o aleatório
-- [ ] Rodar o desenvolvimento na VPS:
-      `docker compose run --rm lab backtest-orb data/raw/WIN-N_M5_clear-mt5_20261030.csv --grade`,
-      escolher a combinação pela região estável e rodar a escolhida com `--aleatorio 1000`;
-      registrar no Notion e avaliar os 7 critérios da especificação
+- [x] Rodar o desenvolvimento na VPS (30/10): grade das 9 combinações, 680 operações cada — **todas
+      negativas** (fator de lucro 0,45 a 0,89; nenhum ano positivo). Reprova nos critérios 1, 2, 4 e 5
+- [ ] Antes de encerrar: repetir a grade com `--ambiguidade otimista` (diagnóstico: barras M5 ambíguas a
+      favor). Se o limite otimista também reprovar, a reprovação é sólida; se aprovar, o resultado é
+      inconclusivo com M5 (acerto de 25,6% com stop 150 está muito abaixo do esperado ao acaso, ~40%)
 - [ ] Fora da amostra (só se o desenvolvimento aprovar): `--periodo fora-da-amostra
       --confirmo-fora-da-amostra`, uma única vez
 - [ ] Tratamento de rolagem (comparar série ajustada × não ajustada)

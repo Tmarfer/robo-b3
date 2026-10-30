@@ -34,6 +34,9 @@ class ParametrosORB:
     minutos: int = 5
     fim_entradas: time = time(11, 55)  # última barra que pode disparar entrada
     saida_tempo: time = time(17, 0)
+    # "conservadora" = regra da especificação (avaliação oficial). "otimista" = diagnóstico:
+    # barras ambíguas resolvidas a favor, para medir o quanto a resolução M5 pesa no resultado.
+    ambiguidade: str = "conservadora"
 
 
 @dataclass
@@ -50,14 +53,14 @@ class Operacao:
     motivo: str  # alvo | stop | tempo | fim_do_dia
     pontos: float
     resultado: float  # R$, já descontados os custos
-    ambigua: bool  # usou uma hipótese conservadora da especificação
+    ambigua: bool  # barra em que a ordem de máxima/mínima decide o resultado
 
 
 def _hora(ts: pd.Timestamp) -> time:
     return ts.time()
 
 
-def _saida(lado, bar, stop, alvo, d):
+def _saida(lado, bar, stop, alvo, d, otimista=False):
     """Testa uma barra posterior à da entrada. Devolve (preço, motivo, ambígua) ou None."""
     o, h, low = bar.open, bar.high, bar.low
     if lado == "C":
@@ -66,6 +69,8 @@ def _saida(lado, bar, stop, alvo, d):
         if o >= alvo:
             return o, "alvo", False
         bate_stop, bate_alvo = low <= stop, h >= alvo
+        if bate_stop and bate_alvo and otimista:
+            return alvo, "alvo", True
         if bate_stop:
             return stop - d, "stop", bate_alvo
         if bate_alvo:
@@ -76,6 +81,8 @@ def _saida(lado, bar, stop, alvo, d):
         if o <= alvo:
             return o, "alvo", False
         bate_stop, bate_alvo = h >= stop, low <= alvo
+        if bate_stop and bate_alvo and otimista:
+            return alvo, "alvo", True
         if bate_stop:
             return stop + d, "stop", bate_alvo
         if bate_alvo:
@@ -96,6 +103,10 @@ def _executar(
         entrada, stop, alvo = ref - d, ref + dist, ref - p.alvo * dist
         bate_stop, bate_alvo = bar.high >= stop, bar.low <= alvo
 
+    otimista = p.ambiguidade == "otimista"
+    if otimista and bate_stop:
+        # diagnóstico: a mínima (compra) ou máxima (venda) teria vindo antes do rompimento
+        ambigua, bate_stop = True, False
     if bate_stop:  # entrada e stop na mesma barra: considera stop
         fim = (stop - d if lado == "C" else stop + d), "stop", True, ts
     elif bate_alvo:  # entrada e alvo na mesma barra, sem stop: alvo
@@ -106,7 +117,7 @@ def _executar(
             if _hora(ts2) >= p.saida_tempo:
                 fim = (bar2.open - d if lado == "C" else bar2.open + d), "tempo", ambigua, ts2
                 break
-            r = _saida(lado, bar2, stop, alvo, d)
+            r = _saida(lado, bar2, stop, alvo, d, otimista)
             if r:
                 fim = r[0], r[1], ambigua or r[2], ts2
                 break

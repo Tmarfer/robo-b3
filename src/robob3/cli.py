@@ -170,15 +170,20 @@ def cmd_backtest_orb(args: argparse.Namespace) -> int:
         return 2
     inicio, fim = PERIODOS[args.periodo]
     df = ler_barras_mt5(args.arquivo)
-    print(f"win-orb-v1 | {args.periodo}: {inicio} a {fim} | custo R$ {args.custo:.2f}/lado")
+    print(
+        f"win-orb-v1 | {args.periodo}: {inicio} a {fim} | custo R$ {args.custo:.2f}/lado | "
+        f"barras ambíguas: {args.ambiguidade}"
+    )
 
     if args.grade:
         print(
             "stop,alvo,operacoes,resultado_brl,resultado_custo_0.50,fator_lucro,acerto_pct,"
-            "drawdown_max,por_ano"
+            "drawdown_max,ambiguas,por_ano"
         )
         for stop, alvo in GRADE_ORB:
-            p = ParametrosORB(stop=stop, alvo=alvo, custo_lado=args.custo)
+            p = ParametrosORB(
+                stop=stop, alvo=alvo, custo_lado=args.custo, ambiguidade=args.ambiguidade
+            )
             r = resumo(backtest_orb(df, p, inicio, fim).operacoes)
             if not r["operacoes"]:
                 print(f"{stop:g},{alvo:g},0")
@@ -187,14 +192,18 @@ def cmd_backtest_orb(args: argparse.Namespace) -> int:
             anos = " ".join(f"{a}:{v:+.2f}" for a, v in r["por_ano"].items())
             print(
                 f"{stop:g},{alvo:g},{r['operacoes']},{r['resultado_brl']:.2f},{estresse:.2f},"
-                f"{r['fator_lucro']},{r['acerto_pct']},{r['drawdown_max']:.2f},{anos}"
+                f"{r['fator_lucro']},{r['acerto_pct']},{r['drawdown_max']:.2f},"
+                f"{r['ambiguas']},{anos}"
             )
         return 0
 
-    p = ParametrosORB(stop=args.stop, alvo=args.alvo, custo_lado=args.custo)
+    p = ParametrosORB(
+        stop=args.stop, alvo=args.alvo, custo_lado=args.custo, ambiguidade=args.ambiguidade
+    )
     res = backtest_orb(df, p, inicio, fim)
     r = resumo(res.operacoes)
-    saida = {"parametros": {"stop": p.stop, "alvo": p.alvo, "custo_lado": p.custo_lado}} | r
+    params = {"stop": p.stop, "alvo": p.alvo, "custo_lado": p.custo_lado}
+    saida = {"parametros": params | {"ambiguidade": p.ambiguidade}} | r
     if r["operacoes"]:
         saida["resultado_custo_0.50"] = round(
             r["resultado_brl"] - r["operacoes"] * 2 * (0.50 - args.custo), 2
@@ -299,6 +308,12 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--custo", type=float, default=0.25, help="R$ por contrato por lado")
     b.add_argument("--aleatorio", type=int, default=1000, help="sorteios (0 = não rodar)")
     b.add_argument("--operacoes", help="CSV de saída com cada operação")
+    b.add_argument(
+        "--ambiguidade",
+        choices=["conservadora", "otimista"],
+        default="conservadora",
+        help="otimista = só diagnóstico (barras ambíguas a favor); a avaliação é a conservadora",
+    )
     b.set_defaults(func=cmd_backtest_orb)
 
     c = sub.add_parser("validar-config", help="valida config/risk.yaml")

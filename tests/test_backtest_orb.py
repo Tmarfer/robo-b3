@@ -207,3 +207,33 @@ def test_cli_backtest_orb(quatro_dias, tmp_path, capsys, monkeypatch):
 
     # fora da amostra exige confirmação explícita
     assert main(["backtest-orb", str(arq), "--periodo", "fora-da-amostra"]) == 2
+
+
+def test_modo_otimista_resolve_barras_ambiguas_a_favor():
+    otim = ParametrosORB(ambiguidade="otimista")
+    # entrada e stop na mesma barra: otimista ignora o stop dessa barra e segue
+    dia = _dia(
+        barras={
+            "09:25": (124990, 125040, 124780, 124800),
+            "10:40": (125300, 125420, 125280, 125400),
+        }
+    )
+    assert simular_dia(dia, P).motivo == "stop"
+    op = simular_dia(dia, otim)
+    assert (op.motivo, op.saida, op.ambigua) == ("alvo", 125405, True)
+    # stop e alvo na mesma barra posterior: otimista conta alvo
+    dia = _dia(
+        barras={
+            "09:25": (124990, 125040, 124950, 125030),
+            "10:00": (125000, 125450, 124700, 125000),
+        }
+    )
+    assert (simular_dia(dia, otim).motivo, simular_dia(dia, P).motivo) == ("alvo", "stop")
+    # barra sem ambiguidade: os dois modos dão o mesmo resultado
+    dia = _dia(
+        barras={
+            "09:25": (124990, 125040, 124950, 125030),
+            "10:40": (125300, 125420, 125280, 125400),
+        }
+    )
+    assert simular_dia(dia, otim) == simular_dia(dia, P)
