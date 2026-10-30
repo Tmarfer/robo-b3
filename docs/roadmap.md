@@ -36,7 +36,11 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 - [ ] Confirmar negociação algorítmica desligada
 - [x] Confirmar `healthy` em `docker compose ps` (healthcheck revisado: lê `/proc/net/tcp`)
 - [x] Identificar símbolos contínuos (`WIN$N`, `WDO$N`)
-- [ ] Identificar a regra de rolagem da Clear para as séries `$N` (`robob3 gaps` nas datas de vencimento)
+- [x] Rolagem do `WIN$N` (30/10, `robob3 gaps`): troca no dia do vencimento (quarta mais próxima do
+      dia 15 dos meses pares), **sem ajuste** — saltos de ~+2% em 18/02, 15/04, 17/06, 12/08, 14/10
+- [ ] Rolagem do `WDO$N`: indícios de troca no **último dia útil do mês**, sem ajuste (~+0,6–0,9% em
+      27/02, 30/06, 31/07, 31/08, 30/09); confirmar 31/03, 30/04, 29/05
+- [ ] Ferramenta de ajuste de rolagem para indicadores que atravessam vencimentos (Fase 3)
 - [x] Exportar M1 desde 10/2018 à mão (Símbolos > Barras) para `C:\export` (= `data/raw/`);
       1ª extração: ~100 mil barras, 177–180 pregões (02/2026 → 29/10/2026) — ver Notion, seção 4.1
 - [x] `robob3 relatorio-dados` em cada arquivo; registrar no Notion: servidor, símbolo, datas efetivas,
