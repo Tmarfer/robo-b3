@@ -111,13 +111,18 @@ na 1ª nota) com sensibilidade a R$ 0,50/lado como critério de aprovação.
 ## Fase 4 — MT5 demo na VPS + gravador de dados próprio
 
 Sem computador Windows, a VPS é o **único** lugar onde o MT5 fica ligado e conversa com Python.
-O container do MT5 já sobe na Fase 1; aqui entra a ponte.
+O container do MT5 já sobe na Fase 1; aqui entra a ponte. **Antecipada em 30/10** (decisão do
+Thiago): o M1 do servidor anda todo dia e o que sai da janela não volta.
 
-- [ ] Cliente `mt5linux==1.1.1` (mesmo autor da imagem) num serviço na rede `trading` → `mt5:18812`
-- [ ] Adaptar `scripts/mt5_exportar.py` para o cliente `mt5linux`
-- [ ] Validar ponte Python ↔ MT5 (mt5linux/RPyC): `account_info`, `symbol_info`, `copy_rates_range`
+- [x] Ponte Python ↔ MT5 (`src/robob3/coleta/ponte.py`): RPyC direto em `mt5:18812`, `rpyc` 6.x
+      como o servidor da imagem. **Não** usa o cliente `mt5linux` 1.x, que tenta criar containers
+      sozinho. Só leitura; dados voltam como listas simples (sem numpy entre versões)
+- [ ] Validar a ponte na VPS: `account_info`, `terminal_info`, `copy_rates_range` (feito pelo próprio
+      `gravar-m1` na 1ª execução)
 - [ ] Testar estabilidade: reinício do container, queda de rede, reconexão
-- [ ] Gravador **separado da execução**: M1 + ticks (se autorizados), com metadados de coleta, em Parquet
+- [x] Gravador **separado da execução** (30/10, [`gravador.md`](gravador.md)): M1 diário em Parquet,
+      dias completos, sem sobrescrever, `registro.jsonl` com metadados. Ticks ficam para depois
+- [ ] Validar o gravador na VPS (backfill + conferência com o M1 exportado à mão) e agendar no cron
 - [ ] Verificação diária de lacunas e backup fora da VPS
 
 **Saída:** 10 pregões seguidos gravando sem lacuna não explicada.

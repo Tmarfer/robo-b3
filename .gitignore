@@ -6,6 +6,7 @@ config/risk.yaml
 data/raw/*
 data/processed/*
 data/resultados/
+data/gravador/
 !data/**/.gitkeep
 logs/
 mt5-data/

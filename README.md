@@ -17,6 +17,7 @@ robo-b3/
 │   ├── roadmap.md            # fases, tarefas e critérios para avançar
 │   ├── vps-setup.md          # passo a passo da VPS Hostinger + Antigravity via SSH
 │   ├── mt5.md                # MT5 demo da Clear (Mac e VPS) + exportação de histórico
+│   ├── gravador.md           # gravador diário de M1 (Fase 4)
 │   ├── fluxo-git.md          # como o código vai daqui → GitHub → VPS
 │   └── estrategias/          # especificação escrita de cada estratégia ANTES do código
 ├── infra/vps/                # scripts numerados para preparar a VPS

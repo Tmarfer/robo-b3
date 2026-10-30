@@ -1,7 +1,7 @@
 .PHONY: install test lint fmt docker-build docker-test deploy diag
 
 install:
-	pip install -e ".[dev]"
+	pip install -e ".[dev,ponte]"
 
 test:
 	pytest -q

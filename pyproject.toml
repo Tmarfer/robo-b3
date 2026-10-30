@@ -16,6 +16,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5"]
+# ponte com o MT5 no container (servidor RPyC da imagem lprett/mt5linux usa rpyc 6.x)
+ponte = ["rpyc>=6.0.0,<7"]
 # só Windows: exportação/ponte com o terminal MT5
 mt5 = ["MetaTrader5>=5.0.45; sys_platform == 'win32'"]
 

@@ -5,11 +5,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 from datetime import time
 from pathlib import Path
 
 from robob3.backtest import PERIODOS, ParametrosORB, backtest_orb, entrada_aleatoria, resumo
+from robob3.coleta import PonteMT5, exportar, gravar_m1, status
 from robob3.config import carregar_config
 from robob3.data import (
     ajustar_rolagem,
@@ -220,6 +222,50 @@ def cmd_backtest_orb(args: argparse.Namespace) -> int:
     return 0
 
 
+SIMBOLOS_PADRAO = ["WIN$N", "WDO$N"]
+
+
+def _hoje_servidor():
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    return datetime.now(ZoneInfo("America/Sao_Paulo")).date()  # servidor da Clear = Brasília
+
+
+def cmd_gravar_m1(args: argparse.Namespace) -> int:
+    from datetime import date
+
+    hoje = date.fromisoformat(args.hoje) if args.hoje else _hoje_servidor()
+    with PonteMT5(args.host, args.port) as ponte:
+        reg = gravar_m1(ponte, args.simbolos, args.destino, hoje, args.backfill_dias)
+    print(f"gravar-m1 | hoje {hoje} | {reg['fonte'].get('servidor')}")
+    erros = 0
+    for s, r in reg["simbolos"].items():
+        if r["erro"]:
+            erros += 1
+            print(f"  {s}: ERRO {r['erro']}")
+        else:
+            faixa = f" ({r['primeiro_novo']} a {r['ultimo_novo']})" if r["dias_novos"] else ""
+            corte = (
+                f"; 1º dia descartado (corte): {r['descartado_corte']}"
+                if r["descartado_corte"]
+                else ""
+            )
+            print(f"  {s}: {r['dias_novos']} dias novos, {r['barras_novas']} barras{faixa}{corte}")
+    return 1 if erros else 0
+
+
+def cmd_gravador_status(args: argparse.Namespace) -> int:
+    print(json.dumps(status(args.destino, args.simbolos, _hoje_servidor()), indent=2))
+    return 0
+
+
+def cmd_gravador_exportar(args: argparse.Namespace) -> int:
+    n = exportar(args.destino, args.simbolo, args.saida)
+    print(f"{n} barras: {args.saida}")
+    return 0
+
+
 def cmd_validar_config(args: argparse.Namespace) -> int:
     cfg = carregar_config(args.arquivo)
     print(json.dumps(cfg.model_dump(mode="json"), ensure_ascii=False, indent=2))
@@ -315,6 +361,26 @@ def main(argv: list[str] | None = None) -> int:
         help="otimista = só diagnóstico (barras ambíguas a favor); a avaliação é a conservadora",
     )
     b.set_defaults(func=cmd_backtest_orb)
+
+    gr = sub.add_parser("gravar-m1", help="grava o M1 dos dias completos via MT5 (Fase 4)")
+    gr.add_argument("--simbolos", nargs="+", default=SIMBOLOS_PADRAO)
+    gr.add_argument("--destino", default="data/gravador")
+    gr.add_argument("--host", default=os.environ.get("MT5_HOST", "mt5"))
+    gr.add_argument("--port", type=int, default=int(os.environ.get("MT5_PORT", "18812")))
+    gr.add_argument("--backfill-dias", type=int, default=400, help="1ª execução: quanto pedir")
+    gr.add_argument("--hoje", help="AAAA-MM-DD (padrão: hoje em Brasília); grava até a véspera")
+    gr.set_defaults(func=cmd_gravar_m1)
+
+    gs = sub.add_parser("gravador-status", help="dias gravados por símbolo")
+    gs.add_argument("--simbolos", nargs="+", default=SIMBOLOS_PADRAO)
+    gs.add_argument("--destino", default="data/gravador")
+    gs.set_defaults(func=cmd_gravador_status)
+
+    ge = sub.add_parser("gravador-exportar", help="junta os dias gravados num CSV formato MT5")
+    ge.add_argument("simbolo")
+    ge.add_argument("--destino", default="data/gravador")
+    ge.add_argument("--saida", required=True)
+    ge.set_defaults(func=cmd_gravador_exportar)
 
     c = sub.add_parser("validar-config", help="valida config/risk.yaml")
     c.add_argument("arquivo", nargs="?", default="config/risk.yaml")
