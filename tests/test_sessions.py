@@ -88,7 +88,8 @@ def test_remover_internos_explicito(extracao):
 def test_horarios_explicitos_e_tolerancia(extracao):
     # fechamento informado 18:24 (WIN): nenhum dia completo é marcado
     incompletos, _, fe = detectar_incompletos(extracao, fechamento=time(18, 24))
-    assert fe == "18:24" and len(incompletos) == 3
+    assert fe == "18:29"  # o retorno é sempre o mais frequente nos dados
+    assert len(incompletos) == 3 and "esperado 18:24" in incompletos[2].motivo
     # abertura informada 15:30 com tolerância 5: o 1º dia (15:35) deixa de ser incompleto
     incompletos, _, _ = detectar_incompletos(extracao, abertura=time(15, 30))
     assert "2026-02-13" not in [p.data for p in incompletos]
@@ -131,3 +132,30 @@ def test_cli_gaps(capsys, tmp_path):
     arq = escrever_barras_mt5(df, tmp_path / "x.csv")
     assert main(["gaps", str(arq), "--top", "5"]) == 0
     assert "2026-10-14,Wed,5569,5570,+1,+0.02" in capsys.readouterr().out
+
+
+def test_troca_de_grade_da_b3_nao_marca_a_estacao():
+    """Fechamento muda de 18:29 para 17:54 (horário de verão nos EUA): nenhum dia é incompleto."""
+    antes = [_dia(d) for d in pd.bdate_range("2026-03-02", periods=8).strftime("%Y-%m-%d")]
+    depois = [
+        _dia(d, fim="17:54") for d in pd.bdate_range("2026-03-12", periods=8).strftime("%Y-%m-%d")
+    ]
+    df = _barras(*antes, *depois)
+    incompletos, _, _ = detectar_incompletos(df)
+    assert incompletos == []
+    # com fechamento fixo informado, a estação de 17:54 inteira aparece
+    incompletos, _, _ = detectar_incompletos(df, fechamento=time(18, 29))
+    assert len(incompletos) == 8
+
+
+def test_cinzas_no_meio_de_regime_longo_continua_marcada():
+    dias = pd.bdate_range("2024-02-05", periods=12).strftime("%Y-%m-%d")
+    df = _barras(*[_dia(d, inicio="13:00" if d == "2024-02-14" else "09:00") for d in dias])
+    incompletos, _, _ = detectar_incompletos(df)
+    assert [(p.data, p.ponta) for p in incompletos] == [("2024-02-14", False)]
+
+
+def test_relatorio_lista_horarios_frequentes(extracao):
+    rel = avaliar_barras(extracao)
+    assert rel.aberturas_frequentes[0] == "09:00 (4)"
+    assert rel.fechamentos_frequentes[0] == "18:29 (5)"

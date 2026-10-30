@@ -40,6 +40,7 @@ def _opcoes_pregao(args: argparse.Namespace) -> dict:
         "abertura": args.abertura,
         "fechamento": args.fechamento,
         "tolerancia_min": args.tolerancia,
+        "janela": args.janela,
     }
 
 
@@ -153,6 +154,9 @@ def main(argv: list[str] | None = None) -> int:
     pregao.add_argument("--abertura", type=_horario, help="HH:MM (padrão: mais frequente)")
     pregao.add_argument("--fechamento", type=_horario, help="HH:MM da última barra esperada")
     pregao.add_argument("--tolerancia", type=int, default=5, help="minutos (padrão 5)")
+    pregao.add_argument(
+        "--janela", type=int, default=5, help="pregões vizinhos de cada lado (padrão 5)"
+    )
 
     r = sub.add_parser(
         "relatorio-dados", parents=[pregao], help="qualidade de um CSV de barras do MT5"

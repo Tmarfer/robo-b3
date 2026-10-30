@@ -11,7 +11,12 @@ from datetime import time
 
 import pandas as pd
 
-from robob3.data.sessions import PregaoIncompleto, detectar_incompletos
+from robob3.data.sessions import (
+    PregaoIncompleto,
+    detectar_incompletos,
+    horarios_frequentes,
+    resumo_pregoes,
+)
 
 
 @dataclass
@@ -37,6 +42,8 @@ class RelatorioQualidade:
     barras_por_pregao_max: int = 0
     abertura_tipica: str = ""
     fechamento_tipico: str = ""
+    aberturas_frequentes: list[str] = field(default_factory=list)
+    fechamentos_frequentes: list[str] = field(default_factory=list)
     pregoes_incompletos: list[PregaoIncompleto] = field(default_factory=list)
     pregoes_cobertura_baixa: list[str] = field(default_factory=list)
     lacunas_intradiarias: int = 0
@@ -71,6 +78,7 @@ def avaliar_barras(
     abertura: time | None = None,
     fechamento: time | None = None,
     tolerancia_min: int = 5,
+    janela: int = 5,
 ) -> RelatorioQualidade:
     """Avalia barras de `minutos` minutos indexadas por timestamp.
 
@@ -105,7 +113,8 @@ def avaliar_barras(
     eh_lacuna = (delta > passo) & mesmo_dia
     faltando = ((delta[eh_lacuna] / passo).round().astype(int) - 1)
 
-    incompletos, ab, fe = detectar_incompletos(limpo, abertura, fechamento, tolerancia_min)
+    incompletos, ab, fe = detectar_incompletos(limpo, abertura, fechamento, tolerancia_min, janela)
+    ab_freq, fe_freq = horarios_frequentes(resumo_pregoes(limpo))
 
     maiores = faltando.sort_values(ascending=False).head(top_lacunas)
     lacunas = [
@@ -127,6 +136,8 @@ def avaliar_barras(
         barras_por_pregao_max=int(por_dia.max()),
         abertura_tipica=ab,
         fechamento_tipico=fe,
+        aberturas_frequentes=ab_freq,
+        fechamentos_frequentes=fe_freq,
         pregoes_incompletos=incompletos,
         pregoes_cobertura_baixa=[d.strftime("%Y-%m-%d") for d in baixa.index],
         lacunas_intradiarias=int(eh_lacuna.sum()),

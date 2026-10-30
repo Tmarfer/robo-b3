@@ -12,9 +12,12 @@ antes do fechamento típico (com tolerância). Há dois tipos:
 Lacunas no meio do dia (leilão, pausa) **não** tornam o pregão incompleto: são eventos de mercado
 e ficam no relatório de lacunas.
 
-Abertura e fechamento típicos são o horário mais frequente nos dados (com empate, a abertura mais
-cedo e o fechamento mais tarde). Se o horário da B3 mudar no período (ex.: horário de verão nos
-EUA), a estação inteira aparece como incompleta: nesse caso, informar os horários explicitamente.
+O horário esperado de cada dia vem dos **pregões vizinhos** (`janela` pregões antes e depois, sem o
+próprio dia): o mais frequente de cada lado, e vale o mais tolerante dos dois. Assim, mudanças de
+grade da B3 (ex.: fechamento 17:50 × 18:25 conforme o horário de verão dos EUA) não marcam
+estações inteiras: no dia da troca, ele bate com um dos lados. Uma grade especial que dure mais que
+`janela` pregões passa a ser tratada como regime normal. Com `abertura`/`fechamento` informados,
+o horário esperado é fixo para todos os dias.
 """
 
 from __future__ import annotations
@@ -64,31 +67,67 @@ def horarios_tipicos(resumo: pd.DataFrame) -> tuple[pd.Timedelta, pd.Timedelta]:
     return abertura, fechamento
 
 
+def horarios_frequentes(resumo: pd.DataFrame, n: int = 3) -> tuple[list[str], list[str]]:
+    """Os `n` horários de abertura e de fechamento mais comuns, como "HH:MM (dias)"."""
+
+    def top(horas: pd.Series) -> list[str]:
+        return [f"{_fmt(h)} ({c})" for h, c in horas.value_counts().head(n).items()]
+
+    return top(_hora(resumo["primeira"])), top(_hora(resumo["ultima"]))
+
+
+def _esperado_vizinhos(horas: pd.Series, janela: int, abertura: bool) -> pd.Series:
+    """Horário esperado por dia a partir dos vizinhos; NaT se o dia não tiver vizinhos."""
+    v = horas.to_numpy()
+    minimo = max(1, (janela + 1) // 2)  # lado curto (início/fim do arquivo) é pouco confiável
+    esperado = []
+    for i in range(len(v)):
+        lados = [v[max(0, i - janela) : i], v[i + 1 : i + 1 + janela]]
+        confiaveis = [lado for lado in lados if len(lado) >= minimo]
+        modas = []
+        for lado in confiaveis or [lado for lado in lados if len(lado)]:
+            m = pd.Series(lado).mode()
+            modas.append(m.min() if abertura else m.max())
+        if not modas:
+            esperado.append(pd.NaT)
+        else:
+            # o mais tolerante: abertura mais tarde, fechamento mais cedo
+            esperado.append(max(modas) if abertura else min(modas))
+    return pd.Series(esperado, index=horas.index, dtype="timedelta64[ns]")
+
+
 def detectar_incompletos(
     df: pd.DataFrame,
     abertura: time | None = None,
     fechamento: time | None = None,
     tolerancia_min: int = 5,
+    janela: int = 5,
 ) -> tuple[list[PregaoIncompleto], str, str]:
-    """Lista pregões incompletos e devolve também a abertura/fechamento usados ("HH:MM")."""
+    """Lista pregões incompletos e devolve a abertura/fechamento mais frequentes ("HH:MM")."""
     resumo = resumo_pregoes(df)
     if resumo.empty:
         return [], "", ""
     tip_ab, tip_fe = horarios_tipicos(resumo)
-    ab = _para_delta(abertura) if abertura else tip_ab
-    fe = _para_delta(fechamento) if fechamento else tip_fe
+    ini, fim = _hora(resumo["primeira"]), _hora(resumo["ultima"])
+    if abertura:
+        ab = pd.Series(_para_delta(abertura), index=resumo.index)
+    else:
+        ab = _esperado_vizinhos(ini, janela, abertura=True).fillna(tip_ab)
+    if fechamento:
+        fe = pd.Series(_para_delta(fechamento), index=resumo.index)
+    else:
+        fe = _esperado_vizinhos(fim, janela, abertura=False).fillna(tip_fe)
     tol = pd.Timedelta(minutes=tolerancia_min)
 
-    ini, fim = _hora(resumo["primeira"]), _hora(resumo["ultima"])
     tarde, cedo = ini > ab + tol, fim < fe - tol
 
     incompletos = []
     for dia in resumo.index[tarde | cedo]:
         motivos = []
         if tarde[dia]:
-            motivos.append(f"abre {_fmt(ini[dia])} (esperado {_fmt(ab)})")
+            motivos.append(f"abre {_fmt(ini[dia])} (esperado {_fmt(ab[dia])})")
         if cedo[dia]:
-            motivos.append(f"fecha {_fmt(fim[dia])} (esperado {_fmt(fe)})")
+            motivos.append(f"fecha {_fmt(fim[dia])} (esperado {_fmt(fe[dia])})")
         incompletos.append(
             PregaoIncompleto(
                 data=dia.strftime("%Y-%m-%d"),
@@ -99,7 +138,7 @@ def detectar_incompletos(
                 ponta=dia in (resumo.index[0], resumo.index[-1]),
             )
         )
-    return incompletos, _fmt(ab), _fmt(fe)
+    return incompletos, _fmt(tip_ab), _fmt(tip_fe)
 
 
 def remover_pregoes_incompletos(
@@ -108,12 +147,13 @@ def remover_pregoes_incompletos(
     fechamento: time | None = None,
     tolerancia_min: int = 5,
     internos: bool = False,
+    janela: int = 5,
 ) -> tuple[pd.DataFrame, list[PregaoIncompleto]]:
     """Devolve as barras sem os pregões incompletos e a lista do que foi removido.
 
     Por padrão remove só as pontas; `internos=True` remove também os do meio do período.
     """
-    incompletos, _, _ = detectar_incompletos(df, abertura, fechamento, tolerancia_min)
+    incompletos, _, _ = detectar_incompletos(df, abertura, fechamento, tolerancia_min, janela)
     removidos = [p for p in incompletos if p.ponta or internos]
     fora = pd.to_datetime([p.data for p in removidos])
     return df[~df.index.normalize().isin(fora)], removidos
