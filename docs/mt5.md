@@ -30,6 +30,23 @@ servidor não aceita mais os parâmetros que a imagem usa. A ponte Python ali pr
 Riscos da escolhida: projeto jovem e com mudanças frequentes. Por isso **fixar o digest** depois do
 primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da MetaQuotes para Wine.
 
+### Problemas encontrados na VPS (30/10/2026)
+
+- **Conta apagada ao recriar o container.** Log do terminal: `Accounts: deleted due security reason`.
+  O MT5 amarra `Config/accounts.dat` à identidade da máquina, e cada recriação trazia um hostname
+  novo. Corrigido com `hostname: mt5` no compose. Para não depender da tela, preencher
+  `MT5_LOGIN`, `MT5_PASSWORD` e `MT5_SERVER` (conta **demo**) no `.env`, que não vai para o git.
+- **`mt5.initialize()` → `(-10005, 'IPC timeout')`.** O terminal atualizou sozinho para o build
+  6092 e avisa `unstable and unsupported Wine 9.0 ... please upgrade to Wine 10.0 or later`; a
+  imagem `lprett/mt5linux` usa Wine 9.0. Hipótese do Antigravity: nesse build o pipe IPC usado pelo
+  pacote `MetaTrader5` não abre em Wine < 10. A confirmar depois de a conta estar logada (sem conta
+  o terminal também pode não responder). Caminho previsto: imagem própria, versionada no repositório,
+  com Wine ≥ 10 (a base é Alpine; a versão do Wine vem da versão do Alpine).
+- **Não** alterar nem desmontar o `terminal64.exe` e não usar chaves não documentadas no
+  `common.ini`: além de frágil a cada atualização, sai do uso permitido do terminal.
+- O healthcheck procurava a porta errada (`0x4974` = 18804); o certo é `0x497C` = 18812.
+  `tests/test_compose.py` confere a conta.
+
 ## 1. Subir
 
 Na VPS, em `~/robo-b3`:

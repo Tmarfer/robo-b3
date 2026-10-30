@@ -126,10 +126,14 @@ Thiago): o M1 do servidor anda todo dia e o que sai da janela não volta.
       sozinho. Só leitura; dados voltam como listas simples (sem numpy entre versões)
 - [ ] Validar a ponte na VPS: `account_info`, `terminal_info`, `copy_rates_range` (feito pelo próprio
       `gravar-m1` na 1ª execução)
+      **30/10: bloqueado.** RPyC conecta, mas `mt5.initialize()` dá `(-10005, 'IPC timeout')`: conta
+      apagada ao recriar o container (corrigido com `hostname: mt5`) e terminal build 6092 recusando
+      Wine 9.0 (pede Wine ≥ 10). Ver [`mt5.md`](mt5.md#problemas-encontrados-na-vps-30102026)
 - [ ] Testar estabilidade: reinício do container, queda de rede, reconexão
 - [x] Gravador **separado da execução** (30/10, [`gravador.md`](gravador.md)): M1 diário em Parquet,
       dias completos, sem sobrescrever, `registro.jsonl` com metadados. Ticks ficam para depois
-- [ ] Validar o gravador na VPS (backfill + conferência com o M1 exportado à mão) e agendar no cron
+- [ ] Validar o gravador na VPS (backfill + conferência com o M1 exportado à mão). Cron já agendado
+      em 30/10 (`15 8 * * 1-6`); falha até a ponte funcionar
 - [ ] Verificação diária de lacunas e backup fora da VPS
 
 **Saída:** 10 pregões seguidos gravando sem lacuna não explicada.

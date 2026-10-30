@@ -26,6 +26,9 @@ services:
     # lprett/mt5linux:latest  -> colar em MT5_IMAGE no .env. Atualizações só fora do pregão.
     image: ${MT5_IMAGE:-lprett/mt5linux:latest}
     container_name: mt5
+    # Nome de máquina fixo: o MT5 apaga Config/accounts.dat ("deleted due security reason") quando a
+    # identidade da máquina muda, e cada recriação do container trazia um hostname novo.
+    hostname: mt5
     entrypoint:
       - sh
       - -c
@@ -58,8 +61,9 @@ services:
     restart: unless-stopped
     healthcheck:
       # mostra estado; não reinicia sozinho (a imagem tem watchdog próprio para terminal e RPyC).
-      # Lê /proc/net/tcp em vez de depender do nc da imagem: 18812 = 0x4974, estado 0A = LISTEN
-      test: ["CMD-SHELL", "grep -qiE ':4974 [0-9a-f]{8}:0000 0A' /proc/net/tcp /proc/net/tcp6"]
+      # Lê /proc/net/tcp em vez de depender do nc da imagem: 18812 = 0x497C, estado 0A = LISTEN
+      # (tests/test_compose.py confere a conta)
+      test: ["CMD-SHELL", "grep -qiE ':497C [0-9a-f]{8}:0000 0A' /proc/net/tcp /proc/net/tcp6"]
       interval: 30s
       timeout: 5s
       retries: 5
