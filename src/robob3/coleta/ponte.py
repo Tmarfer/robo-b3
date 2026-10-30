@@ -6,6 +6,11 @@ Os resultados voltam como listas/dicionários simples (`.tolist()`, `._asdict()`
 objetos numpy entre versões diferentes de Python.
 
 Somente leitura: este módulo não envia ordens.
+
+Login: o terminal no Wine não guarda a conta entre reinícios do container. Se `conta` for
+informada (login, senha e servidor do `.env`), a ponte loga com `mt5.login()` quando o terminal
+não estiver na conta certa. A senha vai para o lado do MT5 como variável, nunca no texto do código
+avaliado, para não aparecer em mensagens de erro nem em logs.
 """
 
 from __future__ import annotations
@@ -27,8 +32,14 @@ def _epoch(dt: datetime) -> int:
 
 
 class PonteMT5:
-    def __init__(self, host: str = "mt5", port: int = 18812, timeout: int = 120):
-        self.host, self.port, self.timeout = host, port, timeout
+    def __init__(
+        self,
+        host: str = "mt5",
+        port: int = 18812,
+        timeout: int = 120,
+        conta: tuple[int, str, str] | None = None,  # (login, senha, servidor)
+    ):
+        self.host, self.port, self.timeout, self.conta = host, port, timeout, conta
         self._conn = None
 
     def conectar(self) -> PonteMT5:
@@ -40,7 +51,26 @@ class PonteMT5:
         self._conn.execute("import MetaTrader5 as mt5")
         if not self._eval("mt5.initialize()"):
             raise ConnectionError(f"MT5 não inicializou: {self._eval('mt5.last_error()')}")
+        if self.conta:
+            self._logar()
         return self
+
+    def _logar(self) -> None:
+        login, senha, servidor = self.conta
+        atual = self._eval("(lambda a: None if a is None else a.login)(mt5.account_info())")
+        if atual == login:
+            return
+        self._conn.namespace["_robob3_conta"] = (login, senha, servidor)
+        try:
+            ok = self._eval(
+                "mt5.login(_robob3_conta[0], password=_robob3_conta[1], server=_robob3_conta[2])"
+            )
+        finally:
+            self._conn.execute("del _robob3_conta")
+        if not ok:
+            raise ConnectionError(
+                f"login na conta {login} falhou: {self._eval('mt5.last_error()')}"
+            )
 
     def fechar(self) -> None:
         if self._conn is not None:

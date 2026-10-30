@@ -269,11 +269,22 @@ def _hoje_servidor():
     return datetime.now(ZoneInfo("America/Sao_Paulo")).date()  # servidor da Clear = Brasília
 
 
+def _conta_mt5() -> tuple[int, str, str] | None:
+    """Conta demo do `.env` (MT5_LOGIN, MT5_PASSWORD, MT5_SERVER), se estiver completa."""
+    login, senha, servidor = (
+        os.environ.get(k, "") for k in ("MT5_LOGIN", "MT5_PASSWORD", "MT5_SERVER")
+    )
+    return (int(login), senha, servidor) if login and senha and servidor else None
+
+
 def cmd_gravar_m1(args: argparse.Namespace) -> int:
     from datetime import date
 
     hoje = date.fromisoformat(args.hoje) if args.hoje else _hoje_servidor()
-    with PonteMT5(args.host, args.port) as ponte:
+    with PonteMT5(args.host, args.port, conta=_conta_mt5()) as ponte:
+        if not ponte.info()["conta_demo"]:
+            print("gravar-m1: a conta conectada não é demo; nada foi gravado")
+            return 2
         reg = gravar_m1(ponte, args.simbolos, args.destino, hoje, args.backfill_dias)
     print(f"gravar-m1 | hoje {hoje} | {reg['fonte'].get('servidor')}")
     erros = 0

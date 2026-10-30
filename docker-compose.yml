@@ -83,6 +83,10 @@ services:
     environment:
       MT5_HOST: mt5
       MT5_PORT: "18812"
+      # a ponte loga a conta demo se o terminal reiniciar deslogado (o Wine não guarda a conta)
+      MT5_LOGIN: ${MT5_LOGIN:-}
+      MT5_PASSWORD: ${MT5_PASSWORD:-}
+      MT5_SERVER: ${MT5_SERVER:-}
       TZ: America/Sao_Paulo
     volumes:
       - ./data:/app/data

@@ -110,15 +110,24 @@ def test_status_e_exportar(tmp_path):
 class ConexaoFalsa:
     """Imita rpyc.classic.connect(): responde ao código que a ponte manda executar no MT5."""
 
-    def __init__(self):
+    def __init__(self, logado=None):
         self._config, self.executado, self.avaliado = {}, [], []
+        self.namespace, self.logado, self.logins = {}, logado, []
 
     def execute(self, codigo):
         self.executado.append(codigo)
+        if codigo == "del _robob3_conta":
+            del self.namespace["_robob3_conta"]
 
     def eval(self, codigo):
         self.avaliado.append(codigo)
         if codigo == "mt5.initialize()" or codigo.startswith("mt5.symbol_select"):
+            return True
+        if codigo == "(lambda a: None if a is None else a.login)(mt5.account_info())":
+            return self.logado
+        if codigo.startswith("mt5.login("):
+            self.logins.append(self.namespace["_robob3_conta"])
+            self.logado = self.namespace["_robob3_conta"][0]
             return True
         if codigo.startswith("mt5.account_info"):
             return {"server": "ClearInvestimentos-DEMO", "company": "Clear", "trade_mode": 0}
@@ -162,11 +171,67 @@ def test_ponte_rpyc(monkeypatch):
     assert conn.avaliado[-1] == "mt5.shutdown()"
 
 
+def test_ponte_loga_a_conta_sem_expor_a_senha(monkeypatch):
+    pytest.importorskip("rpyc")
+    import rpyc
+
+    from robob3.coleta import PonteMT5
+
+    conn = ConexaoFalsa(logado=None)  # terminal reiniciou deslogado
+    monkeypatch.setattr(rpyc.classic, "connect", lambda host, port: conn)
+    with PonteMT5("mt5", 18812, conta=(1195572676, "s3nh@-demo", "ClearInvestimentos-DEMO")):
+        pass
+    assert conn.logins == [(1195572676, "s3nh@-demo", "ClearInvestimentos-DEMO")]
+    assert "_robob3_conta" not in conn.namespace  # apagada depois do login
+    assert not any("s3nh@-demo" in c for c in conn.avaliado + conn.executado)
+
+    conn = ConexaoFalsa(logado=1195572676)  # já está na conta: não reloga
+    monkeypatch.setattr(rpyc.classic, "connect", lambda host, port: conn)
+    with PonteMT5("mt5", 18812, conta=(1195572676, "s3nh@-demo", "ClearInvestimentos-DEMO")):
+        pass
+    assert conn.logins == []
+
+
+def test_conta_mt5_do_ambiente(monkeypatch):
+    from robob3.cli import _conta_mt5
+
+    for k in ("MT5_LOGIN", "MT5_PASSWORD", "MT5_SERVER"):
+        monkeypatch.delenv(k, raising=False)
+    assert _conta_mt5() is None
+    monkeypatch.setenv("MT5_LOGIN", "1195572676")
+    monkeypatch.setenv("MT5_SERVER", "ClearInvestimentos-DEMO")
+    assert _conta_mt5() is None  # sem senha, não tenta logar
+    monkeypatch.setenv("MT5_PASSWORD", "x")
+    assert _conta_mt5() == (1195572676, "x", "ClearInvestimentos-DEMO")
+
+
+def test_cli_gravar_m1_recusa_conta_que_nao_e_demo(tmp_path, monkeypatch, capsys):
+    from robob3 import cli
+
+    class PonteReal(FonteFalsa):
+        def __init__(self, host, port, conta=None):
+            super().__init__("2026-10-30 10:00")
+
+        def info(self):
+            return super().info() | {"conta_demo": False}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            pass
+
+    monkeypatch.setattr(cli, "PonteMT5", PonteReal)
+    assert cli.main(["gravar-m1", "--destino", str(tmp_path), "--hoje", "2026-10-30"]) == 2
+    assert "não é demo" in capsys.readouterr().out
+    assert not (tmp_path / "registro.jsonl").exists()
+
+
 def test_cli_gravar_m1(tmp_path, monkeypatch, capsys):
     from robob3 import cli
 
     class PonteFalsa(FonteFalsa):
-        def __init__(self, host, port):
+        def __init__(self, host, port, conta=None):
             super().__init__("2026-10-30 10:00")
 
         def __enter__(self):

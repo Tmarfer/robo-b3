@@ -49,6 +49,12 @@ primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da
   `wineboot -init` (o certo é `-i`) e precisa de GnuTLS. Os três ajustes estão no
   `infra/mt5/Dockerfile`, com `grep -q` para o build falhar se a imagem base mudar. Wine instalado:
   `11.0-r0` (Alpine edge, 30/10/2026).
+- **Login não persiste entre reinícios** (30/10). O login feito pela tela funciona
+  (`authorized on ClearInvestimentos-DEMO`), mas some depois de `docker compose restart`, e o login
+  automático pelo `common.ini` não pega (o log mostra `launched with C:\`). Hipótese: o terminal só
+  grava a conta ao fechar normalmente, e o reinício o encerra à força. Solução adotada: a ponte loga
+  a conta demo pela API (`mt5.login`) quando o terminal está deslogado, com `MT5_LOGIN`,
+  `MT5_PASSWORD` e `MT5_SERVER` do `.env`; o gravador recusa conta que não seja demo.
 - **Primeira partida de um container novo:** o script da imagem extrai o pacote do terminal em
   `mt5-data/` e grava `mt5-data/common.ini` a partir do `.env`, com a senha em texto puro. É o
   login automático previsto (conta demo). `mt5-data/` está fora do git; ao montar o backup fora da
