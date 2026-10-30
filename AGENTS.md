@@ -35,11 +35,15 @@ laboratório: dados, backtest e gravação de M1. **Nenhuma ordem é enviada**, 
 ```bash
 cd ~/robo-b3
 git pull --ff-only
-make docker-build && make docker-test          # tudo tem que passar antes de qualquer coisa
+make docker-build && make docker-test          # tudo tem que passar antes de qualquer coisa (*)
 infra/vps/lab.sh <comando robob3> ...           # laboratório (backtest, dados)
 docker compose --profile mt5 up -d mt5          # MT5 demo (tela: túnel SSH → localhost:8080)
 docker compose --profile mt5 run --rm coletor   # gravador de M1 (cron: 15 8 * * 1-6)
 ```
+
+(*) Dentro do container, testes que dependem de arquivos fora da imagem do laboratório são
+**pulados de propósito** (ex.: `infra/mt5/Dockerfile fora da imagem`); "N passed, 1 skipped" com
+esse motivo é sucesso. Qualquer `failed` ou `error`, ou skip com outro motivo: pare e reporte.
 
 Documentação: `docs/roadmap.md` (fases), `docs/mt5.md`, `docs/gravador.md`,
 `docs/contexto-global.md`, `docs/estrategias/`.
