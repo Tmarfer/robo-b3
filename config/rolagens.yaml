@@ -1,18 +1,45 @@
 # Datas de troca de contrato das séries contínuas da Clear (MT5, ClearInvestimentos-DEMO).
 # As séries $N NÃO são ajustadas no servidor: o salto da troca aparece no preço.
 # Convenção: a 1ª barra da data listada já é do contrato novo.
-# Fonte: robob3 gaps sobre a extração M1 de 29/10/2026 (análise de 30/10/2026; ver Notion, 4.1).
-# Usado por: robob3 ajustar-rolagem --ativo WIN|WDO
+# Fonte: robob3 rolagens-candidatas sobre o M15 de 29/10/2021 a 29/10/2026 (análise de 30/10/2026;
+# ver Notion, seção 4.1). Usado por: robob3 ajustar-rolagem --ativo WIN|WDO
+# A cada nova extração, rodar rolagens-candidatas de novo e acrescentar as novas trocas.
 
 WIN:
   simbolo: WIN$N
-  regra: dia do vencimento (quarta-feira mais próxima do dia 15 dos meses pares)
-  datas: [2026-02-18, 2026-04-15, 2026-06-17, 2026-08-12, 2026-10-14]
+  regra: dia do vencimento (quarta-feira mais próxima do dia 15 dos meses pares; feriado -> pregão seguinte)
+  # 30 de 30 confirmadas (salto positivo e maior que os vizinhos), +0,97% a +2,74%.
+  # 2022-10-13: quarta 12/10 foi feriado nacional.
+  datas: [
+    2021-12-15, 2022-02-16, 2022-04-13, 2022-06-15, 2022-08-17, 2022-10-13,
+    2022-12-14, 2023-02-15, 2023-04-12, 2023-06-14, 2023-08-16, 2023-10-18,
+    2023-12-13, 2024-02-14, 2024-04-17, 2024-06-12, 2024-08-14, 2024-10-16,
+    2024-12-18, 2025-02-12, 2025-04-16, 2025-06-18, 2025-08-13, 2025-10-15,
+    2025-12-17, 2026-02-18, 2026-04-15, 2026-06-17, 2026-08-12, 2026-10-14,
+  ]
 
 WDO:
   simbolo: WDO$N
   regra: último dia útil do mês (um pregão antes do vencimento, no 1º dia útil)
-  datas: [2026-02-27, 2026-04-30, 2026-05-29, 2026-06-30, 2026-07-31, 2026-08-31, 2026-09-30]
-  # Março/2026: sem salto em 31/03 (+0,09%); 01/04 −0,44%, 02/04 +0,66%. Rolagem provavelmente
-  # mascarada por movimento de mercado. Sem ajuste até confirmar.
-  pendentes: [2026-03-31]
+  # 59 candidatas: 39 confirmadas; nenhuma troca observada fora da regra. Das 20 pendentes
+  # (prêmio de ~0,1-0,8% encoberto pelo movimento do mercado), entram as 17 com salto >= 0.
+  # Pendentes com salto >= 0 incluídas: 2022-02-25, 2022-04-29, 2022-09-30, 2022-11-30,
+  # 2022-12-29, 2023-08-31, 2023-12-28, 2024-01-31, 2024-02-29, 2024-04-30, 2024-05-31,
+  # 2024-06-28, 2024-09-30, 2024-11-29, 2025-01-31, 2025-02-28, 2026-03-31.
+  datas: [
+    2021-11-30, 2021-12-30, 2022-01-31, 2022-02-25, 2022-03-31, 2022-04-29,
+    2022-05-31, 2022-06-30, 2022-07-29, 2022-08-31, 2022-09-30, 2022-10-31,
+    2022-11-30, 2022-12-29, 2023-01-31, 2023-02-28, 2023-03-31, 2023-04-28,
+    2023-05-31, 2023-06-30, 2023-07-31, 2023-08-31, 2023-11-30, 2023-12-28,
+    2024-01-31, 2024-02-29, 2024-03-28, 2024-04-30, 2024-05-31, 2024-06-28,
+    2024-07-31, 2024-09-30, 2024-10-31, 2024-11-29, 2024-12-30, 2025-01-31,
+    2025-02-28, 2025-03-31, 2025-04-30, 2025-05-30, 2025-06-30, 2025-07-31,
+    2025-08-29, 2025-09-30, 2025-10-31, 2025-11-28, 2025-12-30, 2026-01-30,
+    2026-02-27, 2026-03-31, 2026-04-30, 2026-05-29, 2026-06-30, 2026-07-31,
+    2026-08-31, 2026-09-30,
+  ]
+  # Sem ajuste até investigar (erro residual de ~0,3-0,5% cada):
+  # 2023-09-29: +0,08%, mas 02/10 (dia do vencimento) teve +0,61% — troca pode ter sido no vencimento.
+  # 2023-10-31: -0,10%, sem salto positivo nos vizinhos.
+  # 2024-08-30: -0,59%, sentido oposto ao prêmio.
+  pendentes: [2023-09-29, 2023-10-31, 2024-08-30]

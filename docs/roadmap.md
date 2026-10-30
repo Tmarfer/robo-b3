@@ -40,8 +40,10 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
       0 lacunas intradiárias); M5 trouxe 100.000 barras (887 pregões, de 12/04/2023 a 29/10/2026)
 - [x] Validação cruzada: M5 e M15 do MT5 = reamostragem do nosso M1 (WIN: 20.024 M5 e 6.734 M15; WDO: 19.970 M5
       e 6.658 M15; OHLC, tick volume e real volume idênticos com diferença 0,000000)
-- [x] Levantar rolagens do período longo: `robob3 rolagens-candidatas` confirmou 30/30 rolagens do WIN
-      (100% de aderência à regra de vencimento) e 39/59 do WDO nos 5 anos
+- [x] Levantar rolagens do período longo (`robob3 rolagens-candidatas`, M15 de 5 anos) e completar
+      `config/rolagens.yaml`: WIN 30/30 confirmadas; WDO 39/59 confirmadas + 17 pendentes com salto ≥ 0
+      incluídas pela regra (nenhuma troca observada fora dela); 3 pendentes sem ajuste (29/09/2023,
+      31/10/2023, 30/08/2024)
 - [ ] Arquivar exportações periódicas: a janela de 5 anos e a de 100 mil barras M1 andam todo dia;
       o que sair dela não volta (até o gravador da Fase 4 existir)
 - [x] Confirmar negociação algorítmica desligada no terminal MT5; `config/risk.yaml` restrito a `modo: demo`
@@ -56,8 +58,11 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
       1ª extração: ~100 mil barras, 177–180 pregões (02/2026 → 29/10/2026) — ver Notion, seção 4.1
 - [x] `robob3 relatorio-dados` em cada arquivo; registrar no Notion: servidor, símbolo, datas efetivas,
       nº de barras, lacunas, duplicados, SHA-256 do arquivo, data da extração
-- [x] Conferir amostras e horários: Quarta-feira de Cinzas abre pontualmente às 13:00 (2022, 2024, 2025, 2026);
-      pregões até 03/11/2023 encerravam às 18:00 (última barra M15 às 17:45); pausas de leilão pós-eleição (05/10 e 26/10) catalogadas
+- [x] Conferir horários: Quarta-feira de Cinzas abre às 13:00 (2022, 2024, 2025, 2026); pregões até
+      03/11/2023 encerravam às 18:00 (última barra M15 às 17:45); pausas pós-eleição (05/10 e 26/10)
+- [ ] Conferência com fonte **independente** (a validação cruzada M5/M15 × M1 usa a mesma fonte, a
+      Clear): negócios da amostra Nelogica de WDO em 02/03/2022 13:00:41–13:00:48 devem cair dentro da
+      máxima/mínima da barra M15 de 13:00 do `WDO$N` nesse dia (se a série era o mesmo contrato)
 - [x] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas (Parquet salvo em `data/processed/`)
 - [x] Remover pregões parciais das pontas (`robob3 remover-incompletos` ou `reamostrar --remover-incompletos`)
       preservando pregões internos legítimos

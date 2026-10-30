@@ -53,12 +53,21 @@ def test_datas_fora_do_periodo(serie_com_rolagem):
 
 
 def test_config_versionada_coerente():
+    from robob3.data.rollover import _quarta_mais_proxima_do_15
+
     win = carregar_rolagens("WIN", CONFIG)
-    assert win.simbolo == "WIN$N"
-    assert all(d.weekday() == 2 for d in win.datas)  # vencimentos do WIN caem na quarta
-    assert all(d.month % 2 == 0 for d in win.datas)
+    assert win.simbolo == "WIN$N" and len(win.datas) == 30
+    for d in win.datas:
+        # pela regra, ou o pregão seguinte quando a quarta é feriado (ex.: 13/10/2022)
+        regra = _quarta_mais_proxima_do_15(d.year, d.month)
+        assert d.month % 2 == 0 and 0 <= (d - regra).days <= 2, d
     wdo = carregar_rolagens("WDO", CONFIG)
-    assert date(2026, 3, 31) in wdo.pendentes and date(2026, 3, 31) not in wdo.datas
+    assert len(wdo.datas) == 56
+    assert wdo.pendentes == [date(2023, 9, 29), date(2023, 10, 31), date(2024, 8, 30)]
+    assert not set(wdo.datas) & set(wdo.pendentes)
+    meses = [(d.year, d.month) for d in wdo.datas + wdo.pendentes]
+    assert len(meses) == len(set(meses))  # no máximo uma troca por mês
+    assert all(d.day >= 25 for d in wdo.datas)  # fim de mês
     with pytest.raises(ValueError, match="não está"):
         carregar_rolagens("XYZ", CONFIG)
 
