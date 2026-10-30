@@ -4,6 +4,7 @@ Faixa de abertura de todos os cenários = a do exemplo do documento:
 máxima 125.000, mínima 124.600 -> gatilho de compra 125.005, de venda 124.595.
 """
 
+import json
 from datetime import time
 
 import pandas as pd
@@ -197,13 +198,44 @@ def test_cli_backtest_orb(quatro_dias, tmp_path, capsys, monkeypatch):
     monkeypatch.setitem(orb.PERIODOS, "desenvolvimento", ("2024-01-01", "2025-12-31"))
     ops = tmp_path / "res" / "ops.csv"
     args = ["backtest-orb", str(arq), "--aleatorio", "50", "--operacoes", str(ops)]
-    assert main(args) == 0
+    assert main([*args, "--manifesto", ""]) == 0
     out = capsys.readouterr().out
     assert '"operacoes": 2' in out and '"entrada_aleatoria"' in out and ops.exists()
+    assert "manifesto:" not in out
 
-    assert main(["backtest-orb", str(arq), "--grade"]) == 0
+    monkeypatch.setenv("ROBOB3_COMMIT", "a" * 40)
+    monkeypatch.setenv("ROBOB3_ALTERADO", "0")
+    pasta = tmp_path / "manifestos"
+    grade = ["backtest-orb", str(arq), "--grade", "--aleatorio", "20", "--manifesto", str(pasta)]
+    assert main(grade) == 0
     out = capsys.readouterr().out
     assert out.count("\n150,") == 3 and "200,2,2," in out
+
+    # manifesto: uma linha por combinação, com tudo o que é preciso para refazer a rodada
+    (arquivo,) = pasta.glob("win-orb-v1_desenvolvimento_conservadora_*.json")
+    m = json.loads(arquivo.read_text())
+    assert m["codigo"] == {"commit": "a" * 40, "codigo_alterado": False}
+    assert m["dados"]["arquivo"] == "WIN_M5.csv" and len(m["dados"]["sha256"]) == 64
+    assert m["custos"] == {
+        "custo_lado_brl": 0.25,
+        "sensibilidade_custo_lado_brl": 0.5,
+        "derrapagem_pts": 5.0,
+        "valor_ponto_brl": 0.2,
+    }
+    assert (m["trecho"], m["ativo"], m["timeframe"], m["ambiguidade"]) == (
+        "desenvolvimento",
+        "WIN$N",
+        "M5",
+        "conservadora",
+    )
+    assert m["entrada_aleatoria"] == {"sorteios": 20, "semente": 42}
+    assert [(x["parametros"]["stop"], x["parametros"]["alvo"]) for x in m["linhas"]] == [
+        (s, a) for s in (150, 200, 300) for a in (1.5, 2.0, 3.0)
+    ]
+    linha = m["linhas"][4]  # stop 200, alvo 2x
+    assert linha["operacoes"] == 2 and "percentil_estrategia" in linha["entrada_aleatoria"]
+    assert {"expectativa", "acerto_pct", "ambiguas", "resultado_custo_0.50"} <= set(linha)
+    assert m["comando"][:3] == ["robob3", "backtest-orb", str(arq)]
 
     # fora da amostra exige confirmação explícita
     assert main(["backtest-orb", str(arq), "--periodo", "fora-da-amostra"]) == 2

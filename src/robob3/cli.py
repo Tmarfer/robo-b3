@@ -11,6 +11,7 @@ from datetime import time
 from pathlib import Path
 
 from robob3.backtest import PERIODOS, ParametrosORB, backtest_orb, entrada_aleatoria, resumo
+from robob3.backtest.manifesto import gravar_manifesto, montar_manifesto
 from robob3.coleta import PonteMT5, exportar, gravar_m1, status
 from robob3.config import carregar_config
 from robob3.data import (
@@ -161,6 +162,22 @@ def cmd_reamostrar(args: argparse.Namespace) -> int:
 
 
 GRADE_ORB = [(s, a) for s in (150, 200, 300) for a in (1.5, 2.0, 3.0)]
+CUSTO_SENSIBILIDADE = 0.50  # R$ por lado, sensibilidade obrigatória da especificação
+
+
+def _linha_orb(df, p: ParametrosORB, inicio: str, fim: str, sorteios: int) -> tuple[dict, object]:
+    """Métricas de uma combinação, no formato das linhas do manifesto."""
+    res = backtest_orb(df, p, inicio, fim)
+    r = resumo(res.operacoes)
+    linha = {"parametros": {"stop": p.stop, "alvo": p.alvo}} | r
+    if r["operacoes"]:
+        linha["resultado_custo_0.50"] = round(
+            r["resultado_brl"] - r["operacoes"] * 2 * (CUSTO_SENSIBILIDADE - p.custo_lado), 2
+        )
+        linha["dias_sem_operacao"] = res.sem_operacao["motivo"].value_counts().to_dict()
+        if sorteios:
+            linha["entrada_aleatoria"] = entrada_aleatoria(df, res, sorteios=sorteios)
+    return linha, res
 
 
 def cmd_backtest_orb(args: argparse.Namespace) -> int:
@@ -171,54 +188,74 @@ def cmd_backtest_orb(args: argparse.Namespace) -> int:
         )
         return 2
     inicio, fim = PERIODOS[args.periodo]
-    df = ler_barras_mt5(args.arquivo)
+    arquivo = Path(args.arquivo)
+    df = ler_barras_mt5(arquivo)
     print(
         f"win-orb-v1 | {args.periodo}: {inicio} a {fim} | custo R$ {args.custo:.2f}/lado | "
         f"barras ambíguas: {args.ambiguidade}"
     )
 
+    def params(stop, alvo):
+        return ParametrosORB(
+            stop=stop, alvo=alvo, custo_lado=args.custo, ambiguidade=args.ambiguidade
+        )
+
+    combinacoes = GRADE_ORB if args.grade else [(args.stop, args.alvo)]
+    linhas = []
     if args.grade:
         print(
             "stop,alvo,operacoes,resultado_brl,resultado_custo_0.50,fator_lucro,acerto_pct,"
-            "drawdown_max,ambiguas,por_ano"
+            "expectativa,drawdown_max,ambiguas,percentil_aleatorio,por_ano"
         )
-        for stop, alvo in GRADE_ORB:
-            p = ParametrosORB(
-                stop=stop, alvo=alvo, custo_lado=args.custo, ambiguidade=args.ambiguidade
-            )
-            r = resumo(backtest_orb(df, p, inicio, fim).operacoes)
-            if not r["operacoes"]:
-                print(f"{stop:g},{alvo:g},0")
-                continue
-            estresse = r["resultado_brl"] - r["operacoes"] * 2 * (0.50 - args.custo)
-            anos = " ".join(f"{a}:{v:+.2f}" for a, v in r["por_ano"].items())
+    for stop, alvo in combinacoes:
+        linha, res = _linha_orb(df, params(stop, alvo), inicio, fim, args.aleatorio)
+        linhas.append(linha)
+        if not args.grade:
+            print(json.dumps(linha, ensure_ascii=False, indent=2))
+            if args.operacoes:
+                destino = Path(args.operacoes)
+                destino.parent.mkdir(parents=True, exist_ok=True)
+                res.operacoes.to_csv(destino, index=False)
+                print(f"operações: {destino}")
+        elif not linha["operacoes"]:
+            print(f"{stop:g},{alvo:g},0")
+        else:
+            anos = " ".join(f"{a}:{v:+.2f}" for a, v in linha["por_ano"].items())
+            pct = linha.get("entrada_aleatoria", {}).get("percentil_estrategia", "")
             print(
-                f"{stop:g},{alvo:g},{r['operacoes']},{r['resultado_brl']:.2f},{estresse:.2f},"
-                f"{r['fator_lucro']},{r['acerto_pct']},{r['drawdown_max']:.2f},"
-                f"{r['ambiguas']},{anos}"
+                f"{stop:g},{alvo:g},{linha['operacoes']},{linha['resultado_brl']:.2f},"
+                f"{linha['resultado_custo_0.50']:.2f},{linha['fator_lucro']},"
+                f"{linha['acerto_pct']},{linha['expectativa']},{linha['drawdown_max']:.2f},"
+                f"{linha['ambiguas']},{pct},{anos}"
             )
-        return 0
 
-    p = ParametrosORB(
-        stop=args.stop, alvo=args.alvo, custo_lado=args.custo, ambiguidade=args.ambiguidade
-    )
-    res = backtest_orb(df, p, inicio, fim)
-    r = resumo(res.operacoes)
-    params = {"stop": p.stop, "alvo": p.alvo, "custo_lado": p.custo_lado}
-    saida = {"parametros": params | {"ambiguidade": p.ambiguidade}} | r
-    if r["operacoes"]:
-        saida["resultado_custo_0.50"] = round(
-            r["resultado_brl"] - r["operacoes"] * 2 * (0.50 - args.custo), 2
+    if args.manifesto:
+        p = params(*combinacoes[0])
+        manifesto = montar_manifesto(
+            estrategia="win-orb-v1",
+            ativo="WIN$N",
+            timeframe=f"M{p.minutos}",
+            trecho=args.periodo,
+            periodo=(inicio, fim),
+            dados={
+                "arquivo": arquivo.name,
+                "sha256": _sha256(arquivo),
+                "barras": len(df),
+                "primeira": df.index[0].strftime("%Y-%m-%d %H:%M"),
+                "ultima": df.index[-1].strftime("%Y-%m-%d %H:%M"),
+            },
+            custos={
+                "custo_lado_brl": p.custo_lado,
+                "sensibilidade_custo_lado_brl": CUSTO_SENSIBILIDADE,
+                "derrapagem_pts": p.derrapagem,
+                "valor_ponto_brl": p.valor_ponto,
+            },
+            ambiguidade=args.ambiguidade,
+            aleatorio={"sorteios": args.aleatorio, "semente": 42} if args.aleatorio else None,
+            linhas=linhas,
+            comando=["robob3", *args.argv],
         )
-        saida["dias_sem_operacao"] = res.sem_operacao["motivo"].value_counts().to_dict()
-        if args.aleatorio:
-            saida["entrada_aleatoria"] = entrada_aleatoria(df, res, sorteios=args.aleatorio)
-    print(json.dumps(saida, ensure_ascii=False, indent=2))
-    if args.operacoes:
-        destino = Path(args.operacoes)
-        destino.parent.mkdir(parents=True, exist_ok=True)
-        res.operacoes.to_csv(destino, index=False)
-        print(f"operações: {destino}")
+        print(f"manifesto: {gravar_manifesto(manifesto, args.manifesto)}")
     return 0
 
 
@@ -355,6 +392,11 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--aleatorio", type=int, default=1000, help="sorteios (0 = não rodar)")
     b.add_argument("--operacoes", help="CSV de saída com cada operação")
     b.add_argument(
+        "--manifesto",
+        default="data/backtests",
+        help="pasta do manifesto JSON da rodada (versionado); vazio = não gravar",
+    )
+    b.add_argument(
         "--ambiguidade",
         choices=["conservadora", "otimista"],
         default="conservadora",
@@ -387,6 +429,7 @@ def main(argv: list[str] | None = None) -> int:
     c.set_defaults(func=cmd_validar_config)
 
     args = p.parse_args(argv)
+    args.argv = list(sys.argv[1:] if argv is None else argv)
     return args.func(args)
 
 

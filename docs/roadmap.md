@@ -99,12 +99,19 @@ na 1ª nota) com sensibilidade a R$ 0,50/lado como critério de aprovação.
       lucro 0,82–0,93) → **win-orb-v1 reprovada de forma sólida**; resultado e lições no fim de
       [`win-orb-v1.md`](estrategias/win-orb-v1.md). Fora da amostra não rodado; 2026 intocado
 - [ ] Próxima hipótese: nova especificação em `docs/estrategias/` (Fase 2 de novo), aplicando as lições
+- [x] Manifesto de cada rodada (30/10, `src/robob3/backtest/manifesto.py`): JSON em `data/backtests/`
+      com commit completo, SHA-256 dos dados, custos, derrapagem, modo de ambiguidade, trecho e **uma
+      linha por combinação** (expectativa, acerto, percentil contra o aleatório, barras ambíguas…).
+      Rodar sempre por `infra/vps/lab.sh`, que reconstrói a imagem e passa o hash do commit
+- [ ] Regerar os manifestos da `win-orb-v1` no desenvolvimento (conservadora e otimista) e substituir
+      as linhas do DB Backtests no Notion por uma linha por combinação
 - [ ] Fora da amostra (só se o desenvolvimento aprovar): `--periodo fora-da-amostra
       --confirmo-fora-da-amostra`, uma única vez
 - [ ] Tratamento de rolagem (comparar série ajustada × não ajustada)
 - [ ] Métricas: resultado líquido, drawdown máximo, expectativa por operação, frequência, por ano/regime
 - [ ] Validação temporal progressiva (walk-forward)
-- [ ] Comparar: base × base + filtro de calendário (notícias/IA só com dados históricos adequados)
+- [ ] Filtros (calendário, contexto global): só como hipótese registrada antes de medir, testada como
+      nova versão da estratégia (regras na Base de Conhecimento — Mesa B3, no Notion)
 
 **Saída:** resultado líquido robusto fora da amostra — ou revisão/abandono da hipótese.
 
