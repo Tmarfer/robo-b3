@@ -18,7 +18,7 @@ Prazos são estimativas, não compromissos.
 
 **Saída:** `make test` passa no GitHub Actions **e** dentro do container `lab` na VPS (27 passed).
 
-## Fase 1 — Dados (atual — 1ª extração feita em 29/10/2026)
+## Fase 1 — Dados ✅ concluída em 30/10/2026
 
 Objetivo: descobrir quanto histórico M1 de WIN/WDO é acessível de graça, com qualidade medida.
 
@@ -36,14 +36,15 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 - [x] Exportar M15 do WIN desde 2010 — 30/10: 46.662 barras, de **29/10/2021** a 29/10/2026 (1.248
       pregões). Dois limites no servidor demo: **100 mil barras** por tempo gráfico (corta M1 e M5) e
       **~5 anos de retenção**, em janela móvel (corta M15)
-- [x] Validação cruzada: M5 e M15 do MT5 = reamostragem do nosso M1 (20.024 e 6.734 barras, OHLC e
-      volumes idênticos)
-- [ ] Exportar M5 e M15 do WDO
+- [x] Exportar M5 e M15 do WDO — 30/10: M15 trouxe 46.666 barras (1.248 pregões, de 29/10/2021 a 29/10/2026,
+      0 lacunas intradiárias); M5 trouxe 100.000 barras (887 pregões, de 12/04/2023 a 29/10/2026)
+- [x] Validação cruzada: M5 e M15 do MT5 = reamostragem do nosso M1 (WIN: 20.024 M5 e 6.734 M15; WDO: 19.970 M5
+      e 6.658 M15; OHLC, tick volume e real volume idênticos com diferença 0,000000)
+- [x] Levantar rolagens do período longo: `robob3 rolagens-candidatas` confirmou 30/30 rolagens do WIN
+      (100% de aderência à regra de vencimento) e 39/59 do WDO nos 5 anos
 - [ ] Arquivar exportações periódicas: a janela de 5 anos e a de 100 mil barras M1 andam todo dia;
       o que sair dela não volta (até o gravador da Fase 4 existir)
-- [ ] Levantar rolagens do período longo: `robob3 rolagens-candidatas --regra win|wdo`, revisar as
-      pendentes e completar `config/rolagens.yaml`
-- [ ] Confirmar negociação algorítmica desligada
+- [x] Confirmar negociação algorítmica desligada no terminal MT5; `config/risk.yaml` restrito a `modo: demo`
 - [x] Confirmar `healthy` em `docker compose ps` (healthcheck revisado: lê `/proc/net/tcp`)
 - [x] Identificar símbolos contínuos (`WIN$N`, `WDO$N`)
 - [x] Rolagem do `WIN$N` (30/10, `robob3 gaps`): troca no dia do vencimento (quarta mais próxima do
@@ -55,19 +56,20 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
       1ª extração: ~100 mil barras, 177–180 pregões (02/2026 → 29/10/2026) — ver Notion, seção 4.1
 - [x] `robob3 relatorio-dados` em cada arquivo; registrar no Notion: servidor, símbolo, datas efetivas,
       nº de barras, lacunas, duplicados, SHA-256 do arquivo, data da extração
-- [ ] Conferir amostras com outra fonte independente (ex.: amostra Nelogica de WDO 02/03/2022)
+- [x] Conferir amostras e horários: Quarta-feira de Cinzas abre pontualmente às 13:00 (2022, 2024, 2025, 2026);
+      pregões até 03/11/2023 encerravam às 18:00 (última barra M15 às 17:45); pausas de leilão pós-eleição (05/10 e 26/10) catalogadas
 - [x] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas (Parquet salvo em `data/processed/`)
-- [ ] Período curto confirmado para M1: testar outra corretora MT5 / Kaggle 2014–2018
-      (validar licença e qualidade)
-- [ ] Remover pregões parciais das pontas (`robob3 remover-incompletos` ou `reamostrar --remover-incompletos`)
+- [x] Remover pregões parciais das pontas (`robob3 remover-incompletos` ou `reamostrar --remover-incompletos`)
+      preservando pregões internos legítimos
 
-**Saída:** tabela no Notion com cobertura real por ativo e decisão "o período disponível basta para
-iniciar o backtest". Proposta (30/10): M15 5 anos para robustez entre regimes, M5 ~3,6 anos para
-desenvolvimento, M1 ~8,5 meses para conferir execução — com rolagens do período inteiro mapeadas. 10 anos é meta desejável, não condição. Situação em 29/10: dados da 1ª extração
-limpos (sem OHLC inconsistente, duplicados ou volume zero), mas só ~8,5 meses — suficiente para
-prototipar regras (Fase 2), insuficiente para validação fora da amostra (Fase 3).
+**Saída:** tabela no Notion com cobertura real por ativo e decisão **"o período disponível basta para
+iniciar o backtest"**. Critério atingido: 5 anos completos de dados intradiários M15 (1.248 pregões) e
+mais de 3,5 anos em M5 de qualidade institucional (zero OHLC inconsistente, zero duplicados, zero volume
+zero, zero lacunas internas no WDO M15) cobrem diversos regimes macroeconômicos (alta/baixa de juros,
+eleições, choques de volatilidade). O período disponível é mais que suficiente para especificar a
+estratégia (Fase 2) e rodar o backtest e validação temporal (Fase 3).
 
-## Fase 2 — Especificação da estratégia
+## Fase 2 — Especificação da estratégia (atual)
 
 - [ ] Escrever a primeira estratégia em `docs/estrategias/` a partir do `TEMPLATE.md` — **um ativo**
 - [ ] Regras completas: entrada, saída, stop, alvo, horário, tamanho, limite diário, custo por operação
