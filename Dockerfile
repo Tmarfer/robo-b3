@@ -13,6 +13,7 @@ RUN pip install ".[dev,ponte]"
 
 COPY tests ./tests
 COPY config ./config
+COPY docker-compose.yml ./
 
 RUN useradd --create-home --uid 1000 robo && mkdir -p data logs && chown -R robo /app
 USER robo
