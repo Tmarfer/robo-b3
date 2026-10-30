@@ -84,8 +84,23 @@ make docker-build                 # primeira vez
 docker compose run --rm lab relatorio-dados data/raw/WIN-N_M1_clear-mt5_AAAAMMDD.csv
 ```
 
+O relatório mostra a abertura/fechamento típicos e lista os **pregões incompletos** (1º dia
+cortado pelo limite de barras, dia exportado durante o pregão). Para ver dia a dia:
+`robob3 pregoes ARQUIVO`. Antes do backtest, descartar os incompletos:
+
+```bash
+docker compose run --rm lab remover-incompletos data/raw/WIN-N_M1_clear-mt5_AAAAMMDD.csv \
+  --saida data/processed/WIN-N_M1_clear-mt5_AAAAMMDD_completos.csv
+docker compose run --rm lab reamostrar data/raw/WIN-N_M1_clear-mt5_AAAAMMDD.csv --minutos 5 \
+  --remover-incompletos --saida data/processed/WIN-N_M5_clear-mt5_AAAAMMDD.parquet
+```
+
+Lacunas **no meio** do dia (leilão, pausa — ex.: 26/10/2026 09:27–09:42) não removem o pregão:
+são eventos de mercado e continuam no relatório de lacunas. Se a B3 mudar o horário no período
+(ex.: horário de verão nos EUA), informar `--abertura`/`--fechamento`.
+
 Registrar no Notion, seção 4.1, por ativo: servidor, símbolo, primeira/última barra, pregões,
-lacunas, duplicados, SHA-256 e data da extração. Esse é o critério de saída da Fase 1.
+pregões incompletos, lacunas, duplicados, SHA-256 e data da extração.
 
 ## 7. Fixar a versão da imagem
 

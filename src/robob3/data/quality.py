@@ -7,8 +7,11 @@ pregão reduzido) — o relatório aponta para alguém conferir.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+from datetime import time
 
 import pandas as pd
+
+from robob3.data.sessions import PregaoIncompleto, detectar_incompletos
 
 
 @dataclass
@@ -20,18 +23,21 @@ class Lacuna:
 
 @dataclass
 class RelatorioQualidade:
-    linhas: int
-    primeira: str | None
-    ultima: str | None
-    pregoes: int
-    ordenado: bool
-    timestamps_duplicados: int
-    ohlc_inconsistente: int
-    precos_nao_positivos: int
-    barras_volume_zero: int
-    barras_por_pregao_min: int
-    barras_por_pregao_mediana: float
-    barras_por_pregao_max: int
+    linhas: int = 0
+    primeira: str | None = None
+    ultima: str | None = None
+    pregoes: int = 0
+    ordenado: bool = True
+    timestamps_duplicados: int = 0
+    ohlc_inconsistente: int = 0
+    precos_nao_positivos: int = 0
+    barras_volume_zero: int = 0
+    barras_por_pregao_min: int = 0
+    barras_por_pregao_mediana: float = 0.0
+    barras_por_pregao_max: int = 0
+    abertura_tipica: str = ""
+    fechamento_tipico: str = ""
+    pregoes_incompletos: list[PregaoIncompleto] = field(default_factory=list)
     pregoes_cobertura_baixa: list[str] = field(default_factory=list)
     lacunas_intradiarias: int = 0
     barras_faltando_total: int = 0
@@ -42,7 +48,13 @@ class RelatorioQualidade:
 
     def to_texto(self) -> str:
         d = self.to_dict()
-        linhas = [f"{k}: {v}" for k, v in d.items() if k not in ("maiores_lacunas",)]
+        listas = ("maiores_lacunas", "pregoes_incompletos")
+        linhas = [f"{k}: {v}" for k, v in d.items() if k not in listas]
+        linhas.append(f"pregoes_incompletos: {len(self.pregoes_incompletos)}")
+        linhas += [
+            f"  {p.data} {p.primeira}-{p.ultima} ({p.barras} barras): {p.motivo}"
+            for p in self.pregoes_incompletos
+        ]
         linhas.append("maiores_lacunas:")
         linhas += [
             f"  {g.inicio} -> {g.fim} ({g.barras_faltando} barras)" for g in self.maiores_lacunas
@@ -55,10 +67,16 @@ def avaliar_barras(
     minutos: int = 1,
     limiar_cobertura: float = 0.5,
     top_lacunas: int = 10,
+    abertura: time | None = None,
+    fechamento: time | None = None,
+    tolerancia_min: int = 5,
 ) -> RelatorioQualidade:
-    """Avalia barras de `minutos` minutos indexadas por timestamp."""
+    """Avalia barras de `minutos` minutos indexadas por timestamp.
+
+    `abertura`/`fechamento` vazios = horários mais frequentes nos dados (ver sessions.py).
+    """
     if df.empty:
-        return RelatorioQualidade(0, None, None, 0, True, 0, 0, 0, 0, 0, 0.0, 0)
+        return RelatorioQualidade()
 
     idx = df.index
     ordenado = bool(idx.is_monotonic_increasing)
@@ -86,6 +104,8 @@ def avaliar_barras(
     eh_lacuna = (delta > passo) & mesmo_dia
     faltando = ((delta[eh_lacuna] / passo).round().astype(int) - 1)
 
+    incompletos, ab, fe = detectar_incompletos(limpo, abertura, fechamento, tolerancia_min)
+
     maiores = faltando.sort_values(ascending=False).head(top_lacunas)
     lacunas = [
         Lacuna(str(fim - (n + 1) * passo), str(fim), int(n)) for fim, n in maiores.items()
@@ -104,6 +124,9 @@ def avaliar_barras(
         barras_por_pregao_min=int(por_dia.min()),
         barras_por_pregao_mediana=mediana,
         barras_por_pregao_max=int(por_dia.max()),
+        abertura_tipica=ab,
+        fechamento_tipico=fe,
+        pregoes_incompletos=incompletos,
         pregoes_cobertura_baixa=[d.strftime("%Y-%m-%d") for d in baixa.index],
         lacunas_intradiarias=int(eh_lacuna.sum()),
         barras_faltando_total=int(faltando.sum()),

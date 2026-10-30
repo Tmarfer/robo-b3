@@ -41,8 +41,13 @@ make test
 # relatório de qualidade de um CSV exportado do MT5 (Símbolos > Barras > Exportar)
 robob3 relatorio-dados data/raw/WIN_N_M1.csv
 
-# gerar M5 a partir de M1
-robob3 reamostrar data/raw/WIN_N_M1.csv --minutos 5 --saida data/processed/WIN_M5.parquet
+# abertura/fechamento de cada pregão e remoção dos dias cortados nas pontas
+robob3 pregoes data/raw/WIN_N_M1.csv
+robob3 remover-incompletos data/raw/WIN_N_M1.csv --saida data/processed/WIN_N_M1_completos.csv
+
+# gerar M5 a partir de M1 (já sem pregões incompletos)
+robob3 reamostrar data/raw/WIN_N_M1.csv --minutos 5 --remover-incompletos \
+  --saida data/processed/WIN_M5.parquet
 ```
 
 Na VPS, via Docker:

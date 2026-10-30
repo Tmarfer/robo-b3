@@ -43,7 +43,7 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 - [x] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas (Parquet salvo em `data/processed/`)
 - [ ] Se o período continuar curto após a reexportação: outra corretora MT5 / Kaggle 2014–2018
       (validar licença e qualidade)
-- [ ] Remover pregões parciais das pontas (1º dia começa no meio do pregão; último dia da extração)
+- [ ] Remover pregões parciais das pontas (`robob3 remover-incompletos` ou `reamostrar --remover-incompletos`)
 
 **Saída:** tabela no Notion com cobertura real por ativo e decisão "o período disponível basta para
 iniciar o backtest". 10 anos é meta desejável, não condição. Situação em 29/10: dados da 1ª extração
