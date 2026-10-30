@@ -52,7 +52,8 @@ class RelatorioQualidade:
         linhas = [f"{k}: {v}" for k, v in d.items() if k not in listas]
         linhas.append(f"pregoes_incompletos: {len(self.pregoes_incompletos)}")
         linhas += [
-            f"  {p.data} {p.primeira}-{p.ultima} ({p.barras} barras): {p.motivo}"
+            f"  {p.data} {p.primeira}-{p.ultima} ({p.barras} barras) "
+            f"[{'ponta' if p.ponta else 'interno: investigar'}]: {p.motivo}"
             for p in self.pregoes_incompletos
         ]
         linhas.append("maiores_lacunas:")

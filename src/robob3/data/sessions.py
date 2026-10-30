@@ -1,8 +1,13 @@
 """Pregões: horário de abertura/fechamento por dia e detecção de pregões incompletos.
 
 Um pregão é **incompleto** quando a primeira barra vem depois da abertura típica ou a última vem
-antes do fechamento típico (com tolerância). Isso pega os cortes das pontas de uma exportação —
-1º dia cortado pelo limite de barras, último dia exportado durante o pregão.
+antes do fechamento típico (com tolerância). Há dois tipos:
+
+- **ponta**: 1º ou último dia do arquivo — corte da exportação (limite de barras, exportação
+  durante o pregão). Esses são removidos por padrão.
+- **interno**: dia no meio do período — pregão com horário especial oficial (ex.: Quarta-feira de
+  Cinzas abre às 13:00) ou problema a investigar. Só são removidos se pedido explicitamente,
+  depois de investigados: um pregão especial é um dia real de negociação.
 
 Lacunas no meio do dia (leilão, pausa) **não** tornam o pregão incompleto: são eventos de mercado
 e ficam no relatório de lacunas.
@@ -27,6 +32,7 @@ class PregaoIncompleto:
     ultima: str
     barras: int
     motivo: str
+    ponta: bool  # 1º ou último dia do arquivo (corte da exportação)
 
 
 def resumo_pregoes(df: pd.DataFrame) -> pd.DataFrame:
@@ -90,6 +96,7 @@ def detectar_incompletos(
                 ultima=_fmt(fim[dia]),
                 barras=int(resumo.at[dia, "barras"]),
                 motivo="; ".join(motivos),
+                ponta=dia in (resumo.index[0], resumo.index[-1]),
             )
         )
     return incompletos, _fmt(ab), _fmt(fe)
@@ -100,8 +107,13 @@ def remover_pregoes_incompletos(
     abertura: time | None = None,
     fechamento: time | None = None,
     tolerancia_min: int = 5,
+    internos: bool = False,
 ) -> tuple[pd.DataFrame, list[PregaoIncompleto]]:
-    """Devolve as barras sem os pregões incompletos e a lista do que foi removido."""
+    """Devolve as barras sem os pregões incompletos e a lista do que foi removido.
+
+    Por padrão remove só as pontas; `internos=True` remove também os do meio do período.
+    """
     incompletos, _, _ = detectar_incompletos(df, abertura, fechamento, tolerancia_min)
-    fora = pd.to_datetime([p.data for p in incompletos])
-    return df[~df.index.normalize().isin(fora)], incompletos
+    removidos = [p for p in incompletos if p.ponta or internos]
+    fora = pd.to_datetime([p.data for p in removidos])
+    return df[~df.index.normalize().isin(fora)], removidos

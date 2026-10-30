@@ -41,9 +41,12 @@ def _opcoes_pregao(args: argparse.Namespace) -> dict:
 
 
 def _remover_incompletos(df, args: argparse.Namespace):
-    limpo, removidos = remover_pregoes_incompletos(df, **_opcoes_pregao(args))
+    limpo, removidos = remover_pregoes_incompletos(
+        df, internos=args.remover_internos, **_opcoes_pregao(args)
+    )
     for p in removidos:
-        print(f"removido {p.data} {p.primeira}-{p.ultima} ({p.barras} barras): {p.motivo}")
+        tipo = "ponta" if p.ponta else "interno"
+        print(f"removido [{tipo}] {p.data} {p.primeira}-{p.ultima} ({p.barras} barras): {p.motivo}")
     return limpo
 
 
@@ -104,6 +107,12 @@ def cmd_validar_config(args: argparse.Namespace) -> int:
     return 0
 
 
+_AJUDA_INTERNOS = (
+    "remover também pregões incompletos no meio do período (horário especial ou problema) — "
+    "só depois de investigá-los"
+)
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="robob3")
     sub = p.add_subparsers(dest="comando", required=True)
@@ -130,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     x.add_argument("arquivo")
     x.add_argument("--saida", required=True, help=".csv (formato MT5) ou .parquet")
+    x.add_argument("--remover-internos", action="store_true", help=_AJUDA_INTERNOS)
     x.set_defaults(func=cmd_remover_incompletos)
 
     a = sub.add_parser("reamostrar", parents=[pregao], help="M1 -> M5/M15/...")
@@ -137,8 +147,9 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--minutos", type=int, required=True)
     a.add_argument("--saida", required=True, help=".parquet ou .csv")
     a.add_argument(
-        "--remover-incompletos", action="store_true", help="descartar pregões incompletos antes"
+        "--remover-incompletos", action="store_true", help="descartar pregões cortados nas pontas"
     )
+    a.add_argument("--remover-internos", action="store_true", help=_AJUDA_INTERNOS)
     a.set_defaults(func=cmd_reamostrar)
 
     c = sub.add_parser("validar-config", help="valida config/risk.yaml")

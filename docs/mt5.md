@@ -84,9 +84,15 @@ make docker-build                 # primeira vez
 docker compose run --rm lab relatorio-dados data/raw/WIN-N_M1_clear-mt5_AAAAMMDD.csv
 ```
 
-O relatório mostra a abertura/fechamento típicos e lista os **pregões incompletos** (1º dia
-cortado pelo limite de barras, dia exportado durante o pregão). Para ver dia a dia:
-`robob3 pregoes ARQUIVO`. Antes do backtest, descartar os incompletos:
+O relatório mostra a abertura/fechamento típicos e lista os **pregões incompletos**, em dois tipos:
+
+- **ponta** — 1º ou último dia do arquivo (corte do limite de barras, exportação durante o
+  pregão). Removidos por padrão.
+- **interno: investigar** — dia no meio do período. Pode ser pregão oficial com horário especial
+  (ex.: Quarta-feira de Cinzas abre às 13:00 — dia real de negociação, não remover) ou problema
+  nos dados. Só remover com `--remover-internos`, depois de investigar e registrar no Notion.
+
+Para ver dia a dia: `robob3 pregoes ARQUIVO`. Antes do backtest, descartar as pontas:
 
 ```bash
 docker compose run --rm lab remover-incompletos data/raw/WIN-N_M1_clear-mt5_AAAAMMDD.csv \
