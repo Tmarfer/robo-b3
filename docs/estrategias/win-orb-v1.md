@@ -131,6 +131,37 @@ Barras do dia (fictícias): 09:00 → máx. 125.000 / mín. 124.700; 09:05 → m
 - Variação com salto: se a barra das 09:25 tivesse **aberto** a 125.080, a entrada seria 125.080 + 5 =
   125.085, com stop em 124.880 e alvo em 125.480 (medidos a partir de 125.080).
 
-## Resultado
+## Resultado — reprovada no desenvolvimento (30/10/2026)
 
-A preencher depois do backtest (Fase 3), com link para o relatório e para a página no Notion.
+Desenvolvimento 31/03/2023–30/12/2025, 680 operações por combinação, custo R$ 0,25/lado.
+**Fora da amostra (2026) não foi rodado**, como manda a especificação.
+
+| Stop | Alvo | Oficial (conservadora) | Fator de lucro | Ambíguas | Limite otimista | Fator de lucro |
+| --- | --- | --- | --- | --- | --- | --- |
+| 150 | 1,5× | −R$ 8.876 | 0,46 | 301 (44%) | −R$ 1.132 | 0,92 |
+| 150 | 2× | −R$ 9.633 | 0,45 | 299 | −R$ 2.661 | 0,83 |
+| 150 | 3× | −R$ 9.395 | 0,50 | 298 | −R$ 2.626 | 0,85 |
+| 200 | 1,5× | −R$ 8.296 | 0,59 | 179 (26%) | −R$ 3.175 | 0,83 |
+| 200 | 2× | −R$ 7.483 | 0,65 | 179 | −R$ 2.815 | 0,86 |
+| 200 | 3× | −R$ 7.336 | 0,68 | 178 | −R$ 3.685 | 0,84 |
+| 300 | 1,5× | −R$ 4.032 | 0,85 | 51 (7%) | −R$ 2.162 | 0,92 |
+| 300 | 2× | −R$ 3.692 | 0,87 | 50 | −R$ 2.251 | 0,92 |
+| 300 | 3× | −R$ 3.466 | 0,89 | 50 | −R$ 2.283 | 0,93 |
+
+- Reprova nos critérios 1, 2, 4 e 5 em todas as combinações; nenhum ano positivo na avaliação oficial.
+- **Limite otimista** (barras M5 ambíguas resolvidas a favor, só diagnóstico): também negativo em
+  todas, então a reprovação não depende da resolução M5.
+- No otimista, o acerto (41,8% com stop 150 e alvo 1,5×) é o mesmo de um passeio aleatório (~42%):
+  **não há vantagem nem a favor nem contra o rompimento**. O acerto baixo da avaliação oficial vinha
+  da regra conservadora em barras largas, não de falsos rompimentos.
+- O atrito é de ~R$ 2,50 por operação (R$ 0,50 de custos + 10 pontos de derrapagem = R$ 2,00, além
+  de saltos), cerca de R$ 1.700 nas 680 operações: maior que boa parte do prejuízo no otimista.
+
+**Lições para as próximas hipóteses:**
+
+1. Em M5, stops de 150–200 pontos deixam 26–44% das operações ambíguas. Entrar no **fechamento da
+   barra** (e não por gatilho dentro dela) elimina a ambiguidade de entrada; stops ≥ 300 ou M15
+   reduzem a de saída.
+2. Com ~R$ 2,50 de atrito por operação, a vantagem bruta precisa superar isso com folga: menos
+   operações e alvos maiores pesam a favor.
+3. 2026 continua intocado para a próxima hipótese.

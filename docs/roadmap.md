@@ -95,9 +95,10 @@ na 1ª nota) com sensibilidade a R$ 0,50/lado como critério de aprovação.
       ambígua. Sanidade: em passeio aleatório, fator de lucro ~1,0 e percentil ~65 contra o aleatório
 - [x] Rodar o desenvolvimento na VPS (30/10): grade das 9 combinações, 680 operações cada — **todas
       negativas** (fator de lucro 0,45 a 0,89; nenhum ano positivo). Reprova nos critérios 1, 2, 4 e 5
-- [ ] Antes de encerrar: repetir a grade com `--ambiguidade otimista` (diagnóstico: barras M5 ambíguas a
-      favor). Se o limite otimista também reprovar, a reprovação é sólida; se aprovar, o resultado é
-      inconclusivo com M5 (acerto de 25,6% com stop 150 está muito abaixo do esperado ao acaso, ~40%)
+- [x] Diagnóstico com `--ambiguidade otimista` (30/10): também negativo nas 9 combinações (fator de
+      lucro 0,82–0,93) → **win-orb-v1 reprovada de forma sólida**; resultado e lições no fim de
+      [`win-orb-v1.md`](estrategias/win-orb-v1.md). Fora da amostra não rodado; 2026 intocado
+- [ ] Próxima hipótese: nova especificação em `docs/estrategias/` (Fase 2 de novo), aplicando as lições
 - [ ] Fora da amostra (só se o desenvolvimento aprovar): `--periodo fora-da-amostra
       --confirmo-fora-da-amostra`, uma única vez
 - [ ] Tratamento de rolagem (comparar série ajustada × não ajustada)
