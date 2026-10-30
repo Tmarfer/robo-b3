@@ -74,7 +74,7 @@ zero, zero lacunas internas no WDO M15) cobrem diversos regimes macroeconômicos
 eleições, choques de volatilidade). O período disponível é mais que suficiente para especificar a
 estratégia (Fase 2) e rodar o backtest e validação temporal (Fase 3).
 
-## Fase 2 — Especificação da estratégia (atual)
+## Fase 2 — Especificação da estratégia ✅ concluída em 30/10/2026
 
 - [x] Escrever a primeira estratégia em `docs/estrategias/` a partir do `TEMPLATE.md` — **um ativo**:
       [`win-orb-v1.md`](estrategias/win-orb-v1.md) (30/10), rompimento da faixa de abertura do WIN em M5
@@ -84,10 +84,11 @@ estratégia (Fase 2) e rodar o backtest e validação temporal (Fase 3).
 
 **Saída:** documento revisado; qualquer pessoa conseguiria reproduzir os sinais à mão.
 
-Pendente: revisão do Thiago e conferência dos custos (tabela B3 / nota de corretagem). Depois
-disso, o arquivo fica congelado e a Fase 3 começa pelo motor de backtest.
+Revisada em 30/10 (Antigravity + Thiago) e **congelada**: preço de referência em salto, entrada e alvo
+na mesma barra, dia sem barra das 17:00, faixa incompleta, custo base R$ 0,25/lado (tabela B3; confirmar
+na 1ª nota) com sensibilidade a R$ 0,50/lado como critério de aprovação.
 
-## Fase 3 — Backtest em Python
+## Fase 3 — Backtest em Python (atual)
 
 - [ ] Motor de backtest barra a barra com custos, spread e derrapagem configuráveis
 - [ ] Tratamento de rolagem (comparar série ajustada × não ajustada)
