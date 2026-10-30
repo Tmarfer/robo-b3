@@ -100,6 +100,17 @@ docker compose run --rm lab ajustar-rolagem data/raw/WIN-N_M1_clear-mt5_20261029
   --saida data/processed/WIN-N_M1_clear-mt5_20261029_ajustado.csv
 ```
 
+Para séries longas (M5/M15 de anos), levantar as datas pela regra de cada contrato e conferir:
+
+```bash
+docker compose run --rm lab rolagens-candidatas data/raw/WIN-N_M15_clear-mt5_AAAAMMDD.csv --regra win
+docker compose run --rm lab rolagens-candidatas data/raw/WDO-N_M15_clear-mt5_AAAAMMDD.csv --regra wdo
+```
+
+"Confirmada" = salto positivo e o maior entre o dia e seus vizinhos; "pendente" = revisar à mão
+(ex.: março/2026 do WDO). O comando imprime as listas no formato do YAML, mas **não grava**:
+revisar antes de copiar.
+
 O método aditivo (padrão) mantém as diferenças em pontos dentro de cada dia. Preços de execução no
 backtest continuam vindo da série original. A cada nova extração, conferir novas trocas com
 `robob3 gaps` e atualizar o YAML.

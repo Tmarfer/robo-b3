@@ -31,8 +31,13 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 - [x] Abrir a tela pelo túnel (http://localhost:8080) e logar no simulador (`ClearInvestimentos-DEMO`)
 - [x] "Máx. barras no gráfico" = Ilimitado e reexportar — 29/10: **mesmo resultado** (~100 mil barras
       desde 02/2026); o limite é do servidor demo da Clear, não do terminal
-- [ ] Exportar M5, M15 e H1 direto do MT5: se o limite for por quantidade de barras, M5 cobre ~3,5
-      anos e M15 ~10; se for por data, continua em 02/2026
+- [x] Exportar M5 do WIN desde 2010 — 30/10: **exatamente 100.000 barras**, de 30/03/2023 a 29/10/2026
+      (895 pregões). Limite do servidor é **por quantidade de barras**, não por data
+- [x] Validação cruzada: M5 do MT5 = M5 reamostrado do nosso M1 em 20.024 de 20.024 barras (OHLC e
+      volumes idênticos)
+- [ ] Exportar M5 do WDO e M15 do WIN e do WDO (100 mil barras M15 ≈ 10 anos, se o servidor tiver)
+- [ ] Levantar rolagens do período longo: `robob3 rolagens-candidatas --regra win|wdo`, revisar as
+      pendentes e completar `config/rolagens.yaml`
 - [ ] Confirmar negociação algorítmica desligada
 - [x] Confirmar `healthy` em `docker compose ps` (healthcheck revisado: lê `/proc/net/tcp`)
 - [x] Identificar símbolos contínuos (`WIN$N`, `WDO$N`)
@@ -52,7 +57,8 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 - [ ] Remover pregões parciais das pontas (`robob3 remover-incompletos` ou `reamostrar --remover-incompletos`)
 
 **Saída:** tabela no Notion com cobertura real por ativo e decisão "o período disponível basta para
-iniciar o backtest". 10 anos é meta desejável, não condição. Situação em 29/10: dados da 1ª extração
+iniciar o backtest". Proposta (30/10): M15 ~10 anos para robustez entre regimes, M5 ~3,6 anos para
+desenvolvimento, M1 ~8,5 meses para conferir execução — com rolagens do período inteiro mapeadas. 10 anos é meta desejável, não condição. Situação em 29/10: dados da 1ª extração
 limpos (sem OHLC inconsistente, duplicados ou volume zero), mas só ~8,5 meses — suficiente para
 prototipar regras (Fase 2), insuficiente para validação fora da amostra (Fase 3).
 

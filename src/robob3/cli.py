@@ -13,6 +13,7 @@ from robob3.config import carregar_config
 from robob3.data import (
     ajustar_rolagem,
     avaliar_barras,
+    candidatas_rolagem,
     carregar_rolagens,
     escrever_barras_mt5,
     gaps_abertura,
@@ -96,6 +97,28 @@ def cmd_gaps(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_rolagens_candidatas(args: argparse.Namespace) -> int:
+    cands = candidatas_rolagem(ler_barras_mt5(args.arquivo), args.regra)
+
+    def pct(x):
+        return "" if x is None else f"{x:+.2f}"
+
+    print("data,regra,gap_pct,gap_pct_anterior,gap_pct_seguinte,situacao")
+    for c in cands:
+        situacao = "confirmada" if c.confirmada else "pendente"
+        print(
+            f"{c.data},{c.regra},{pct(c.gap_pct)},{pct(c.gap_pct_anterior)},"
+            f"{pct(c.gap_pct_seguinte)},{situacao}"
+        )
+    ok = [c.data for c in cands if c.confirmada]
+    pend = [c.data for c in cands if not c.confirmada]
+    print(f"\n# {len(cands)} candidatas: {len(ok)} confirmadas, {len(pend)} pendentes")
+    print("# conferir antes de copiar para config/rolagens.yaml")
+    print(f"datas: [{', '.join(ok)}]")
+    print(f"pendentes: [{', '.join(pend)}]")
+    return 0
+
+
 def cmd_ajustar_rolagem(args: argparse.Namespace) -> int:
     rol = carregar_rolagens(args.ativo, args.config)
     df = ler_barras_mt5(args.arquivo)
@@ -176,6 +199,13 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("arquivo")
     v.add_argument("--top", type=int, default=15)
     v.set_defaults(func=cmd_gaps)
+
+    k = sub.add_parser(
+        "rolagens-candidatas", help="datas prováveis de troca de contrato pela regra do ativo"
+    )
+    k.add_argument("arquivo")
+    k.add_argument("--regra", choices=["win", "wdo"], required=True)
+    k.set_defaults(func=cmd_rolagens_candidatas)
 
     j = sub.add_parser(
         "ajustar-rolagem", help="retroajusta a série contínua nas datas de config/rolagens.yaml"

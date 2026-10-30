@@ -8,6 +8,7 @@ from test_sessions import _barras, _dia
 from robob3.cli import main
 from robob3.data import (
     ajustar_rolagem,
+    candidatas_rolagem,
     carregar_rolagens,
     escrever_barras_mt5,
     gaps_abertura,
@@ -71,3 +72,71 @@ def test_cli_ajustar_rolagem(serie_com_rolagem, tmp_path, capsys):
     assert main(args + ["--config", str(cfg)]) == 0
     assert "2026-10-14: 6139 -> 8140, salto +2001" in capsys.readouterr().out
     assert gaps_abertura(ler_barras_mt5(saida)).loc["2026-10-14", "gap_pts"] == 0
+
+
+def _diario(precos: dict[str, float]) -> pd.DataFrame:
+    """Dois candles por pregão (09:00 e 18:29) no preço do dia: o gap é a variação entre dias."""
+    idx, vals = [], []
+    for d, p in precos.items():
+        idx += [pd.Timestamp(f"{d} 09:00"), pd.Timestamp(f"{d} 18:29")]
+        vals += [p, p]
+    s = pd.Series(vals, index=pd.DatetimeIndex(idx), dtype=float)
+    return pd.DataFrame({"open": s, "high": s, "low": s, "close": s, "real_volume": 1.0})
+
+
+def _serie(
+    inicio: str, fim: str, saltos: dict[str, float], sem: tuple = (), ruido: float = 50
+) -> pd.DataFrame:
+    dias = [d for d in pd.bdate_range(inicio, fim).strftime("%Y-%m-%d") if d not in sem]
+    p, precos = 100_000.0, {}
+    for i, d in enumerate(dias):
+        p += saltos.get(d, ruido if i % 2 else -ruido)  # ruído pequeno alternado
+        precos[d] = p
+    return _diario(precos)
+
+
+def test_quarta_mais_proxima_do_15():
+    from robob3.data.rollover import _quarta_mais_proxima_do_15
+
+    # vencimentos do WIN observados em 2026 nos dados da Clear
+    assert [_quarta_mais_proxima_do_15(2026, m) for m in (2, 4, 6, 8, 10)] == [
+        date(2026, 2, 18),
+        date(2026, 4, 15),
+        date(2026, 6, 17),
+        date(2026, 8, 12),
+        date(2026, 10, 14),
+    ]
+
+
+def test_candidatas_win_com_feriado_no_vencimento():
+    # 15/04 sem pregão (feriado fictício): a troca aparece no pregão seguinte, 16/04
+    df = _serie(
+        "2026-02-02",
+        "2026-06-30",
+        {"2026-02-18": 2000, "2026-04-16": 2000, "2026-06-17": 2000},
+        sem=("2026-04-15",),
+    )
+    cands = candidatas_rolagem(df, "win")
+    assert [(c.data, c.regra, c.confirmada) for c in cands] == [
+        ("2026-02-18", "2026-02-18", True),
+        ("2026-04-16", "2026-04-15", True),
+        ("2026-06-17", "2026-06-17", True),
+    ]
+
+
+def test_candidatas_wdo_com_troca_mascarada():
+    # 31/03 com salto pequeno e 01/04 com queda maior (como em março/2026): fica pendente
+    saltos = {"2026-02-27": 35, "2026-03-31": 5, "2026-04-01": -25, "2026-04-30": 30}
+    df = _serie("2026-02-02", "2026-05-15", saltos, ruido=4)
+    cands = {c.data: c for c in candidatas_rolagem(df, "wdo")}
+    assert list(cands) == ["2026-02-27", "2026-03-31", "2026-04-30"]  # maio não terminou
+    assert cands["2026-02-27"].confirmada and cands["2026-04-30"].confirmada
+    assert not cands["2026-03-31"].confirmada
+
+
+def test_cli_rolagens_candidatas(tmp_path, capsys):
+    df = _serie("2026-02-02", "2026-04-30", {"2026-02-18": 2000, "2026-04-15": -10})
+    arq = escrever_barras_mt5(df, tmp_path / "WIN.csv")
+    assert main(["rolagens-candidatas", str(arq), "--regra", "win"]) == 0
+    out = capsys.readouterr().out
+    assert "datas: [2026-02-18]" in out and "pendentes: [2026-04-15]" in out
