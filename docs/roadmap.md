@@ -29,8 +29,10 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
 - [x] Subir MT5 na VPS (`docker compose --profile mt5 up -d mt5`, imagem `lprett/mt5linux`) — 28/10
 - [x] Fixar o digest da imagem em `MT5_IMAGE` e registrar no Notion — 29/10
 - [x] Abrir a tela pelo túnel (http://localhost:8080) e logar no simulador (`ClearInvestimentos-DEMO`)
-- [ ] "Máx. barras no gráfico" = Ilimitado, reiniciar o terminal e **reexportar** — a 1ª extração parou
-      em ~100 mil barras (WDO exatamente 100.000), sinal de limite do terminal
+- [x] "Máx. barras no gráfico" = Ilimitado e reexportar — 29/10: **mesmo resultado** (~100 mil barras
+      desde 02/2026); o limite é do servidor demo da Clear, não do terminal
+- [ ] Exportar M5, M15 e H1 direto do MT5: se o limite for por quantidade de barras, M5 cobre ~3,5
+      anos e M15 ~10; se for por data, continua em 02/2026
 - [ ] Confirmar negociação algorítmica desligada
 - [x] Confirmar `healthy` em `docker compose ps` (healthcheck revisado: lê `/proc/net/tcp`)
 - [x] Identificar símbolos contínuos (`WIN$N`, `WDO$N`)
@@ -41,7 +43,7 @@ Guia: [mt5.md](mt5.md). Ambiente: **Mac + VPS Linux** (sem computador Windows). 
       nº de barras, lacunas, duplicados, SHA-256 do arquivo, data da extração
 - [ ] Conferir amostras com outra fonte independente (ex.: amostra Nelogica de WDO 02/03/2022)
 - [x] Gerar M5/M15 a partir de M1 (`robob3 reamostrar`) — sem preencher lacunas (Parquet salvo em `data/processed/`)
-- [ ] Se o período continuar curto após a reexportação: outra corretora MT5 / Kaggle 2014–2018
+- [ ] Período curto confirmado para M1: testar outra corretora MT5 / Kaggle 2014–2018
       (validar licença e qualidade)
 - [ ] Remover pregões parciais das pontas (`robob3 remover-incompletos` ou `reamostrar --remover-incompletos`)
 
