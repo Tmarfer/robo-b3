@@ -55,6 +55,20 @@ primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da
   grava a conta ao fechar normalmente, e o reinício o encerra à força. Solução adotada: a ponte loga
   a conta demo pela API (`mt5.login`) quando o terminal está deslogado, com `MT5_LOGIN`,
   `MT5_PASSWORD` e `MT5_SERVER` do `.env`; o gravador recusa conta que não seja demo.
+- **Diagnóstico do IPC timeout (30/10, Codex):** com o terminal deslogado e a janela Login aberta,
+  `initialize()` dá `IPC timeout` (com ou sem caminho/`portable`); logado, funciona. Portanto o
+  login pela API não resolve sozinho: o terminal precisa já estar logado. A automação da imagem
+  só clica em coordenadas fixas (488,449), fora da janela Login, e isso causa os bipes; a
+  resolução 1024x768 não mudou a posição da janela nem resolveu o login.
+- **Hipóteses abertas para o login automático:**
+  1. O terminal é iniciado com `/config:C:/MT5/common.ini` (barras normais) e o log diz
+     `launched with C:\`: no Windows `/` também inicia opção, e o caminho pode estar sendo cortado.
+     Com barras invertidas, o `[Common]` do `common.ini` (login, senha, servidor) logaria a cada
+     partida.
+  2. `Accounts: deleted due security reason` voltou a aparecer na recriação mesmo com hostname
+     fixo: a identidade da máquina provavelmente também vem do registro do Wine
+     (`/opt/wineprefix`), que fica no container e não no volume.
+  Enquanto isso: depois de reiniciar ou recriar o `mt5`, logar pela tela (noVNC).
 - **Primeira partida de um container novo:** o script da imagem extrai o pacote do terminal em
   `mt5-data/` e grava `mt5-data/common.ini` a partir do `.env`, com a senha em texto puro. É o
   login automático previsto (conta demo). `mt5-data/` está fora do git; ao montar o backup fora da

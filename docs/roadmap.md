@@ -125,16 +125,17 @@ Thiago): o M1 do servidor anda todo dia e o que sai da janela não volta.
 - [x] Ponte Python ↔ MT5 (`src/robob3/coleta/ponte.py`): RPyC direto em `mt5:18812`, `rpyc` 6.x
       como o servidor da imagem. **Não** usa o cliente `mt5linux` 1.x, que tenta criar containers
       sozinho. Só leitura; dados voltam como listas simples (sem numpy entre versões)
-- [ ] Validar a ponte na VPS: `account_info`, `terminal_info`, `copy_rates_range` (feito pelo próprio
-      `gravar-m1` na 1ª execução)
-      **30/10: bloqueado.** RPyC conecta, mas `mt5.initialize()` dá `(-10005, 'IPC timeout')`: conta
-      apagada ao recriar o container (corrigido com `hostname: mt5`) e terminal build 6092 recusando
-      Wine 9.0 (pede Wine ≥ 10). Ver [`mt5.md`](mt5.md#problemas-encontrados-na-vps-30102026)
+- [x] Validar a ponte na VPS (30/10): `initialize`, `account_info` e `copy_rates_range` funcionam
+      **com a conta logada**. Deslogado, a janela de Login bloqueia o terminal (`IPC timeout`)
+- [ ] Login automático após reinício/recriação do container (ver [`mt5.md`](mt5.md)). Hoje é
+      preciso logar pela tela (noVNC) depois de cada reinício
 - [ ] Testar estabilidade: reinício do container, queda de rede, reconexão
 - [x] Gravador **separado da execução** (30/10, [`gravador.md`](gravador.md)): M1 diário em Parquet,
       dias completos, sem sobrescrever, `registro.jsonl` com metadados. Ticks ficam para depois
-- [ ] Validar o gravador na VPS (backfill + conferência com o M1 exportado à mão). Cron já agendado
-      em 30/10 (`15 8 * * 1-6`); falha até a ponte funcionar
+- [x] Validar o gravador na VPS (30/10): 1ª gravação com WIN 177 dias / 99.278 barras (13/02–29/10)
+      e WDO 176 dias / 99.500 barras (18/02–29/10). Conferência com o M1 exportado à mão: 176 dias
+      idênticos; 29/10 difere só porque as exportações foram feitas com o pregão aberto. Cron
+      `15 8 * * 1-6` agendado
 - [ ] Verificação diária de lacunas e backup fora da VPS
 
 **Saída:** 10 pregões seguidos gravando sem lacuna não explicada.
