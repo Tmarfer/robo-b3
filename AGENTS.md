@@ -25,7 +25,12 @@ laboratório: dados, backtest e gravação de M1. **Nenhuma ordem é enviada**, 
    dizendo por quê.
 5. **MT5:** não desmontar, alterar ou "consertar" o `terminal64.exe` nem usar chaves não
    documentadas no `common.ini`. A imagem é `infra/mt5/Dockerfile` (Wine ≥ 10); refazer só fora do
-   pregão (09:00–18:30 de Brasília).
+   pregão (09:00–18:30 de Brasília). **Permitido e esperado:** o script da própria imagem extrair o
+   pacote oficial do terminal em `mt5-data/` e gravar o `common.ini` com login, senha e servidor
+   do `.env` (chaves documentadas pela MetaQuotes), e o terminal se atualizar sozinho. A regra
+   proíbe só mudanças feitas por nós no binário ou em chaves não documentadas.
+   O `common.ini` contém a senha em texto puro: nunca mostrar o conteúdo nem copiá-lo para fora de
+   `mt5-data/`.
 6. **Dados:** `data/raw/` nunca é editado. Divergência em número: não "conserte", reporte.
 7. **Backtests** só via `infra/vps/lab.sh` (grava o manifesto com o hash do commit). Manifestos em
    `data/backtests/` são commitados e nunca apagados.

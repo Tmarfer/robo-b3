@@ -49,6 +49,10 @@ primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da
   `wineboot -init` (o certo é `-i`) e precisa de GnuTLS. Os três ajustes estão no
   `infra/mt5/Dockerfile`, com `grep -q` para o build falhar se a imagem base mudar. Wine instalado:
   `11.0-r0` (Alpine edge, 30/10/2026).
+- **Primeira partida de um container novo:** o script da imagem extrai o pacote do terminal em
+  `mt5-data/` e grava `mt5-data/common.ini` a partir do `.env`, com a senha em texto puro. É o
+  login automático previsto (conta demo). `mt5-data/` está fora do git; ao montar o backup fora da
+  VPS, tratar essa pasta como sensível.
 - **Não** alterar nem desmontar o `terminal64.exe` e não usar chaves não documentadas no
   `common.ini`: além de frágil a cada atualização, sai do uso permitido do terminal.
 - O healthcheck procurava a porta errada (`0x4974` = 18804); o certo é `0x497C` = 18812.
