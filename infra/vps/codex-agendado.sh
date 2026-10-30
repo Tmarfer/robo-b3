@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Roda o Codex sem supervisão com uma tarefa escrita (arquivo .md) e guarda o relatório em logs/.
 #   infra/vps/codex-agendado.sh infra/vps/tarefas/2026-10-31-login-mt5.md
-# Agendar uma única vez no cron do usuário robo (ex.: 31/10 às 08:30):
+# Agendar uma única vez no cron do usuário autenticado no Codex (nesta VPS, root):
 #   30 8 31 10 * /home/robo/robo-b3/infra/vps/codex-agendado.sh infra/vps/tarefas/2026-10-31-login-mt5.md
 # Ao terminar, a própria linha da tarefa sai do crontab (não roda de novo no ano seguinte).
 set -uo pipefail
@@ -12,6 +12,10 @@ nome=$(basename "$tarefa" .md)
 mkdir -p logs
 # o cron não carrega o PATH do usuário: incluir onde o npm costuma instalar o codex
 export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:/usr/local/bin:/usr/bin:/bin:${PATH:-}"
+# Nesta VPS o codex usa /usr/bin/env node, instalado pelo NVM e ausente no PATH do cron.
+for node_bin in "$HOME"/.nvm/versions/node/*/bin; do
+  [ ! -x "$node_bin/node" ] || export PATH="$node_bin:$PATH"
+done
 
 exec 9>logs/.codex.lock
 flock -n 9 || { echo "$(date -Is) codex já em execução, saindo" >> "logs/codex-$nome.log"; exit 0; }
