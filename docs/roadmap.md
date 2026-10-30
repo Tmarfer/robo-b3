@@ -76,12 +76,16 @@ estratégia (Fase 2) e rodar o backtest e validação temporal (Fase 3).
 
 ## Fase 2 — Especificação da estratégia (atual)
 
-- [ ] Escrever a primeira estratégia em `docs/estrategias/` a partir do `TEMPLATE.md` — **um ativo**
-- [ ] Regras completas: entrada, saída, stop, alvo, horário, tamanho, limite diário, custo por operação
-- [ ] Definir hipótese conservadora para barra M1 que toca stop e alvo juntos
-- [ ] Separar períodos: desenvolvimento × fora da amostra (definidos **antes** de testar)
+- [x] Escrever a primeira estratégia em `docs/estrategias/` a partir do `TEMPLATE.md` — **um ativo**:
+      [`win-orb-v1.md`](estrategias/win-orb-v1.md) (30/10), rompimento da faixa de abertura do WIN em M5
+- [x] Regras completas: entrada, saída, stop, alvo, horário, tamanho, limite diário, custo por operação
+- [x] Definir hipótese conservadora para barra M1 que toca stop e alvo juntos
+- [x] Separar períodos: desenvolvimento × fora da amostra (definidos **antes** de testar)
 
 **Saída:** documento revisado; qualquer pessoa conseguiria reproduzir os sinais à mão.
+
+Pendente: revisão do Thiago e conferência dos custos (tabela B3 / nota de corretagem). Depois
+disso, o arquivo fica congelado e a Fase 3 começa pelo motor de backtest.
 
 ## Fase 3 — Backtest em Python
 
