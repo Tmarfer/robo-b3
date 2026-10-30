@@ -45,6 +45,10 @@ robob3 relatorio-dados data/raw/WIN_N_M1.csv
 robob3 pregoes data/raw/WIN_N_M1.csv
 robob3 remover-incompletos data/raw/WIN_N_M1.csv --saida data/processed/WIN_N_M1_completos.csv
 
+# saltos fechamento -> abertura (rolagem, eventos) e série retroajustada pela rolagem
+robob3 gaps data/raw/WIN_N_M1.csv --top 15
+robob3 ajustar-rolagem data/raw/WIN_N_M1.csv --ativo WIN --saida data/processed/WIN_N_M1_aj.csv
+
 # gerar M5 a partir de M1 (já sem pregões incompletos)
 robob3 reamostrar data/raw/WIN_N_M1.csv --minutos 5 --remover-incompletos \
   --saida data/processed/WIN_M5.parquet

@@ -11,7 +11,9 @@ from pathlib import Path
 
 from robob3.config import carregar_config
 from robob3.data import (
+    ajustar_rolagem,
     avaliar_barras,
+    carregar_rolagens,
     escrever_barras_mt5,
     gaps_abertura,
     ler_barras_mt5,
@@ -93,6 +95,24 @@ def cmd_gaps(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ajustar_rolagem(args: argparse.Namespace) -> int:
+    rol = carregar_rolagens(args.ativo, args.config)
+    df = ler_barras_mt5(args.arquivo)
+    ajustada, ajustes = ajustar_rolagem(df, rol.datas, args.metodo)
+    print(f"{rol.simbolo} — {rol.regra} — método {args.metodo}")
+    for a in ajustes:
+        if a.situacao == "aplicado":
+            print(f"  {a.data}: {a.fech_anterior:g} -> {a.abertura:g}, salto {a.salto:+.6g}")
+        else:
+            print(f"  {a.data}: {a.situacao}")
+    for d in rol.pendentes:
+        print(f"  AVISO: rolagem pendente de confirmação em {d} — sem ajuste")
+    saida = Path(args.saida)
+    _gravar(ajustada, saida, formato_mt5=True)
+    print(f"{len(ajustada)} barras: {saida}")
+    return 0
+
+
 def cmd_remover_incompletos(args: argparse.Namespace) -> int:
     df = ler_barras_mt5(args.arquivo)
     limpo = _remover_incompletos(df, args)
@@ -152,6 +172,16 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("arquivo")
     v.add_argument("--top", type=int, default=15)
     v.set_defaults(func=cmd_gaps)
+
+    j = sub.add_parser(
+        "ajustar-rolagem", help="retroajusta a série contínua nas datas de config/rolagens.yaml"
+    )
+    j.add_argument("arquivo")
+    j.add_argument("--ativo", required=True, help="chave em config/rolagens.yaml (WIN, WDO)")
+    j.add_argument("--saida", required=True, help=".csv (formato MT5) ou .parquet")
+    j.add_argument("--metodo", choices=["aditivo", "razao"], default="aditivo")
+    j.add_argument("--config", default="config/rolagens.yaml")
+    j.set_defaults(func=cmd_ajustar_rolagem)
 
     x = sub.add_parser(
         "remover-incompletos", parents=[pregao], help="descarta pregões cortados nas pontas"

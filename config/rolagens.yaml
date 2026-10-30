@@ -1,0 +1,18 @@
+# Datas de troca de contrato das séries contínuas da Clear (MT5, ClearInvestimentos-DEMO).
+# As séries $N NÃO são ajustadas no servidor: o salto da troca aparece no preço.
+# Convenção: a 1ª barra da data listada já é do contrato novo.
+# Fonte: robob3 gaps sobre a extração M1 de 29/10/2026 (análise de 30/10/2026; ver Notion, 4.1).
+# Usado por: robob3 ajustar-rolagem --ativo WIN|WDO
+
+WIN:
+  simbolo: WIN$N
+  regra: dia do vencimento (quarta-feira mais próxima do dia 15 dos meses pares)
+  datas: [2026-02-18, 2026-04-15, 2026-06-17, 2026-08-12, 2026-10-14]
+
+WDO:
+  simbolo: WDO$N
+  regra: último dia útil do mês (um pregão antes do vencimento, no 1º dia útil)
+  datas: [2026-02-27, 2026-04-30, 2026-05-29, 2026-06-30, 2026-07-31, 2026-08-31, 2026-09-30]
+  # Março/2026: sem salto em 31/03 (+0,09%); 01/04 −0,44%, 02/04 +0,66%. Rolagem provavelmente
+  # mascarada por movimento de mercado. Sem ajuste até confirmar.
+  pendentes: [2026-03-31]
