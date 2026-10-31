@@ -1,0 +1,83 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T23:20:10+00:00",
+  "estrategia": "win-codex-falso-confirmado-v2",
+  "ativo": "WIN$N",
+  "timeframe": "M1",
+  "trecho": "2026-fev-set-exploratorio",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "df2429efac572711969d169a8a7e88c1d9c8c3f2",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d",
+    "barras_periodo": 89143
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2
+  },
+  "ambiguidade": "adverso",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-falso-adverso",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "stop_ticks": 3,
+      "caminho": "adverso-com-confirmacao",
+      "operacoes": 31241,
+      "resultado_brl": -124723.5,
+      "por_mes": {
+        "2026-02": -8634.0,
+        "2026-03": -19031.5,
+        "2026-04": -15922.0,
+        "2026-05": -15523.5,
+        "2026-06": -15842.0,
+        "2026-07": -16855.5,
+        "2026-08": -15798.0,
+        "2026-09": -17117.0
+      },
+      "acerto_pct": 10.15,
+      "fator_lucro": 0.013,
+      "drawdown_max": -124724.0,
+      "por_motivo": {
+        "stop inicial": 28069,
+        "stop móvel": 3172,
+        "fim do pregão": 0
+      }
+    },
+    {
+      "stop_ticks": 5,
+      "caminho": "adverso-com-confirmacao",
+      "operacoes": 31035,
+      "resultado_brl": -152019.5,
+      "por_mes": {
+        "2026-02": -10857.0,
+        "2026-03": -24418.5,
+        "2026-04": -19374.0,
+        "2026-05": -18540.0,
+        "2026-06": -19076.0,
+        "2026-07": -19823.0,
+        "2026-08": -18951.0,
+        "2026-09": -20980.0
+      },
+      "acerto_pct": 22.88,
+      "fator_lucro": 0.023,
+      "drawdown_max": -152020.0,
+      "por_motivo": {
+        "stop inicial": 23934,
+        "stop móvel": 7101,
+        "fim do pregão": 0
+      }
+    }
+  ]
+}

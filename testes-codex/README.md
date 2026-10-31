@@ -21,6 +21,11 @@ detalhado de operações e a cópia de segurança anterior à correção permane
 O painel reúne essas três ideias e o rompimento anterior. Os recortes em 2026 são
 exploratórios; outubro não faz parte dos testes.
 
+O rompimento falso com trailing está em `rompimento-falso-v2.md`. A primeira rodada
+de interpolação linear é inválida para avaliação e está preservada apenas para auditoria.
+O painel mostra o diagnóstico com entrada na barra seguinte e hipótese adversa;
+ele não reproduz a sequência real dos negócios e não comprova a execução intrabar.
+
 O teste é exploratório. A rodada de janeiro a setembro de 2026 foi autorizada
 explicitamente por Thiago e registrada separadamente como fora da amostra; outubro
 de 2026 continua reservado. Uma nova regra precisa de nova especificação e de um novo
