@@ -12,6 +12,7 @@ from pathlib import Path
 
 from robob3.backtest import PERIODOS, ParametrosORB, backtest_orb, entrada_aleatoria, resumo
 from robob3.backtest.manifesto import gravar_manifesto, montar_manifesto
+from robob3.backtest.pivo import ParametrosPivo, backtest_pivo, entrada_aleatoria_pivo
 from robob3.coleta import PonteMT5, exportar, gravar_m1, status
 from robob3.config import carregar_config
 from robob3.data import (
@@ -161,26 +162,15 @@ def cmd_reamostrar(args: argparse.Namespace) -> int:
     return 0
 
 
-GRADE_ORB = [(s, a) for s in (150, 200, 300) for a in (1.5, 2.0, 3.0)]
+GRADE_ORB = [{"stop": s, "alvo": a} for s in (150, 200, 300) for a in (1.5, 2.0, 3.0)]
+GRADE_PIVO = [{"alvo": a, "tol": t} for a in (0.5, 1.0) for t in (0.05, 0.10, 0.15)]
 CUSTO_SENSIBILIDADE = 0.50  # R$ por lado, sensibilidade obrigatória da especificação
 
 
-def _linha_orb(df, p: ParametrosORB, inicio: str, fim: str, sorteios: int) -> tuple[dict, object]:
-    """Métricas de uma combinação, no formato das linhas do manifesto."""
-    res = backtest_orb(df, p, inicio, fim)
-    r = resumo(res.operacoes)
-    linha = {"parametros": {"stop": p.stop, "alvo": p.alvo}} | r
-    if r["operacoes"]:
-        linha["resultado_custo_0.50"] = round(
-            r["resultado_brl"] - r["operacoes"] * 2 * (CUSTO_SENSIBILIDADE - p.custo_lado), 2
-        )
-        linha["dias_sem_operacao"] = res.sem_operacao["motivo"].value_counts().to_dict()
-        if sorteios:
-            linha["entrada_aleatoria"] = entrada_aleatoria(df, res, sorteios=sorteios)
-    return linha, res
-
-
-def cmd_backtest_orb(args: argparse.Namespace) -> int:
+def _rodar_backtest(args, estrategia: str, combinacoes: list[dict], rodar, aleatoria) -> int:
+    """Roda uma ou mais combinações e grava o manifesto da rodada.
+    `rodar(df, combinacao, inicio, fim)` devolve um ResultadoBacktest;
+    `aleatoria(df, res, sorteios)` devolve a comparação com a entrada aleatória."""
     if args.periodo == "fora-da-amostra" and not args.confirmo_fora_da_amostra:
         print(
             "O período fora da amostra roda UMA vez, com a combinação escolhida no\n"
@@ -191,25 +181,29 @@ def cmd_backtest_orb(args: argparse.Namespace) -> int:
     arquivo = Path(args.arquivo)
     df = ler_barras_mt5(arquivo)
     print(
-        f"win-orb-v1 | {args.periodo}: {inicio} a {fim} | custo R$ {args.custo:.2f}/lado | "
+        f"{estrategia} | {args.periodo}: {inicio} a {fim} | custo R$ {args.custo:.2f}/lado | "
         f"barras ambíguas: {args.ambiguidade}"
     )
-
-    def params(stop, alvo):
-        return ParametrosORB(
-            stop=stop, alvo=alvo, custo_lado=args.custo, ambiguidade=args.ambiguidade
-        )
-
-    combinacoes = GRADE_ORB if args.grade else [(args.stop, args.alvo)]
-    linhas = []
+    nomes = list(combinacoes[0])
     if args.grade:
         print(
-            "stop,alvo,operacoes,resultado_brl,resultado_custo_0.50,fator_lucro,acerto_pct,"
-            "expectativa,drawdown_max,ambiguas,percentil_aleatorio,por_ano"
+            ",".join(nomes) + ",operacoes,resultado_brl,resultado_custo_0.50,fator_lucro,"
+            "acerto_pct,expectativa,drawdown_max,ambiguas,percentil_aleatorio,por_ano"
         )
-    for stop, alvo in combinacoes:
-        linha, res = _linha_orb(df, params(stop, alvo), inicio, fim, args.aleatorio)
+    linhas = []
+    for comb in combinacoes:
+        res = rodar(df, comb, inicio, fim)
+        r = resumo(res.operacoes)
+        linha = {"parametros": comb} | r
+        if r["operacoes"]:
+            linha["resultado_custo_0.50"] = round(
+                r["resultado_brl"] - r["operacoes"] * 2 * (CUSTO_SENSIBILIDADE - args.custo), 2
+            )
+            linha["dias_sem_operacao"] = res.sem_operacao["motivo"].value_counts().to_dict()
+            if args.aleatorio:
+                linha["entrada_aleatoria"] = aleatoria(df, res, args.aleatorio)
         linhas.append(linha)
+        valores = ",".join(f"{comb[n]:g}" for n in nomes)
         if not args.grade:
             print(json.dumps(linha, ensure_ascii=False, indent=2))
             if args.operacoes:
@@ -218,23 +212,23 @@ def cmd_backtest_orb(args: argparse.Namespace) -> int:
                 res.operacoes.to_csv(destino, index=False)
                 print(f"operações: {destino}")
         elif not linha["operacoes"]:
-            print(f"{stop:g},{alvo:g},0")
+            print(f"{valores},0")
         else:
             anos = " ".join(f"{a}:{v:+.2f}" for a, v in linha["por_ano"].items())
             pct = linha.get("entrada_aleatoria", {}).get("percentil_estrategia", "")
             print(
-                f"{stop:g},{alvo:g},{linha['operacoes']},{linha['resultado_brl']:.2f},"
+                f"{valores},{linha['operacoes']},{linha['resultado_brl']:.2f},"
                 f"{linha['resultado_custo_0.50']:.2f},{linha['fator_lucro']},"
                 f"{linha['acerto_pct']},{linha['expectativa']},{linha['drawdown_max']:.2f},"
                 f"{linha['ambiguas']},{pct},{anos}"
             )
 
     if args.manifesto:
-        p = params(*combinacoes[0])
+        p = res.parametros
         manifesto = montar_manifesto(
-            estrategia="win-orb-v1",
+            estrategia=estrategia,
             ativo="WIN$N",
-            timeframe=f"M{p.minutos}",
+            timeframe="M5",
             trecho=args.periodo,
             periodo=(inicio, fim),
             dados={
@@ -257,6 +251,38 @@ def cmd_backtest_orb(args: argparse.Namespace) -> int:
         )
         print(f"manifesto: {gravar_manifesto(manifesto, args.manifesto)}")
     return 0
+
+
+def cmd_backtest_orb(args: argparse.Namespace) -> int:
+    def rodar(df, comb, inicio, fim):
+        p = ParametrosORB(**comb, custo_lado=args.custo, ambiguidade=args.ambiguidade)
+        return backtest_orb(df, p, inicio, fim)
+
+    combinacoes = GRADE_ORB if args.grade else [{"stop": args.stop, "alvo": args.alvo}]
+    return _rodar_backtest(
+        args,
+        "win-orb-v1",
+        combinacoes,
+        rodar,
+        lambda df, res, n: entrada_aleatoria(df, res, sorteios=n),
+    )
+
+
+def cmd_backtest_pivo(args: argparse.Namespace) -> int:
+    rolagens = carregar_rolagens("WIN", args.rolagens).datas if args.rolagens else []
+
+    def rodar(df, comb, inicio, fim):
+        p = ParametrosPivo(**comb, custo_lado=args.custo, ambiguidade=args.ambiguidade)
+        return backtest_pivo(df, p, inicio, fim, rolagens)
+
+    combinacoes = GRADE_PIVO if args.grade else [{"alvo": args.alvo, "tol": args.tol}]
+    return _rodar_backtest(
+        args,
+        "win-pivo-v1",
+        combinacoes,
+        rodar,
+        lambda df, res, n: entrada_aleatoria_pivo(df, res, sorteios=n),
+    )
 
 
 SIMBOLOS_PADRAO = ["WIN$N", "WDO$N"]
@@ -414,6 +440,21 @@ def main(argv: list[str] | None = None) -> int:
         help="otimista = só diagnóstico (barras ambíguas a favor); a avaliação é a conservadora",
     )
     b.set_defaults(func=cmd_backtest_orb)
+
+    bp = sub.add_parser("backtest-pivo", help="backtest da win-pivo-v1 (docs/estrategias)")
+    bp.add_argument("arquivo", help="CSV M5 do WIN (formato MT5)")
+    bp.add_argument("--periodo", choices=sorted(PERIODOS), default="desenvolvimento")
+    bp.add_argument("--confirmo-fora-da-amostra", action="store_true")
+    bp.add_argument("--grade", action="store_true", help="as 6 combinações da especificação")
+    bp.add_argument("--alvo", type=float, default=1.0, help="fração do caminho até a borda oposta")
+    bp.add_argument("--tol", type=float, default=0.10, help="tolerância (fração da amplitude)")
+    bp.add_argument("--custo", type=float, default=0.25, help="R$ por contrato por lado")
+    bp.add_argument("--aleatorio", type=int, default=1000, help="sorteios (0 = não rodar)")
+    bp.add_argument("--operacoes", help="CSV de saída com cada operação")
+    bp.add_argument("--rolagens", default="config/rolagens.yaml", help="vazio = sem rolagens")
+    bp.add_argument("--manifesto", default="data/backtests", help="pasta do manifesto; vazio = não")
+    bp.add_argument("--ambiguidade", choices=["conservadora", "otimista"], default="conservadora")
+    bp.set_defaults(func=cmd_backtest_pivo)
 
     gr = sub.add_parser("gravar-m1", help="grava o M1 dos dias completos via MT5 (Fase 4)")
     gr.add_argument("--simbolos", nargs="+", default=SIMBOLOS_PADRAO)

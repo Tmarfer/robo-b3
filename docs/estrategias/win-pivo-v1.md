@@ -1,9 +1,10 @@
 # Estratégia: Pivô nos extremos do dia anterior ("Sneaky Pivot") — WIN — v1
 
-> **RASCUNHO — não congelada.** Escrita em 31/10/2026, antes de qualquer teste, a partir do vídeo
-> "How Trading Like an Idiot Makes Me $10,000/Month" (canal The Rumers, setup "Sneaky Pivot").
-> As partes subjetivas do vídeo viraram regras objetivas abaixo; itens marcados **[DECIDIR]**
-> esperam o Thiago. Depois de congelada, mudar uma regra = nova versão (v2…), com data e motivo.
+> Versão 1, escrita em 31/10/2026 **antes de qualquer teste**, a partir do vídeo "How Trading Like
+> an Idiot Makes Me $10,000/Month" (canal The Rumers, setup "Sneaky Pivot"). As partes subjetivas
+> do vídeo viraram regras objetivas abaixo. **Congelada em 31/10/2026** com as decisões do Thiago:
+> saída às 17:00, mínimo de 100 operações e grade de 6 combinações. Mudou uma regra? Nova versão
+> (v2…), com data e motivo.
 
 ## Hipótese
 
@@ -55,7 +56,7 @@ não entra na avaliação.
 | Cancelamento | Se, dentro de B3 e antes do gatilho, o preço for abaixo do stop, o setup é cancelado |
 | Stop | `mín(B1, B2) − 5` (abaixo das mínimas testadas) |
 | Alvo | `ALVO` × distância de `entrada` até `RH` (ver Parâmetros) |
-| Saída por tempo | Abertura da barra M5 das 17:00 (como na v1). **[DECIDIR]** o vídeo segura até o fim do dia |
+| Saída por tempo | Abertura da barra M5 das 17:00, como na v1 (o vídeo segura até o fim do dia; 17:00 evita o fim do pregão e permite comparar) |
 | Operações por dia | Uma. Se as duas zonas armarem (raro), vale o primeiro gatilho |
 | Tamanho | 1 contrato |
 
@@ -69,6 +70,13 @@ derrapagem** contra; stop com 5 pontos contra; alvo como ordem limitada, sem der
 tempo com 5 pontos contra; **R$ 0,25 por lado** (sensibilidade obrigatória com R$ 0,50).
 Ambiguidade dentro de uma barra M5 (stop e alvo, ou entrada e stop): considera **stop**. Modo
 otimista só como diagnóstico.
+
+**Sanidade do motor (31/10/2026, antes do teste):** em 32 passeios aleatórios com 700 pregões cada,
+refazendo as operações no caminho completo de preço (sem barras), o resultado médio foi zero
+(+16,9 e −0,2 pontos por operação em dois lotes; t = 0,89 e −0,01), então o motor não fabrica
+vantagem. O motor favorece de 10 a 13 pontos por operação ao executar o stop exatamente no preço
+quando o preço passa do stop. No WIN, com ticks de 5 pontos, a derrapagem de 5 pontos cobre a maior
+parte disso, mas em mercado rápido o salto pode ser maior. Isso vale também para a v1.
 
 ## Parâmetros
 
@@ -90,8 +98,8 @@ moeda?
 ## Critérios definidos antes do teste
 
 **Desenvolvimento** (todos): 1) resultado líquido positivo; 2) fator de lucro ≥ 1,2;
-3) **pelo menos 100 operações [DECIDIR]** (o setup é seletivo, então 150 como na v1 pode ser
-inalcançável sem dizer nada sobre a vantagem); 4) positivo em 2 dos 3 anos; 5) região estável (a
+3) pelo menos 100 operações (o setup é seletivo; 150, como na v1, poderia ser inalcançável sem
+dizer nada sobre a vantagem); 4) positivo em 2 dos 3 anos; 5) região estável (a
 escolhida e 2 vizinhas positivas); 6) acima de 95% da entrada aleatória; 7) positivo com custo de
 R$ 0,50 por lado. **Fora da amostra:** uma vez só, resultado positivo e fator de lucro ≥ 1,1,
 comparado com a Estratégia de Referência no mesmo período.
