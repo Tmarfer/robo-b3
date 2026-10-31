@@ -32,6 +32,7 @@ export function DashboardContent() {
   const [period,setPeriod]=useState('desenvolvimento');
   const [tf,setTf]=useState('M5');
   const [day,setDay]=useState('');
+  const [dayOutcome,setDayOutcome]=useState('todos');
   const [tradeIdx,setTradeIdx]=useState(0);
   const [levels,setLevels]=useState(false);
   const old=strategy==='rompimento';
@@ -40,7 +41,8 @@ export function DashboardContent() {
   const timeframes=old?['M5']:strategyRows.map(r=>r.timeframe);
   const selectedTf=timeframes.includes(tf)?tf:timeframes[0];
   const selectedTrades=useMemo(()=>old?(selectedPeriod==='desenvolvimento'?oldDev:old2026):allTrades.filter(r=>r.estrategia===strategy && r.periodo===selectedPeriod && r.timeframe===selectedTf),[old,strategy,selectedPeriod,selectedTf,allTrades,oldDev,old2026]);
-  const days=useMemo(()=>[...new Set(selectedTrades.map(o=>o.data))],[selectedTrades]);
+  const dailyTotals=useMemo(()=>selectedTrades.reduce((acc,o)=>{acc[o.data]=(acc[o.data]||0)+o.resultado_brl;return acc;},{}),[selectedTrades]);
+  const days=useMemo(()=>Object.keys(dailyTotals).filter(d=>dayOutcome==='todos' || (dayOutcome==='lucro' && dailyTotals[d]>0) || (dayOutcome==='prejuizo' && dailyTotals[d]<0) || (dayOutcome==='zero' && dailyTotals[d]===0)),[dailyTotals,dayOutcome]);
   const selectedDay=days.includes(day)?day:days[0];
   const dayTrades=selectedTrades.filter(o=>o.data===selectedDay);
   const trade=dayTrades[Math.min(tradeIdx,dayTrades.length-1)];
@@ -69,8 +71,10 @@ export function DashboardContent() {
       <p className="nota">M1 só está disponível para o recorte comparável de fevereiro a setembro de 2026. Barra ambígua: saída pelo stop. Resultados por tempo são simulações diferentes.</p>
     </DataComponent>}
     <DataComponent variant="card" id="pregao" queryId={barQuery} queryIds={[barQuery,primary]} kind="custom" title="Examinar operação" sourceRowsByQuery={scope} displayRows={bars}>
-      <div className="controles"><label>Pregão<select value={selectedDay||''} onChange={e=>{setDay(e.target.value);setTradeIdx(0)}}>{days.map(d=><option key={d} value={d}>{d.split('-').reverse().join('/')}</option>)}</select></label>
-      <label>Operação<select value={Math.min(tradeIdx,Math.max(0,dayTrades.length-1))} onChange={e=>setTradeIdx(Number(e.target.value))}>{dayTrades.map((o,i)=><option key={i} value={i}>{i+1} · {o.entrada_em.slice(11,16)} · {money(o.resultado_brl)}</option>)}</select></label><label><input type="checkbox" checked={levels} onChange={e=>setLevels(e.target.checked)}/> Mostrar alvo e stop</label></div>
+      <div className="controles"><label>Resultado do pregão<select value={dayOutcome} onChange={e=>{setDayOutcome(e.target.value);setDay('');setTradeIdx(0)}}><option value="todos">Todos</option><option value="lucro">Com lucro</option><option value="prejuizo">Com prejuízo</option><option value="zero">Sem lucro nem prejuízo</option></select></label>
+      <label>Pregão<select value={selectedDay||''} disabled={!days.length} onChange={e=>{setDay(e.target.value);setTradeIdx(0)}}>{days.length?days.map(d=><option key={d} value={d}>{d.split('-').reverse().join('/')} · {money(dailyTotals[d])}</option>):<option value="">Nenhum pregão encontrado</option>}</select></label>
+      <label>Operação<select value={Math.min(tradeIdx,Math.max(0,dayTrades.length-1))} disabled={!dayTrades.length} onChange={e=>setTradeIdx(Number(e.target.value))}>{dayTrades.length?dayTrades.map((o,i)=><option key={i} value={i}>{i+1} · {o.entrada_em.slice(11,16)} · {money(o.resultado_brl)}</option>):<option value="0">Nenhuma operação</option>}</select></label><label><input type="checkbox" checked={levels} onChange={e=>setLevels(e.target.checked)}/> Mostrar alvo e stop</label></div>
+      <p className="nota">O filtro considera a soma líquida de todas as operações do pregão na estratégia, no período e no tempo gráfico selecionados.</p>
       <Candle bars={bars} trade={trade} levels={levels}/><p className="nota">As marcações identificam barras, não o instante exato. Passe o cursor sobre a barra para ver os preços.</p>
       {trade && <div className="detalhes" data-reviewed-rows>{trade.lado===-1?'Venda':'Compra'} {trade.entrada_em.slice(11,16)} · {number(trade.entrada)} pontos | Saída {trade.saida_em.slice(11,16)} · {number(trade.saida)} pontos ({trade.motivo}) | {money(trade.resultado_brl)}<br/>Alvo {number(trade.alvo)} · Stop {number(trade.stop)}</div>}
     </DataComponent>

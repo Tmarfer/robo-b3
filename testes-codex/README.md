@@ -10,8 +10,10 @@ Mac, com o código commitado e no ambiente `.venv`:
 O comando gera um manifesto versionável em `data/backtests/` e um arquivo local
 `resultado.json` com operações e barras do desenvolvimento. O resultado local e a
 pasta `painel/` são ignorados pelo Git porque contêm dados derivados do CSV bruto.
-O painel gerado usa uma fotografia dessa rodada; rodar novamente não o atualiza sozinho.
-`DashboardContent.jsx` e `dashboard.css` guardam o conteúdo do painel gerado.
+O arquivo local `Painel-WIN.html` abre diretamente no navegador, sem servidor. Basta
+dar dois cliques nele no Finder. Ele contém uma fotografia das rodadas e não se
+atualiza sozinho ao executar novos testes. É ignorado pelo Git porque contém dados
+derivados dos CSVs. `DashboardContent.jsx` e `dashboard.css` guardam a interface.
 
 As três ideias de médias, MACD e estocástico e os recortes usados estão detalhados em
 `fichas-v1.md`. Os nove manifestos da grade ficam em `data/backtests/`; o resultado
