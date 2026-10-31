@@ -1,0 +1,318 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T19:52:30+00:00",
+  "estrategia": "win-pivo-v1",
+  "ativo": "WIN$N",
+  "timeframe": "M5",
+  "trecho": "desenvolvimento",
+  "periodo": {
+    "inicio": "2023-03-31",
+    "fim": "2025-12-30"
+  },
+  "codigo": {
+    "commit": "5c37569bd57958b9a86458d8f0e38ad7b73f6f76",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M5_clear-mt5_20261030.csv",
+    "sha256": "c71792570d658f216067d9e1c08d18d6209732eec23535353a4c2be4eeb7d392",
+    "barras": 100000,
+    "primeira": "2023-03-30 11:10",
+    "ultima": "2026-10-29 18:30"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "sensibilidade_custo_lado_brl": 0.5,
+    "derrapagem_pts": 5.0,
+    "valor_ponto_brl": 0.2
+  },
+  "ambiguidade": "conservadora",
+  "entrada_aleatoria": {
+    "sorteios": 1000,
+    "semente": 42
+  },
+  "comando": [
+    "robob3",
+    "backtest-pivo",
+    "data/raw/WIN-N_M5_clear-mt5_20261030.csv",
+    "--grade"
+  ],
+  "linhas": [
+    {
+      "parametros": {
+        "alvo": 0.5,
+        "tol": 0.05
+      },
+      "operacoes": 93,
+      "resultado_brl": -1410.5,
+      "pontos": -6820.0,
+      "acerto_pct": 43.0,
+      "ganho_medio": 89.47,
+      "perda_media": -94.14,
+      "fator_lucro": 0.717,
+      "expectativa": -15.17,
+      "maior_seq_perdas": 5,
+      "drawdown_max": -1670.0,
+      "ambiguas": 8,
+      "por_ano": {
+        "2023": -931.0,
+        "2024": -81.5,
+        "2025": -398.0
+      },
+      "por_motivo": {
+        "stop": 49,
+        "alvo": 36,
+        "tempo": 8
+      },
+      "resultado_custo_0.50": -1457.0,
+      "dias_sem_operacao": {
+        "sem_setup": 478,
+        "sem_gatilho (V)": 24,
+        "sem_gatilho (C)": 24,
+        "cancelado (V)": 23,
+        "cancelado (C)": 21,
+        "rolagem": 17,
+        "abre_fora_do_horario": 4,
+        "barras_incompletas": 2,
+        "sem_historico": 1
+      },
+      "entrada_aleatoria": {
+        "sorteios": 1000,
+        "estrategia_brl": -1410.5,
+        "aleatorio_mediana_brl": -649.5,
+        "aleatorio_p95_brl": 811.5,
+        "percentil_estrategia": 20.4
+      }
+    },
+    {
+      "parametros": {
+        "alvo": 0.5,
+        "tol": 0.1
+      },
+      "operacoes": 115,
+      "resultado_brl": -1392.5,
+      "pontos": -6675.0,
+      "acerto_pct": 42.6,
+      "ganho_medio": 91.89,
+      "perda_media": -89.32,
+      "fator_lucro": 0.764,
+      "expectativa": -12.11,
+      "maior_seq_perdas": 6,
+      "drawdown_max": -1600.5,
+      "ambiguas": 13,
+      "por_ano": {
+        "2023": -664.0,
+        "2024": -256.5,
+        "2025": -472.0
+      },
+      "por_motivo": {
+        "stop": 62,
+        "alvo": 45,
+        "tempo": 8
+      },
+      "resultado_custo_0.50": -1450.0,
+      "dias_sem_operacao": {
+        "sem_setup": 432,
+        "cancelado (V)": 31,
+        "cancelado (C)": 30,
+        "sem_gatilho (C)": 29,
+        "sem_gatilho (V)": 26,
+        "rolagem": 17,
+        "abre_fora_do_horario": 4,
+        "barras_incompletas": 2,
+        "sem_historico": 1
+      },
+      "entrada_aleatoria": {
+        "sorteios": 1000,
+        "estrategia_brl": -1392.5,
+        "aleatorio_mediana_brl": -680.0,
+        "aleatorio_p95_brl": 893.85,
+        "percentil_estrategia": 20.6
+      }
+    },
+    {
+      "parametros": {
+        "alvo": 0.5,
+        "tol": 0.15
+      },
+      "operacoes": 141,
+      "resultado_brl": -1371.5,
+      "pontos": -6505.0,
+      "acerto_pct": 44.7,
+      "ganho_medio": 91.13,
+      "perda_media": -91.19,
+      "fator_lucro": 0.807,
+      "expectativa": -9.73,
+      "maior_seq_perdas": 6,
+      "drawdown_max": -1509.0,
+      "ambiguas": 13,
+      "por_ano": {
+        "2023": -613.5,
+        "2024": -141.0,
+        "2025": -617.0
+      },
+      "por_motivo": {
+        "stop": 72,
+        "alvo": 58,
+        "tempo": 11
+      },
+      "resultado_custo_0.50": -1442.0,
+      "dias_sem_operacao": {
+        "sem_setup": 380,
+        "cancelado (C)": 40,
+        "cancelado (V)": 36,
+        "sem_gatilho (C)": 34,
+        "sem_gatilho (V)": 32,
+        "rolagem": 17,
+        "abre_fora_do_horario": 4,
+        "barras_incompletas": 2,
+        "sem_historico": 1
+      },
+      "entrada_aleatoria": {
+        "sorteios": 1000,
+        "estrategia_brl": -1371.5,
+        "aleatorio_mediana_brl": -512.0,
+        "aleatorio_p95_brl": 1167.6,
+        "percentil_estrategia": 20.4
+      }
+    },
+    {
+      "parametros": {
+        "alvo": 1.0,
+        "tol": 0.05
+      },
+      "operacoes": 93,
+      "resultado_brl": -1284.5,
+      "pontos": -6190.0,
+      "acerto_pct": 33.3,
+      "ganho_medio": 153.34,
+      "perda_media": -97.39,
+      "fator_lucro": 0.787,
+      "expectativa": -13.81,
+      "maior_seq_perdas": 9,
+      "drawdown_max": -2041.0,
+      "ambiguas": 8,
+      "por_ano": {
+        "2023": -961.0,
+        "2024": -826.5,
+        "2025": 503.0
+      },
+      "por_motivo": {
+        "stop": 57,
+        "alvo": 21,
+        "tempo": 15
+      },
+      "resultado_custo_0.50": -1331.0,
+      "dias_sem_operacao": {
+        "sem_setup": 478,
+        "sem_gatilho (V)": 24,
+        "sem_gatilho (C)": 24,
+        "cancelado (V)": 23,
+        "cancelado (C)": 21,
+        "rolagem": 17,
+        "abre_fora_do_horario": 4,
+        "barras_incompletas": 2,
+        "sem_historico": 1
+      },
+      "entrada_aleatoria": {
+        "sorteios": 1000,
+        "estrategia_brl": -1284.5,
+        "aleatorio_mediana_brl": -71.0,
+        "aleatorio_p95_brl": 1892.35,
+        "percentil_estrategia": 13.9
+      }
+    },
+    {
+      "parametros": {
+        "alvo": 1.0,
+        "tol": 0.1
+      },
+      "operacoes": 115,
+      "resultado_brl": -1089.5,
+      "pontos": -5160.0,
+      "acerto_pct": 34.8,
+      "ganho_medio": 146.35,
+      "perda_media": -92.58,
+      "fator_lucro": 0.843,
+      "expectativa": -9.47,
+      "maior_seq_perdas": 8,
+      "drawdown_max": -1794.5,
+      "ambiguas": 13,
+      "por_ano": {
+        "2023": -664.0,
+        "2024": -1022.5,
+        "2025": 597.0
+      },
+      "por_motivo": {
+        "stop": 70,
+        "alvo": 25,
+        "tempo": 20
+      },
+      "resultado_custo_0.50": -1147.0,
+      "dias_sem_operacao": {
+        "sem_setup": 432,
+        "cancelado (V)": 31,
+        "cancelado (C)": 30,
+        "sem_gatilho (C)": 29,
+        "sem_gatilho (V)": 26,
+        "rolagem": 17,
+        "abre_fora_do_horario": 4,
+        "barras_incompletas": 2,
+        "sem_historico": 1
+      },
+      "entrada_aleatoria": {
+        "sorteios": 1000,
+        "estrategia_brl": -1089.5,
+        "aleatorio_mediana_brl": 131.0,
+        "aleatorio_p95_brl": 2130.35,
+        "percentil_estrategia": 17.0
+      }
+    },
+    {
+      "parametros": {
+        "alvo": 1.0,
+        "tol": 0.15
+      },
+      "operacoes": 141,
+      "resultado_brl": -750.5,
+      "pontos": -3400.0,
+      "acerto_pct": 36.9,
+      "ganho_medio": 145.54,
+      "perda_media": -93.47,
+      "fator_lucro": 0.91,
+      "expectativa": -5.32,
+      "maior_seq_perdas": 7,
+      "drawdown_max": -1526.0,
+      "ambiguas": 13,
+      "por_ano": {
+        "2023": -477.5,
+        "2024": -597.0,
+        "2025": 324.0
+      },
+      "por_motivo": {
+        "stop": 81,
+        "alvo": 35,
+        "tempo": 25
+      },
+      "resultado_custo_0.50": -821.0,
+      "dias_sem_operacao": {
+        "sem_setup": 380,
+        "cancelado (C)": 40,
+        "cancelado (V)": 36,
+        "sem_gatilho (C)": 34,
+        "sem_gatilho (V)": 32,
+        "rolagem": 17,
+        "abre_fora_do_horario": 4,
+        "barras_incompletas": 2,
+        "sem_historico": 1
+      },
+      "entrada_aleatoria": {
+        "sorteios": 1000,
+        "estrategia_brl": -750.5,
+        "aleatorio_mediana_brl": 226.5,
+        "aleatorio_p95_brl": 2308.7,
+        "percentil_estrategia": 23.3
+      }
+    }
+  ]
+}
