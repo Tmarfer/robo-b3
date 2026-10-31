@@ -355,7 +355,7 @@ _AJUDA_INTERNOS = (
 def cmd_backtest_codex_rompimento(args):
     from robob3.backtest.codex_rompimento import executar_rodada
 
-    executar_rodada(args.arquivo)
+    executar_rodada(args.arquivo, args.periodo, args.confirmo_fora_da_amostra)
     return 0
 
 
@@ -465,6 +465,10 @@ def main(argv: list[str] | None = None) -> int:
 
     codex = sub.add_parser("backtest-codex-rompimento", help="experimento M5: máxima anterior")
     codex.add_argument("arquivo", help="CSV M5 do WIN")
+    codex.add_argument(
+        "--periodo", choices=["desenvolvimento", "fora-da-amostra"], default="desenvolvimento"
+    )
+    codex.add_argument("--confirmo-fora-da-amostra", action="store_true")
     codex.set_defaults(func=cmd_backtest_codex_rompimento)
 
     gr = sub.add_parser("gravar-m1", help="grava o M1 dos dias completos via MT5 (Fase 4)")

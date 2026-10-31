@@ -1,6 +1,7 @@
 import pandas as pd
+import pytest
 
-from robob3.backtest.codex_rompimento import simular
+from robob3.backtest.codex_rompimento import executar_rodada, simular
 
 
 def barras(valores):
@@ -48,3 +49,8 @@ def test_encerra_no_fim_e_nao_atravessa_lacuna():
     assert ops[0]["saida"] == 1000
     dados.index = pd.to_datetime(["2025-01-02 09:00", "2025-01-02 09:10", "2025-01-02 09:15"])
     assert simular(dados)[0] == []
+
+
+def test_fora_da_amostra_exige_confirmacao():
+    with pytest.raises(ValueError, match="confirmo-fora-da-amostra"):
+        executar_rodada("arquivo-nao-aberto.csv", "fora-da-amostra")

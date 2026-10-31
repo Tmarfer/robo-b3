@@ -68,12 +68,19 @@ def simular(df):
     return operacoes, barras
 
 
-def executar_rodada(arquivo):
+def executar_rodada(arquivo, periodo="desenvolvimento", confirmo=False):
+    if periodo == "fora-da-amostra" and not confirmo:
+        raise ValueError("Fora da amostra exige --confirmo-fora-da-amostra")
+    periodos = {
+        "desenvolvimento": ("2023-03-31", "2025-12-30"),
+        "fora-da-amostra": ("2026-01-02", "2026-09-30"),
+    }
+    inicio, fim = periodos[periodo]
     caminho = Path(arquivo)
     dados = ler_barras_mt5(caminho)
     if dados.index.has_duplicates or not dados.index.is_monotonic_increasing:
         raise ValueError("Dados duplicados ou fora de ordem: teste interrompido")
-    dados = dados.loc["2023-03-31":"2025-12-30"]
+    dados = dados.loc[inicio:fim]
     ops, barras = simular(dados)
     saldos, acumulado, pico, dd = {}, 0.0, 0.0, 0.0
     for op in ops:
@@ -102,8 +109,8 @@ def executar_rodada(arquivo):
         estrategia="win-codex-rompimento-v1",
         ativo="WIN$N",
         timeframe="M5",
-        trecho="desenvolvimento",
-        periodo=("2023-03-31", "2025-12-30"),
+        trecho=periodo,
+        periodo=(inicio, fim),
         dados={
             "arquivo": caminho.name,
             "sha256": hashlib.sha256(caminho.read_bytes()).hexdigest(),
@@ -112,12 +119,18 @@ def executar_rodada(arquivo):
         custos={"custo_lado_brl": 0.25, "derrapagem_pts": 5, "valor_ponto_brl": 0.2},
         ambiguidade="conservadora",
         linhas=[linha],
-        comando=["robob3", "backtest-codex-rompimento", str(caminho)],
+        comando=["robob3", "backtest-codex-rompimento", str(caminho)]
+        + (
+            ["--periodo", "fora-da-amostra", "--confirmo-fora-da-amostra"]
+            if periodo == "fora-da-amostra"
+            else []
+        ),
     )
     if not manifesto["codigo"]["commit"] or manifesto["codigo"]["codigo_alterado"] is not False:
         raise RuntimeError("É necessário commitar o código antes do backtest")
     destino = gravar_manifesto(manifesto, "data/backtests")
-    Path("testes-codex/resultado.json").write_text(
+    resultado = "resultado-2026-jan-set.json" if periodo == "fora-da-amostra" else "resultado.json"
+    Path("testes-codex", resultado).write_text(
         json.dumps(
             {"manifesto": str(destino), "resumo": linha, "operacoes": ops, "barras": barras},
             ensure_ascii=False,

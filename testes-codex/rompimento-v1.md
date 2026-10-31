@@ -26,5 +26,7 @@ não do capital. Este teste é exploratório; não envia ordens.
 
 Comparar resultado por ano, número de operações, custos, drawdown e motivos de saída.
 Não escolher parâmetros depois de ver o resultado e chamar isso de validação. O período
-reservado de 2026 não é acessado pela simulação. Os custos são hipóteses, não uma nota
+reservado de 2026 só é acessado mediante pedido explícito. Em 31/10/2026, Thiago
+autorizou uma rodada de 02/01/2026 a 30/09/2026; outubro permanece intocado. Essa
+rodada parcial fica separada do desenvolvimento. Os custos são hipóteses, não uma nota
 de corretagem. A série contínua pode conter efeitos de rolagem.
