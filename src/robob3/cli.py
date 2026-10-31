@@ -352,6 +352,13 @@ _AJUDA_INTERNOS = (
 )
 
 
+def cmd_backtest_codex_rompimento(args):
+    from robob3.backtest.codex_rompimento import executar_rodada
+
+    executar_rodada(args.arquivo)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="robob3")
     sub = p.add_subparsers(dest="comando", required=True)
@@ -455,6 +462,10 @@ def main(argv: list[str] | None = None) -> int:
     bp.add_argument("--manifesto", default="data/backtests", help="pasta do manifesto; vazio = não")
     bp.add_argument("--ambiguidade", choices=["conservadora", "otimista"], default="conservadora")
     bp.set_defaults(func=cmd_backtest_pivo)
+
+    codex = sub.add_parser("backtest-codex-rompimento", help="experimento M5: máxima anterior")
+    codex.add_argument("arquivo", help="CSV M5 do WIN")
+    codex.set_defaults(func=cmd_backtest_codex_rompimento)
 
     gr = sub.add_parser("gravar-m1", help="grava o M1 dos dias completos via MT5 (Fase 4)")
     gr.add_argument("--simbolos", nargs="+", default=SIMBOLOS_PADRAO)
