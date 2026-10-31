@@ -1,0 +1,131 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T23:19:03+00:00",
+  "estrategia": "win-codex-rompimento-falso-v2",
+  "ativo": "WIN$N",
+  "timeframe": "M1",
+  "trecho": "2026-fev-set-exploratorio",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "75dac8089f76a724e7bd659224a6752cfd3884b2",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d",
+    "barras_periodo": 89143
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2
+  },
+  "ambiguidade": "duas-sequencias-hipoteticas",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-falso",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "stop_ticks": 3,
+      "caminho": "maxima-primeiro",
+      "operacoes": 43086,
+      "resultado_brl": 459137.0,
+      "por_mes": {
+        "2026-02": 37744.0,
+        "2026-03": 106927.0,
+        "2026-04": 55462.0,
+        "2026-05": 47781.5,
+        "2026-06": 52874.0,
+        "2026-07": 43596.5,
+        "2026-08": 45776.0,
+        "2026-09": 68976.0
+      },
+      "acerto_pct": 86.66,
+      "fator_lucro": 18.75,
+      "drawdown_max": -176.0,
+      "por_motivo": {
+        "stop inicial": 5748,
+        "stop móvel": 37337,
+        "fim do pregão": 1
+      }
+    },
+    {
+      "stop_ticks": 5,
+      "caminho": "maxima-primeiro",
+      "operacoes": 42526,
+      "resultado_brl": 452489.0,
+      "por_mes": {
+        "2026-02": 37361.0,
+        "2026-03": 106398.5,
+        "2026-04": 54605.5,
+        "2026-05": 46740.0,
+        "2026-06": 51927.0,
+        "2026-07": 42658.5,
+        "2026-08": 44742.0,
+        "2026-09": 68056.5
+      },
+      "acerto_pct": 87.95,
+      "fator_lucro": 14.584,
+      "drawdown_max": -212.0,
+      "por_motivo": {
+        "stop inicial": 5124,
+        "stop móvel": 37400,
+        "fim do pregão": 2
+      }
+    },
+    {
+      "stop_ticks": 3,
+      "caminho": "minima-primeiro",
+      "operacoes": 43348,
+      "resultado_brl": 458915.0,
+      "por_mes": {
+        "2026-02": 36937.5,
+        "2026-03": 105454.5,
+        "2026-04": 56236.0,
+        "2026-05": 50048.0,
+        "2026-06": 52075.0,
+        "2026-07": 43303.0,
+        "2026-08": 45907.0,
+        "2026-09": 68954.0
+      },
+      "acerto_pct": 86.46,
+      "fator_lucro": 18.381,
+      "drawdown_max": -143.0,
+      "por_motivo": {
+        "stop inicial": 5867,
+        "stop móvel": 37481,
+        "fim do pregão": 0
+      }
+    },
+    {
+      "stop_ticks": 5,
+      "caminho": "minima-primeiro",
+      "operacoes": 42742,
+      "resultado_brl": 451593.0,
+      "por_mes": {
+        "2026-02": 36446.5,
+        "2026-03": 104778.0,
+        "2026-04": 55289.5,
+        "2026-05": 48926.0,
+        "2026-06": 51238.0,
+        "2026-07": 42156.0,
+        "2026-08": 44743.5,
+        "2026-09": 68015.5
+      },
+      "acerto_pct": 87.78,
+      "fator_lucro": 14.298,
+      "drawdown_max": -138.0,
+      "por_motivo": {
+        "stop inicial": 5224,
+        "stop móvel": 37518,
+        "fim do pregão": 0
+      }
+    }
+  ]
+}

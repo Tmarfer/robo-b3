@@ -36,3 +36,27 @@ reconstituição dos negócios, nem um limite matemático para todos os caminhos
 As duas sequências usam os mesmos OHLC e podem produzir entradas, stops e resultados
 diferentes. Não são dados tick a tick; spread, liquidez e atrasos também não são
 conhecidos. A comparação serve para medir a sensibilidade, não para provar lucratividade.
+
+## Revisão depois da primeira rodada
+
+A rodada de caminhos retos gerou frequência e ganhos artificiais porque a interpolação
+supõe trajetos monotônicos que os OHLC não sustentam. Os resultados dessa rodada são
+**inválidos para avaliação financeira**, mesmo com duas ordens de extremos. O manifesto
+é preservado para auditoria. Em seguida, faz-se diagnóstico separado com sinal no
+fechamento e entrada na abertura da barra seguinte, e tratamento adverso da ambiguidade.
+Essa confirmação altera o instante de entrada solicitado e deve ser apresentada como
+aproximação, não como a execução exata da estratégia original.
+
+### Diagnóstico com sinal confirmado e tratamento adverso
+
+- Sinal de venda: uma barra supera a máxima anterior em pelo menos 1 tick e fecha
+  pelo menos 1 tick abaixo dela. O sinal de compra é o espelho. Se ambos ocorrerem
+  na mesma barra, descartar o sinal. A entrada ocorre na abertura seguinte, somente
+  no mesmo pregão e com barras consecutivas; ela pode diferir do retorno intrabar.
+- Dentro de cada barra, se o stop já em vigor e uma melhora forem possíveis, executar
+  o stop primeiro. Se o stop anterior não tiver sido tocado e o preço puder ativar
+  o trailing, admitir que o preço tenha voltado ao pior stop móvel alcançável segundo
+  a mínima/máxima da barra, mesmo que outro caminho também seja possível. Isso é uma
+  hipótese adversa sobre o caminho, não a observação dos negócios ou garantia de um
+  limite de perdas reais. Quando não houver toque possível, registrar o maior avanço
+  do stop ao fim da barra. Aplicam-se as mesmas hipóteses de custos e gaps acima.
