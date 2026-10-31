@@ -359,6 +359,13 @@ def cmd_backtest_codex_rompimento(args):
     return 0
 
 
+def cmd_backtest_codex_fichas(args):
+    from robob3.backtest.codex_fichas import executar
+
+    executar()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="robob3")
     sub = p.add_subparsers(dest="comando", required=True)
@@ -470,6 +477,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     codex.add_argument("--confirmo-fora-da-amostra", action="store_true")
     codex.set_defaults(func=cmd_backtest_codex_rompimento)
+
+    fichas = sub.add_parser("backtest-codex-fichas", help="três fichas do Notion no WIN")
+    fichas.set_defaults(func=cmd_backtest_codex_fichas)
 
     gr = sub.add_parser("gravar-m1", help="grava o M1 dos dias completos via MT5 (Fase 4)")
     gr.add_argument("--simbolos", nargs="+", default=SIMBOLOS_PADRAO)
