@@ -69,6 +69,14 @@ primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da
      fixo: a identidade da máquina provavelmente também vem do registro do Wine
      (`/opt/wineprefix`), que fica no container e não no volume.
   Enquanto isso: depois de reiniciar ou recriar o `mt5`, logar pela tela (noVNC).
+- **Teste da hipótese do caminho (31/10/2026, branch `fix/mt5-login-config`):** com
+  `/config:"C:\MT5\common.ini"`, o terminal passou a registrar
+  `launched with C:\MT5\common.ini`, mas não autorizou a conta automaticamente. Na primeira
+  partida após recriação, voltou `Accounts: deleted due security reason`; o container ficou
+  healthy, porém o título permaneceu `MetaTrader 5 - Netting - EURUSD,H1`, sem a conta.
+  Não houve interação na tela. O caminho completo, portanto, não resolveu sozinho o login.
+  O segundo reinício e o coletor não foram executados; a imagem da `main` foi restaurada.
+  Causa do login ausente ainda não confirmada; a hipótese da identidade do Wine continua aberta.
 - **Primeira partida de um container novo:** o script da imagem extrai o pacote do terminal em
   `mt5-data/` e grava `mt5-data/common.ini` a partir do `.env`, com a senha em texto puro. É o
   login automático previsto (conta demo). `mt5-data/` está fora do git; ao montar o backup fora da
