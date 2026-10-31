@@ -1,0 +1,81 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T23:39:00+00:00",
+  "estrategia": "codex-macd-12-26-9-trailing-v2",
+  "ativo": "WIN$N",
+  "timeframe": "grade M1/M5/M15",
+  "trecho": "desenvolvimento",
+  "periodo": {
+    "inicio": "2023-03-31",
+    "fim": "2025-12-30"
+  },
+  "codigo": {
+    "commit": "6e5f44c39a7e9be52d424b46979ba570b4e8109b",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M5_clear-mt5_20261030.csv",
+    "sha256": "c71792570d658f216067d9e1c08d18d6209732eec23535353a4c2be4eeb7d392"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2,
+    "stop_inicial_pts": 300,
+    "ativacao_pts": 300,
+    "distancia_trailing_pts": 150
+  },
+  "ambiguidade": "hipotese-adversa",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-fichas-trailing",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "timeframe": "M5",
+      "operacoes": 5731,
+      "resultado_brl": -60234.5,
+      "por_ano": {
+        "2023": -13670.0,
+        "2024": -21782.0,
+        "2025": -24782.5
+      },
+      "acerto_pct": 38.89,
+      "fator_lucro": 0.528,
+      "drawdown_max": -60399.0,
+      "ambiguas": 1482,
+      "por_motivo": {
+        "alvo": 0,
+        "stop": 2773,
+        "sinal": 2498,
+        "fim do pregão": 460
+      },
+      "stops_moveis": 1704,
+      "stops_iniciais": 1069
+    },
+    {
+      "timeframe": "M15",
+      "operacoes": 1685,
+      "resultado_brl": -19923.5,
+      "por_ano": {
+        "2023": -5403.5,
+        "2024": -8019.5,
+        "2025": -6500.5
+      },
+      "acerto_pct": 48.78,
+      "fator_lucro": 0.537,
+      "drawdown_max": -19967.5,
+      "ambiguas": 678,
+      "por_motivo": {
+        "alvo": 0,
+        "stop": 1259,
+        "sinal": 189,
+        "fim do pregão": 237
+      },
+      "stops_moveis": 681,
+      "stops_iniciais": 578
+    }
+  ]
+}

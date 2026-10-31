@@ -1,0 +1,97 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T23:38:59+00:00",
+  "estrategia": "codex-medias-5-20-trailing-v2",
+  "ativo": "WIN$N",
+  "timeframe": "grade M1/M5/M15",
+  "trecho": "2026-fev-set-comparavel",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "6e5f44c39a7e9be52d424b46979ba570b4e8109b",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2,
+    "stop_inicial_pts": 300,
+    "ativacao_pts": 300,
+    "distancia_trailing_pts": 150
+  },
+  "ambiguidade": "hipotese-adversa",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-fichas-trailing",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "timeframe": "M1",
+      "operacoes": 5691,
+      "resultado_brl": -49087.5,
+      "por_ano": {
+        "2026": -49087.5
+      },
+      "acerto_pct": 34.7,
+      "fator_lucro": 0.543,
+      "drawdown_max": -49495.0,
+      "ambiguas": 1119,
+      "por_motivo": {
+        "alvo": 0,
+        "stop": 2138,
+        "sinal": 3428,
+        "fim do pregão": 125
+      },
+      "stops_moveis": 1408,
+      "stops_iniciais": 730
+    },
+    {
+      "timeframe": "M5",
+      "operacoes": 1095,
+      "resultado_brl": -15760.5,
+      "por_ano": {
+        "2026": -15760.5
+      },
+      "acerto_pct": 44.57,
+      "fator_lucro": 0.477,
+      "drawdown_max": -15813.0,
+      "ambiguas": 426,
+      "por_motivo": {
+        "alvo": 0,
+        "stop": 847,
+        "sinal": 181,
+        "fim do pregão": 67
+      },
+      "stops_moveis": 437,
+      "stops_iniciais": 410
+    },
+    {
+      "timeframe": "M15",
+      "operacoes": 335,
+      "resultado_brl": -5732.5,
+      "por_ano": {
+        "2026": -5732.5
+      },
+      "acerto_pct": 47.16,
+      "fator_lucro": 0.436,
+      "drawdown_max": -5818.0,
+      "ambiguas": 160,
+      "por_motivo": {
+        "alvo": 0,
+        "stop": 304,
+        "sinal": 9,
+        "fim do pregão": 22
+      },
+      "stops_moveis": 147,
+      "stops_iniciais": 157
+    }
+  ]
+}

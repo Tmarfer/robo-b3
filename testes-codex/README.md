@@ -21,6 +21,10 @@ detalhado de operações e a cópia de segurança anterior à correção permane
 O painel reúne essas três ideias e o rompimento anterior. Os recortes em 2026 são
 exploratórios; outubro não faz parte dos testes.
 
+As versões com stop móvel dessas três ideias estão em `fichas-trailing-v2.md`.
+No painel, a opção “Saída” alterna entre o stop móvel e o alvo fixo original; a
+comparação informa também as operações sujeitas a ambiguidade dentro da barra.
+
 O rompimento falso com trailing está em `rompimento-falso-v2.md`. A primeira rodada
 de interpolação linear é inválida para avaliação e está preservada apenas para auditoria.
 O painel mostra o diagnóstico com entrada na barra seguinte e hipótese adversa;
