@@ -366,6 +366,15 @@ def cmd_backtest_codex_fichas(args):
     return 0
 
 
+def cmd_backtest_codex_falso(args):
+    from robob3.backtest.codex_falso import executar
+
+    if not args.confirmo_fora_da_amostra:
+        raise ValueError("Esta rodada exige --confirmo-fora-da-amostra")
+    executar()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="robob3")
     sub = p.add_subparsers(dest="comando", required=True)
@@ -480,6 +489,10 @@ def main(argv: list[str] | None = None) -> int:
 
     fichas = sub.add_parser("backtest-codex-fichas", help="três fichas do Notion no WIN")
     fichas.set_defaults(func=cmd_backtest_codex_fichas)
+
+    falso = sub.add_parser("backtest-codex-falso", help="falso rompimento e trailing em M1")
+    falso.add_argument("--confirmo-fora-da-amostra", action="store_true")
+    falso.set_defaults(func=cmd_backtest_codex_falso)
 
     gr = sub.add_parser("gravar-m1", help="grava o M1 dos dias completos via MT5 (Fase 4)")
     gr.add_argument("--simbolos", nargs="+", default=SIMBOLOS_PADRAO)
