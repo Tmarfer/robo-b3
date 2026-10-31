@@ -32,8 +32,9 @@ laboratório: dados, backtest e gravação de M1. **Nenhuma ordem é enviada**, 
    O `common.ini` contém a senha em texto puro: nunca mostrar o conteúdo nem copiá-lo para fora de
    `mt5-data/`.
 6. **Dados:** `data/raw/` nunca é editado. Divergência em número: não "conserte", reporte.
-7. **Backtests** só via `infra/vps/lab.sh` (grava o manifesto com o hash do commit). Manifestos em
-   `data/backtests/` são commitados e nunca apagados.
+7. **Backtests** gravam sempre o manifesto com o hash do commit: na VPS via `infra/vps/lab.sh`; no
+   Mac via `robob3 ...` no `.venv`, com o código commitado (o manifesto marca `codigo_alterado`).
+   Manifestos em `data/backtests/` são commitados e nunca apagados.
 
 ## Rotina
 
