@@ -1,0 +1,89 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T23:00:43+00:00",
+  "estrategia": "codex-macd-12-26-9",
+  "ativo": "WIN$N",
+  "timeframe": "grade M1/M5/M15",
+  "trecho": "2026-fev-set-comparavel",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "e061b63d6a25811c05f5dbda34bce976cac3ac4c",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2,
+    "stop_pts": 300,
+    "alvo_pts": 600
+  },
+  "ambiguidade": "conservadora",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-fichas"
+  ],
+  "linhas": [
+    {
+      "timeframe": "M1",
+      "operacoes": 6946,
+      "resultado_brl": -27342.0,
+      "por_ano": {
+        "2026": -27342.0
+      },
+      "acerto_pct": 30.88,
+      "fator_lucro": 0.805,
+      "drawdown_max": -28908.5,
+      "ambiguas": 2,
+      "por_motivo": {
+        "alvo": 607,
+        "stop": 888,
+        "sinal": 5311,
+        "fim do pregão": 140
+      }
+    },
+    {
+      "timeframe": "M5",
+      "operacoes": 1335,
+      "resultado_brl": -4527.5,
+      "por_ano": {
+        "2026": -4527.5
+      },
+      "acerto_pct": 32.73,
+      "fator_lucro": 0.895,
+      "drawdown_max": -5519.0,
+      "ambiguas": 1,
+      "por_motivo": {
+        "alvo": 282,
+        "stop": 546,
+        "sinal": 395,
+        "fim do pregão": 112
+      }
+    },
+    {
+      "timeframe": "M15",
+      "operacoes": 367,
+      "resultado_brl": -47.5,
+      "por_ano": {
+        "2026": -47.5
+      },
+      "acerto_pct": 35.97,
+      "fator_lucro": 0.997,
+      "drawdown_max": -1247.5,
+      "ambiguas": 1,
+      "por_motivo": {
+        "alvo": 106,
+        "stop": 212,
+        "sinal": 17,
+        "fim do pregão": 32
+      }
+    }
+  ]
+}

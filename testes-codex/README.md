@@ -13,6 +13,12 @@ pasta `painel/` são ignorados pelo Git porque contêm dados derivados do CSV br
 O painel gerado usa uma fotografia dessa rodada; rodar novamente não o atualiza sozinho.
 `DashboardContent.jsx` e `dashboard.css` guardam o conteúdo do painel gerado.
 
+As três ideias de médias, MACD e estocástico e os recortes usados estão detalhados em
+`fichas-v1.md`. Os nove manifestos da grade ficam em `data/backtests/`; o resultado
+detalhado de operações e a cópia de segurança anterior à correção permanecem locais.
+O painel reúne essas três ideias e o rompimento anterior. Os recortes em 2026 são
+exploratórios; outubro não faz parte dos testes.
+
 O teste é exploratório. A rodada de janeiro a setembro de 2026 foi autorizada
 explicitamente por Thiago e registrada separadamente como fora da amostra; outubro
 de 2026 continua reservado. Uma nova regra precisa de nova especificação e de um novo

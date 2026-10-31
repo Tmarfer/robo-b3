@@ -1,0 +1,75 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T23:00:44+00:00",
+  "estrategia": "codex-estocastico-14-3-3",
+  "ativo": "WIN$N",
+  "timeframe": "grade M1/M5/M15",
+  "trecho": "desenvolvimento",
+  "periodo": {
+    "inicio": "2023-03-31",
+    "fim": "2025-12-30"
+  },
+  "codigo": {
+    "commit": "e061b63d6a25811c05f5dbda34bce976cac3ac4c",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M5_clear-mt5_20261030.csv",
+    "sha256": "c71792570d658f216067d9e1c08d18d6209732eec23535353a4c2be4eeb7d392"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2,
+    "stop_pts": 300,
+    "alvo_pts": 600
+  },
+  "ambiguidade": "conservadora",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-fichas"
+  ],
+  "linhas": [
+    {
+      "timeframe": "M5",
+      "operacoes": 3410,
+      "resultado_brl": -17326.0,
+      "por_ano": {
+        "2023": -6855.5,
+        "2024": -4453.0,
+        "2025": -6017.5
+      },
+      "acerto_pct": 41.23,
+      "fator_lucro": 0.845,
+      "drawdown_max": -18351.0,
+      "ambiguas": 1,
+      "por_motivo": {
+        "alvo": 429,
+        "stop": 1717,
+        "sinal": 752,
+        "fim do pregão": 512
+      }
+    },
+    {
+      "timeframe": "M15",
+      "operacoes": 1349,
+      "resultado_brl": -9159.5,
+      "por_ano": {
+        "2023": -2434.5,
+        "2024": -5477.5,
+        "2025": -1247.5
+      },
+      "acerto_pct": 35.8,
+      "fator_lucro": 0.807,
+      "drawdown_max": -10083.0,
+      "ambiguas": 1,
+      "por_motivo": {
+        "alvo": 235,
+        "stop": 717,
+        "sinal": 37,
+        "fim do pregão": 360
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T23:00:43+00:00",
+  "estrategia": "codex-medias-5-20",
+  "ativo": "WIN$N",
+  "timeframe": "grade M1/M5/M15",
+  "trecho": "2026-fev-set-comparavel",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "e061b63d6a25811c05f5dbda34bce976cac3ac4c",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2,
+    "stop_pts": 300,
+    "alvo_pts": 600
+  },
+  "ambiguidade": "conservadora",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-fichas"
+  ],
+  "linhas": [
+    {
+      "timeframe": "M1",
+      "operacoes": 5691,
+      "resultado_brl": -17223.5,
+      "por_ano": {
+        "2026": -17223.5
+      },
+      "acerto_pct": 30.28,
+      "fator_lucro": 0.85,
+      "drawdown_max": -18775.5,
+      "ambiguas": 0,
+      "por_motivo": {
+        "alvo": 594,
+        "stop": 790,
+        "sinal": 4163,
+        "fim do pregão": 144
+      }
+    },
+    {
+      "timeframe": "M5",
+      "operacoes": 1095,
+      "resultado_brl": -2064.5,
+      "por_ano": {
+        "2026": -2064.5
+      },
+      "acerto_pct": 33.52,
+      "fator_lucro": 0.941,
+      "drawdown_max": -4017.0,
+      "ambiguas": 0,
+      "por_motivo": {
+        "alvo": 242,
+        "stop": 478,
+        "sinal": 275,
+        "fim do pregão": 100
+      }
+    },
+    {
+      "timeframe": "M15",
+      "operacoes": 335,
+      "resultado_brl": -612.5,
+      "por_ano": {
+        "2026": -612.5
+      },
+      "acerto_pct": 35.22,
+      "fator_lucro": 0.95,
+      "drawdown_max": -2173.0,
+      "ambiguas": 3,
+      "por_motivo": {
+        "alvo": 90,
+        "stop": 190,
+        "sinal": 19,
+        "fim do pregão": 36
+      }
+    }
+  ]
+}
