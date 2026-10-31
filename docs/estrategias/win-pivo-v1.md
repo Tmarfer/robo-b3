@@ -112,4 +112,82 @@ ficaram sem swing ou sem operação por rolagem.
 
 ## Resultado
 
-Preenchido depois do teste.
+**31/10/2026 — reprovada no desenvolvimento. Nenhuma combinação escolhida; o fora da amostra não
+será rodado.**
+
+Rodada: commit `5c37569`, dados SHA-256 `c71792570d65…`, 31/03/2023 a 30/12/2025, R$ 0,25 por
+lado, 1.000 sorteios da entrada aleatória (semente 42). Manifestos:
+`data/backtests/win-pivo-v1_desenvolvimento_conservadora_20261031-195230.json` e
+`data/backtests/win-pivo-v1_desenvolvimento_otimista_20261031-195243.json`.
+
+### Grade (modo conservador, o que vale)
+
+| ALVO | TOL | Oper. | Resultado R$ | Com R$ 0,50 | Fator de lucro | Acerto | Expect. R$ | DD máx. R$ | 2023 | 2024 | 2025 | Percentil aleatório |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 0,5 | 5% | 93 | −1.410,50 | −1.457,00 | 0,717 | 43,0% | −15,17 | −1.670,00 | −931,00 | −81,50 | −398,00 | 20,4 |
+| 0,5 | 10% | 115 | −1.392,50 | −1.450,00 | 0,764 | 42,6% | −12,11 | −1.600,50 | −664,00 | −256,50 | −472,00 | 20,6 |
+| 0,5 | 15% | 141 | −1.371,50 | −1.442,00 | 0,807 | 44,7% | −9,73 | −1.509,00 | −613,50 | −141,00 | −617,00 | 20,4 |
+| 1,0 | 5% | 93 | −1.284,50 | −1.331,00 | 0,787 | 33,3% | −13,81 | −2.041,00 | −961,00 | −826,50 | +503,00 | 13,9 |
+| 1,0 | 10% | 115 | −1.089,50 | −1.147,00 | 0,843 | 34,8% | −9,47 | −1.794,50 | −664,00 | −1.022,50 | +597,00 | 17,0 |
+| 1,0 | 15% | 141 | −750,50 | −821,00 | 0,910 | 36,9% | −5,32 | −1.526,00 | −477,50 | −597,00 | +324,00 | 23,3 |
+
+**Modo otimista (só diagnóstico):** melhora todas as linhas, mas só `ALVO 1,0 / TOL 15%` fica
+positiva (+R$ 290,50; fator de lucro 1,036; percentil 43,3). As outras cinco continuam negativas
+(−R$ 48,50 a −R$ 1.126,50); percentil de 24,2 a 43,3. Nem no modo otimista algum critério de
+vantagem passaria.
+
+### Os 7 critérios
+
+| # | Critério | Resultado |
+| --- | --- | --- |
+| 1 | Resultado líquido positivo | **Não.** As 6 combinações negativas (−R$ 750,50 a −R$ 1.410,50) |
+| 2 | Fator de lucro ≥ 1,2 | **Não.** Máximo 0,910 |
+| 3 | ≥ 100 operações | Sim para TOL 10% e 15% (115 e 141); não para TOL 5% (93) |
+| 4 | Positivo em 2 dos 3 anos | **Não.** ALVO 1,0 só ganha em 2025; ALVO 0,5 perde nos três anos |
+| 5 | Região estável (escolhida e 2 vizinhas positivas) | **Não.** Não há nenhuma combinação positiva, logo não há região a escolher |
+| 6 | Acima de 95% da entrada aleatória | **Não.** Percentil de 13,9 a 23,3 |
+| 7 | Positivo com R$ 0,50 por lado | **Não.** Todas negativas (−R$ 821,00 a −R$ 1.457,00) |
+
+Pela regra da especificação (combinação do meio de uma região estável), **não há combinação a
+escolher**. Seis de sete critérios falham em todas as combinações.
+
+### Métricas pedidas pela especificação (modo conservador)
+
+- **Pregões:** 687 no período: 17 sem operação por rolagem, 1 sem histórico (primeiro pregão) e
+  669 avaliados; destes, 4 não abriram às 09:00 e 2 não tinham B1–B3 completas.
+- **Sem swing** (independe de ALVO e TOL): sem `SH` em 182 pregões, sem `SL` em 164, sem os dois
+  em 21.
+- **Setups armados e com gatilho, por lado** (armado = gatilho + sem gatilho + cancelado; nenhum
+  dia teve os dois lados armados sem gatilho):
+
+  | TOL | Compra: armados / gatilho | Venda: armados / gatilho | Sem setup |
+  | --- | --- | --- | --- |
+  | 5% | 91 / 46 | 94 / 47 | 478 |
+  | 10% | 116 / 57 | 115 / 58 | 432 |
+  | 15% | 139 / 65 | 144 / 76 | 380 |
+
+  Cerca de metade dos setups armados não chega a disparar (sem gatilho ou cancelado no stop).
+- **Compras × vendas (R$):** as duas pontas perdem em todas as combinações. ALVO 0,5:
+  compras −812,00 / −900,50 / −756,50, vendas −598,50 / −492,00 / −615,00 (TOL 5/10/15%).
+  ALVO 1,0: compras −704,00 / −590,50 / −454,50, vendas −580,50 / −499,00 / −296,00.
+- **Distância do stop** (do preço de gatilho até o stop, em pontos): mínima 150, quartis
+  ~315–350 / 450–490 / 600–640, máxima 1.270. O stop é largo: a mediana (~450 pontos, R$ 90) é
+  quase a perda média por operação (R$ 89–97).
+- **Saídas** (ALVO 1,0 / TOL 10%): 70 no stop, 25 no alvo, 20 por tempo.
+- **Barras ambíguas:** 8 a 13 por combinação; trocá-las de stop para alvo (modo otimista) muda
+  R$ 284 a R$ 1.041 no total, mas não muda a conclusão.
+
+### Leitura
+
+- A reversão nos extremos do pregão anterior, do jeito objetivo que a v1 a definiu, **não mostrou
+  vantagem no WIN** em 2023–2025: perde nas duas pontas, perde nos três anos com ALVO 0,5, e a
+  direção escolhida pelo setup fica abaixo da mediana da moeda (percentil 14–23).
+- Ficar abaixo da mediana **não** é evidência de que o contrário (seguir o rompimento) funcione:
+  para isso o percentil teria de ficar abaixo de 5, e a `win-orb-v1` (rompimento) também já foi
+  reprovada.
+- A única linha positiva aparece no modo otimista, na ponta da grade (ALVO e TOL máximos), sem
+  vizinhas positivas: é exatamente o tipo de resultado que a regra de escolha manda ignorar.
+- **Próximo passo:** decisão do Thiago. A v1 está encerrada; o fora da amostra (2026) continua
+  intocado. Uma v2 (por exemplo, o "ajuste técnico" para aberturas voláteis, deixado de fora) só
+  com nova especificação, congelada antes do teste, e sabendo que cada nova tentativa no mesmo
+  período de desenvolvimento aumenta o risco de achar vantagem por acaso.
