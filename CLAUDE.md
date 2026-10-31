@@ -37,10 +37,9 @@ Só o período de desenvolvimento. Fora da amostra (2026) só com pedido explíc
 
 - **Fases 0–2:** concluídas. **Fase 3 (atual):** win-orb-v1 reprovada (18 linhas no DB Backtests,
   percentil contra o aleatório de 0 a 56). **win-pivo-v1** ("Sneaky Pivot", reversão nos extremos do
-  pregão anterior) especificada e congelada em `docs/estrategias/win-pivo-v1.md`, motor em
-  `src/robob3/backtest/pivo.py`, testes e teste de sanidade feitos. **Próximo passo: rodar a grade
-  (conservadora e otimista), avaliar os 7 critérios da especificação, escrever o resultado no fim
-  da especificação e preencher o Notion (12 linhas no DB Backtests, ficha, Fase 3, diário).**
+  pregão anterior) **reprovada em 31/10/2026**: as 6 combinações perdem no modo conservador, falham
+  6 dos 7 critérios, percentil 13,9–23,3 (resultado em `docs/estrategias/win-pivo-v1.md`, 12 linhas
+  no DB Backtests). **Próximo passo: o Thiago decide a próxima hipótese.**
 - **Fase 4:** gravador de M1 funcionando na VPS (cron 08:15 seg–sáb). O MT5 **não volta logado
   sozinho** depois de reiniciar ou recriar o container: logar pela tela (noVNC) depois de cada
   reinício. Ideia pendente: aviso (e-mail/Telegram) quando o gravador falhar.
