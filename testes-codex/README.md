@@ -26,6 +26,11 @@ de interpolação linear é inválida para avaliação e está preservada apenas
 O painel mostra o diagnóstico com entrada na barra seguinte e hipótese adversa;
 ele não reproduz a sequência real dos negócios e não comprova a execução intrabar.
 
+A hipótese `reteste-media-v1.md` usa sinal M15 e execução M5 no desenvolvimento.
+No painel, escolha “Rompimento e reteste · M15/M5” para ver as operações, o nível
+do pregão anterior e a MME20 das barras M15 fechadas. A primeira rodada teve uma
+contagem de saídas por horário incorreta; os dois manifestos estão preservados.
+
 O teste é exploratório. A rodada de janeiro a setembro de 2026 foi autorizada
 explicitamente por Thiago e registrada separadamente como fora da amostra; outubro
 de 2026 continua reservado. Uma nova regra precisa de nova especificação e de um novo
