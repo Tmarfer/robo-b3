@@ -16,4 +16,7 @@ flock -n 9 || { echo "$(date -Is) já em execução, saindo" >> logs/gravador.lo
   echo "=== $(date -Is) fim (código $codigo)"
 } >> logs/gravador.log 2>&1
 
+if [ "$codigo" != 0 ]; then
+  infra/vps/avisar.sh "gravador de M1 falhou (código $codigo). Ver logs/gravador.log"
+fi
 exit "$codigo"

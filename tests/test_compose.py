@@ -30,3 +30,11 @@ def test_mt5_usa_a_imagem_com_wine_novo():
         pytest.skip("infra/mt5/Dockerfile fora da imagem")
     dockerfile = arquivo.read_text()
     assert "lprett/mt5linux@sha256:" in dockerfile  # base fixada por digest, nunca :latest
+
+
+def test_mt5_guarda_o_wine_e_desliga_com_calma():
+    mt5 = COMPOSE["services"]["mt5"]
+    assert "mt5-wineprefix:/opt/wineprefix" in mt5["volumes"]
+    assert "mt5-wineprefix" in COMPOSE["volumes"]
+    assert mt5["stop_grace_period"] == "60s"
+    assert "trap fechar TERM INT" in mt5["entrypoint"][2]

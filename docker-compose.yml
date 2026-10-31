@@ -35,7 +35,18 @@ services:
       - |
         rm -f /opt/wineprefix/drive_c/server
         sed -i 's/1024x768x16/$${SCREEN_RESOLUTION:-1440x900x24}/g' /app/src/xvfb.sh 2>/dev/null || true
-        exec /app/src/main.sh
+        # Desligamento limpo: no SIGTERM do docker, pede ao MT5 para fechar (sem /F) e espera até
+        # 30 s. Morto à força, o terminal não grava a conta e volta deslogado.
+        /app/src/main.sh &
+        principal=$$!
+        fechar() {
+          DISPLAY=:0 wine taskkill /IM terminal64.exe >/dev/null 2>&1
+          for _ in $$(seq 30); do pgrep -f terminal64.exe >/dev/null || break; sleep 1; done
+          kill $$principal 2>/dev/null
+          exit 0
+        }
+        trap fechar TERM INT
+        wait $$principal
     environment:
       # resolução da tela virtual (padrão 1440x900 widescreen para caber no Mac sem cortar)
       SCREEN_RESOLUTION: ${SCREEN_RESOLUTION:-1440x900x24}
@@ -46,7 +57,12 @@ services:
       MT5_LOGIN: ${MT5_LOGIN:-}
       MT5_SERVER: ${MT5_SERVER:-}
       MT5_PASSWORD: ${MT5_PASSWORD:-}
+    # tempo para o desligamento limpo acima terminar antes do SIGKILL
+    stop_grace_period: 60s
     volumes:
+      # Wine inteiro num volume: a identidade da máquina (registro do Wine) não muda ao recriar o
+      # container, e o MT5 para de apagar a conta salva ("Accounts: deleted due security reason")
+      - mt5-wineprefix:/opt/wineprefix
       # MT5 roda em modo portable em C:\MT5: histórico (Bases), perfis e MQL5 persistem aqui
       - ./mt5-data:/opt/wineprefix/drive_c/MT5
       # C:\export dentro do MT5 = data/raw/ no host — destino das exportações de barras
@@ -99,3 +115,6 @@ services:
 networks:
   trading:
     driver: bridge
+
+volumes:
+  mt5-wineprefix:

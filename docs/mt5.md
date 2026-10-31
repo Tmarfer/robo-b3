@@ -77,6 +77,16 @@ primeiro teste e só atualizar fora do pregão. Não há suporte da Clear nem da
   Não houve interação na tela. O caminho completo, portanto, não resolveu sozinho o login.
   O segundo reinício e o coletor não foram executados; a imagem da `main` foi restaurada.
   Causa do login ausente ainda não confirmada; a hipótese da identidade do Wine continua aberta.
+- **Solução em três camadas (branch `fix/mt5-login-definitivo`, a validar):**
+  1. **Wine num volume** (`mt5-wineprefix:/opt/wineprefix`): a identidade da máquina fica estável e
+     a recriação do container deixa de apagar a conta salva.
+  2. **Desligamento limpo**: no `SIGTERM`, o comando de partida pede ao MT5 para fechar
+     (`wine taskkill` sem `/F`) e espera até 30 s (`stop_grace_period: 60s`). Antes, o `sh` como
+     processo 1 ignorava o sinal e o terminal morria à força, sem gravar a conta.
+  3. **Rede de segurança**: `infra/vps/mt5-login-check.sh` (cron 08:00) confere o título da janela e
+     avisa por `infra/vps/avisar.sh` (Telegram, se configurado no `.env`; sempre em
+     `logs/avisos.log`). O `gravador-cron.sh` também avisa quando falha.
+  Também entra a correção do caminho do `common.ini` (`/config:"C:\MT5\common.ini"`).
 - **Primeira partida de um container novo:** o script da imagem extrai o pacote do terminal em
   `mt5-data/` e grava `mt5-data/common.ini` a partir do `.env`, com a senha em texto puro. É o
   login automático previsto (conta demo). `mt5-data/` está fora do git; ao montar o backup fora da
