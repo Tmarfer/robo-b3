@@ -391,6 +391,15 @@ def cmd_backtest_codex_reteste(args):
     return 0
 
 
+def cmd_backtest_codex_fichas_trailing(args):
+    from robob3.backtest.codex_fichas_trailing import executar
+
+    if not args.confirmo_fora_da_amostra:
+        raise ValueError("Esta rodada exige --confirmo-fora-da-amostra")
+    executar()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="robob3")
     sub = p.add_subparsers(dest="comando", required=True)
@@ -505,6 +514,10 @@ def main(argv: list[str] | None = None) -> int:
 
     fichas = sub.add_parser("backtest-codex-fichas", help="três fichas do Notion no WIN")
     fichas.set_defaults(func=cmd_backtest_codex_fichas)
+
+    trailing = sub.add_parser("backtest-codex-fichas-trailing")
+    trailing.add_argument("--confirmo-fora-da-amostra", action="store_true")
+    trailing.set_defaults(func=cmd_backtest_codex_fichas_trailing)
 
     falso = sub.add_parser("backtest-codex-falso", help="falso rompimento e trailing em M1")
     falso.add_argument("--confirmo-fora-da-amostra", action="store_true")
