@@ -1,6 +1,6 @@
 import pandas as pd
 
-from robob3.backtest.codex_reteste import buscar_sinal, executar_trade
+from robob3.backtest.codex_reteste import buscar_sinal, executar_trade, resumir_reteste
 
 
 def test_compra_somente_depois_de_duas_barras_e_reteste():
@@ -46,3 +46,10 @@ def test_gap_de_stop_usa_abertura_com_derrapagem():
     )
     op = executar_trade(d, idx[0], 1, 1000)
     assert op["motivo"] == "stop" and op["saida"] == 645
+
+
+def test_resumo_contabiliza_saida_por_tempo():
+    op = {"data": "2025-01-02", "resultado_brl": 2.0, "motivo": "tempo", "ambigua": False}
+    resumo = resumir_reteste([op], {})
+    assert resumo["por_motivo"] == {"alvo": 0, "stop": 0, "tempo": 1}
+    assert resumo["operacoes_por_ano"] == {"2025": 1}

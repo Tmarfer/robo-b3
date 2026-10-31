@@ -136,6 +136,26 @@ def simular(barras, rolagens):
     return ops, ignorados
 
 
+def resumir_reteste(ops, ignorados):
+    resumo = resumir(ops, 15)
+    resumo.update(
+        {
+            "execucao": "M5",
+            "ignorados": ignorados,
+            "por_motivo": {
+                m: sum(o["motivo"] == m for o in ops) for m in ("alvo", "stop", "tempo")
+            },
+            "operacoes_por_ano": {
+                ano: sum(o["data"].startswith(ano) for o in ops)
+                for ano in sorted({o["data"][:4] for o in ops})
+            },
+        }
+    )
+    if sum(resumo["por_motivo"].values()) != len(ops):
+        raise ValueError("Motivo de saída desconhecido")
+    return resumo
+
+
 def executar():
     codigo = commit_atual()
     if not codigo["commit"] or codigo["codigo_alterado"] is not False:
@@ -146,8 +166,7 @@ def executar():
     barras = barras.loc[:FIM]
     rolagens = yaml.safe_load(Path("config/rolagens.yaml").read_text())["WIN"]["datas"]
     ops, ignorados = simular(barras, rolagens)
-    resumo = resumir(ops, 15)
-    resumo.update({"execucao": "M5", "ignorados": ignorados})
+    resumo = resumir_reteste(ops, ignorados)
     manifest = montar_manifesto(
         estrategia="win-codex-reteste-media-v1",
         ativo="WIN$N",

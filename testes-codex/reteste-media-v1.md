@@ -40,3 +40,8 @@ drawdown, acerto e ambiguidades. Estes dados já foram vistos em outros experime
 qualquer resultado é exploratório. Não se abre outubro de 2026. Não há reconstrução
 de ticks por interpolação e o histórico de 2026 não integra esta rodada. Um resultado
 positivo não basta para aprovação; custos, execução e comparações precisam de revisão.
+
+Na primeira execução, o resumo herdado não contabilizou as saídas por horário porque
+o nome `tempo` diferia do esperado pelo agregador. As operações estavam registradas;
+o manifesto original foi preservado, mas sua contagem `por_motivo` é inválida.
+Uma nova rodada foi feita com a contagem corrigida, sem mudar as regras da estratégia.
