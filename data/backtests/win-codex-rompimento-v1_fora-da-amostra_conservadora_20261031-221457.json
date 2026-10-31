@@ -1,0 +1,57 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-10-31T22:14:57+00:00",
+  "estrategia": "win-codex-rompimento-v1",
+  "ativo": "WIN$N",
+  "timeframe": "M5",
+  "trecho": "fora-da-amostra",
+  "periodo": {
+    "inicio": "2026-01-02",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "3882a0a1bca3ac94a4674f1f68bd199cecb54971",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M5_clear-mt5_20261030.csv",
+    "sha256": "c71792570d658f216067d9e1c08d18d6209732eec23535353a4c2be4eeb7d392",
+    "barras_periodo": 21042
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2
+  },
+  "ambiguidade": "conservadora",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-rompimento",
+    "data/raw/WIN-N_M5_clear-mt5_20261030.csv",
+    "--periodo",
+    "fora-da-amostra",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "parametros": {
+        "alvo_pct": 3,
+        "stop_pct": 10
+      },
+      "operacoes": 191,
+      "resultado_brl": 2239.5,
+      "por_ano": {
+        "2026": 2239.5
+      },
+      "acerto_pct": 48.17,
+      "fator_lucro": 1.083,
+      "drawdown_max": -8365.5,
+      "por_motivo": {
+        "alvo": 4,
+        "stop": 0,
+        "fim do pregão": 187
+      }
+    }
+  ]
+}

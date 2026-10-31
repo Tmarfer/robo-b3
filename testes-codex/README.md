@@ -13,5 +13,7 @@ pasta `painel/` são ignorados pelo Git porque contêm dados derivados do CSV br
 O painel gerado usa uma fotografia dessa rodada; rodar novamente não o atualiza sozinho.
 `DashboardContent.jsx` e `dashboard.css` guardam o conteúdo do painel gerado.
 
-O teste é exploratório e opera apenas no histórico de desenvolvimento. Uma nova regra
-precisa de nova especificação e de um novo manifesto antes de ser comparada com esta.
+O teste é exploratório. A rodada de janeiro a setembro de 2026 foi autorizada
+explicitamente por Thiago e registrada separadamente como fora da amostra; outubro
+de 2026 continua reservado. Uma nova regra precisa de nova especificação e de um novo
+manifesto antes de ser comparada com esta.

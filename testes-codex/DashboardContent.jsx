@@ -26,12 +26,14 @@ function Candle({barras, ops, limites}) {
 export function DashboardContent() {
   const {queries} = useDataApp();
   const ops = queries.operacoes?.rows ?? [];
-  const allBars = queries.barras?.rows ?? [];
-  const dias = useMemo(()=>[...new Set(ops.map(o=>o.data))], [ops]);
+  const ops2026 = queries.operacoes_2026?.rows ?? [];
+  const todas = [...ops, ...ops2026];
+  const allBars = [...(queries.barras?.rows ?? []), ...(queries.barras_2026?.rows ?? [])];
+  const dias = useMemo(()=>[...new Set(todas.map(o=>o.data))], [ops, ops2026]);
   const [dia,setDia] = useState('2025-01-02');
   const [limites,setLimites] = useState(false);
   const selected = dias.includes(dia) ? dia : dias[0];
-  const diario = ops.filter(o=>o.data===selected);
+  const diario = todas.filter(o=>o.data===selected);
   const barras = allBars.filter(b=>b.dia===selected);
   const totais = ['2023','2024','2025'].map(ano=>({ano, valor:ops.filter(o=>o.data.startsWith(ano)).reduce((s,o)=>s+o.resultado_brl,0)}));
   const total = totais.reduce((s,x)=>s+x.valor,0);
@@ -46,12 +48,15 @@ export function DashboardContent() {
       <div className="anuais" data-reviewed-rows>{totais.map(a=><div key={a.ano}><div className="ano">{a.ano}{a.ano==='2023'?' · parcial':''}</div><div className="barra"><i style={{width:`${Math.abs(a.valor)/Math.max(...totais.map(t=>Math.abs(t.valor)))*100}%`,background:a.valor<0?'#d25f57':'#18876e'}}/></div><b>{moeda(a.valor)}</b></div>)}</div>
       <p className="nota">O resultado foi positivo em dois anos, mas negativo em 2024. Isso ainda não demonstra consistência.</p>
     </DataComponent>
-    <DataComponent variant="card" id="pregao" queryId="barras" queryIds={['barras','operacoes']} kind="custom" title="Examinar pregão" sourceRowsByQuery={{barras,operacoes:diario}} displayRows={barras}>
+    <DataComponent variant="card" id="fora-amostra" queryId="operacoes_2026" kind="custom" title="2026 · fora da amostra, janeiro a setembro" sourceRows={ops2026} displayRows={ops2026}>
+      <div className="numeros" data-reviewed-rows><div><span>Resultado líquido</span><strong>{moeda(ops2026.reduce((s,o)=>s+o.resultado_brl,0))}</strong></div><div><span>Operações</span><strong>{ops2026.length}</strong></div><div><span>Saídas no alvo</span><strong>{ops2026.filter(o=>o.motivo==='alvo').length}</strong></div><div><span>Saídas no stop</span><strong>{ops2026.filter(o=>o.motivo==='stop').length}</strong></div></div><p className="nota">Queda máxima acumulada: −R$ 8.365,50. Outubro não foi incluído; período parcial, não comparável diretamente a um ano completo.</p>
+    </DataComponent>
+    <DataComponent variant="card" id="pregao" queryId={selected?.startsWith('2026') ? 'barras_2026' : 'barras'} queryIds={selected?.startsWith('2026') ? ['barras_2026','operacoes_2026'] : ['barras','operacoes']} kind="custom" title="Examinar pregão" sourceRowsByQuery={selected?.startsWith('2026') ? {barras_2026:barras,operacoes_2026:diario} : {barras,operacoes:diario}} displayRows={barras}>
       <div className="controles"><label>Dia <select value={selected || ''} onChange={e=>setDia(e.target.value)}>{dias.map(d=><option key={d} value={d}>{d.split('-').reverse().join('/')}</option>)}</select></label><label><input type="checkbox" checked={limites} onChange={e=>setLimites(e.target.checked)}/> Mostrar níveis de alvo e stop</label></div>
       <Candle barras={barras} ops={diario} limites={limites}/>
       <p className="nota">Círculos: compra e saída simuladas. Marcas mostram a barra M5, não o instante exato. Ative os níveis para ver alvo e stop na mesma escala.</p>
       {op && <div className="detalhes" data-reviewed-rows>{diario.map((o,i)=><div key={i}>Compra {o.entrada_em.slice(11,16)} · {num(o.entrada)} pts &nbsp; | &nbsp; Saída {o.saida_em.slice(11,16)} · {num(o.saida)} pts ({o.motivo}) &nbsp; | &nbsp; {moeda(o.resultado_brl)}<br/>Alvo {num(o.alvo)} pts · Stop {num(o.stop)} pts</div>)}</div>}
     </DataComponent>
-    <p className="nota">Regra: rompe máxima da barra anterior + 5 pontos; alvo 3%, stop 10%, zeragem na última barra. Não é resultado fora da amostra. Custos são hipóteses.</p>
+    <p className="nota">Regra: rompe máxima da barra anterior + 5 pontos; alvo 3%, stop 10%, zeragem na última barra. 2023–2025 é desenvolvimento; 2026 até setembro é fora da amostra. Custos são hipóteses.</p>
   </div>;
 }
