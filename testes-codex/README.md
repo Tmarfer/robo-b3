@@ -29,6 +29,9 @@ As adaptações das três fichas de Fibonacci estão em `fibonacci-v1.md`. O pai
 apresenta as saídas estruturais e com trailing para as mesmas entradas, sem
 interpretar 2026 como validação independente.
 
+A adaptação da ficha de retração de 38–50% está em `retracao-38-50-v1.md`.
+O painel compara o alvo estrutural com o stop móvel para as mesmas entradas.
+
 O rompimento falso com trailing está em `rompimento-falso-v2.md`. A primeira rodada
 de interpolação linear é inválida para avaliação e está preservada apenas para auditoria.
 O painel mostra o diagnóstico com entrada na barra seguinte e hipótese adversa;

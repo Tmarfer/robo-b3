@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { DataComponent, useDataApp } from '../../data-app-public.jsx';
 import './dashboard.css';
 
-const names = {'fibogap':'Fibonacci · Fibogap', 'pivo-123-fibo':'Fibonacci · pivô 1-2-3', 'fibo-duas-etapas':'Fibonacci · duas etapas', 'reteste':'Rompimento e reteste · M15/M5', 'falso':'Rompimento falso · trailing (diagnóstico)', 'rompimento':'Máxima da barra anterior · versão antiga','medias-5-20':'Médias móveis 5/20','macd-12-26-9':'MACD 12/26/9','estocastico-14-3-3':'Estocástico lento'};
+const names = {'retracao-38-50':'Fibonacci · retração 38–50%', 'fibogap':'Fibonacci · Fibogap', 'pivo-123-fibo':'Fibonacci · pivô 1-2-3', 'fibo-duas-etapas':'Fibonacci · duas etapas', 'reteste':'Rompimento e reteste · M15/M5', 'falso':'Rompimento falso · trailing (diagnóstico)', 'rompimento':'Máxima da barra anterior · versão antiga','medias-5-20':'Médias móveis 5/20','macd-12-26-9':'MACD 12/26/9','estocastico-14-3-3':'Estocástico lento'};
 const periods = {'desenvolvimento':'Desenvolvimento · 31/03/2023–30/12/2025','2026-jan-set-exploratorio':'2026 · janeiro a setembro','2026-fev-set-comparavel':'2026 · 11 fevereiro a setembro · comparação M1/M5/M15'};
 const money = n => n == null ? '—' : Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const number = n => n == null ? '—' : Number(n).toLocaleString('pt-BR');
@@ -33,7 +33,7 @@ export function DashboardContent() {
   const {queries} = useDataApp();
   const metrics=queries.fichas_resultados?.rows ?? [], allTrades=queries.fichas_operacoes?.rows ?? [], allBars=queries.fichas_barras?.rows ?? [];
   const oldDev=queries.operacoes?.rows ?? [], old2026=queries.operacoes_2026?.rows ?? [];
-  const [strategy,setStrategy]=useState('fibogap');
+  const [strategy,setStrategy]=useState('retracao-38-50');
   const [exitMode,setExitMode]=useState('fixo');
   const [stopTicks,setStopTicks]=useState('3');
   const [period,setPeriod]=useState('desenvolvimento');
@@ -45,7 +45,7 @@ export function DashboardContent() {
   const old=strategy==='rompimento';
   const isFalso=strategy==='falso';
   const isReteste=strategy==='reteste';
-  const isFibo=['fibogap','pivo-123-fibo','fibo-duas-etapas'].includes(strategy);
+  const isFibo=['retracao-38-50','fibogap','pivo-123-fibo','fibo-duas-etapas'].includes(strategy);
   const fiboMetrics=queries.fibonacci_resultados?.rows ?? [];
   const fiboTrades=queries.fibonacci_operacoes?.rows ?? [];
   const isThree=['medias-5-20','macd-12-26-9','estocastico-14-3-3'].includes(strategy);
@@ -82,7 +82,7 @@ export function DashboardContent() {
     <div className="selecao"><label>Estratégia<select value={strategy} onChange={e=>{setStrategy(e.target.value);setDay('');setTradeIdx(0)}}>{Object.entries(names).map(([id,name])=><option value={id} key={id}>{name}</option>)}</select></label>
       <label>Período<select value={selectedPeriod} onChange={e=>{setPeriod(e.target.value);setDay('');setTradeIdx(0)}}>{Object.entries(periods).filter(([id])=>isReteste?id==='desenvolvimento':isFalso?id==='2026-fev-set-comparavel':(!(old || isFibo) || id!=='2026-fev-set-comparavel')).map(([id,name])=><option value={id} key={id}>{(isReteste || (isFibo && id==='desenvolvimento')) ? '03/04/2023–30/12/2025 · desenvolvimento' : isFalso ? '11/02/2026–30/09/2026 · somente M1' : name}</option>)}</select></label>
       <label>Tempo gráfico<select value={selectedTf||''} onChange={e=>{setTf(e.target.value);setDay('');setTradeIdx(0)}}>{timeframes.map(t=><option key={t}>{t}</option>)}</select></label>{(isThree || isFibo) && <label>Saída<select value={exitMode} onChange={e=>{setExitMode(e.target.value);setDay('');setTradeIdx(0)}}><option value="trailing">Stop móvel · sem alvo fixo</option><option value="fixo">{isFibo?'Padrão · alvo da ficha':'Original · alvo fixo'}</option></select></label>}{isFalso && <label>Stop inicial<select value={stopTicks} onChange={e=>{setStopTicks(e.target.value);setDay('');setTradeIdx(0)}}><option value="3">3 ticks · 15 pontos</option><option value="5">5 ticks · 25 pontos</option></select></label>}</div>
-    {isFibo && <p className="nota">Sinal em M15 e execução em M5; uma operação por pregão. A linha pontilhada mostra o nível de referência. As regras são adaptações objetivas das fichas.</p>}
+    {isFibo && <p className="nota">Sinal em M15 e execução em M5; uma operação por pregão. A linha pontilhada mostra o nível de referência. Para retração, ela marca o centro da zona de 38,2%–50%. As regras são adaptações objetivas das fichas.</p>}
     {isReteste && <p className="nota">Sinal M15 confirmado no fechamento; execução simulada em M5. Linha roxa: MME20 M15 já fechada. Linha pontilhada: máxima ou mínima do pregão anterior.</p>}
     {(isTrailing || (isFibo && exitMode==='trailing')) && <p className="aviso">{isFibo?'Stop inicial conforme a estrutura da ficha;':'Stop inicial de 300 pontos;'} após 300 pontos de ganho, acompanha o melhor preço a 150 pontos. Sem alvo fixo. Quando a ordem de máxima e mínima é desconhecida, o resultado usa uma hipótese adversa e não representa a sequência real.</p>}
     {isFalso && <p className="aviso">Diagnóstico aproximado: o rompimento falso é confirmado no fechamento do minuto e a entrada acontece na abertura seguinte. Para barras ambíguas, usa-se uma hipótese adversa. Os dados não mostram a ordem real dos negócios; os números não reproduzem a entrada intrabar solicitada.</p>}
