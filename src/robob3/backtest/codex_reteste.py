@@ -16,8 +16,8 @@ FONTE = Path("data/raw/WIN-N_M5_clear-mt5_20261030.csv")
 INICIO, FIM = "2023-04-03", "2025-12-30"
 
 
-def preparar_sinais(barras, rolagens):
-    m15 = reamostrar_completas(barras, 15, 5)
+def preparar_sinais(barras, rolagens, minutos_sinal=15, minutos_base=5):
+    m15 = reamostrar_completas(barras, minutos_sinal, minutos_base)
     limites = pd.to_datetime(sorted(str(x) for x in rolagens))
     grupos = pd.Series(limites.searchsorted(m15.index, side="right"), index=m15.index)
     m15["ema20"] = m15.groupby(grupos)["close"].transform(
@@ -26,14 +26,14 @@ def preparar_sinais(barras, rolagens):
     return m15
 
 
-def buscar_sinal(barras, high, low):
+def buscar_sinal(barras, high, low, minutos_sinal=15):
     """Retorna o fechamento M15 e o lado apenas depois da confirmação e do reteste."""
     acima = abaixo = 0
     anterior = None
     for b in barras.itertuples():
         if b.Index.time() < time(9) or b.Index.time() > time(16, 30):
             continue
-        if anterior is None or (b.Index - anterior.Index).total_seconds() != 900:
+        if anterior is None or (b.Index - anterior.Index).total_seconds() != minutos_sinal * 60:
             acima = abaixo = 0
         if anterior is not None and pd.notna(b.ema20) and pd.notna(anterior.ema20):
             if (
@@ -42,14 +42,14 @@ def buscar_sinal(barras, high, low):
                 and b.close > high
                 and b.close > b.ema20 > anterior.ema20
             ):
-                return b.Index + pd.Timedelta(minutes=15), 1
+                return b.Index + pd.Timedelta(minutes=minutos_sinal), 1
             if (
                 abaixo >= 2
                 and b.high >= low
                 and b.close < low
                 and b.close < b.ema20 < anterior.ema20
             ):
-                return b.Index + pd.Timedelta(minutes=15), -1
+                return b.Index + pd.Timedelta(minutes=minutos_sinal), -1
         acima = acima + 1 if b.close > high else 0
         abaixo = abaixo + 1 if b.close < low else 0
         anterior = b
@@ -100,8 +100,8 @@ def executar_trade(regs, entrada_em, lado, nivel):
     }
 
 
-def simular(barras, rolagens):
-    m15 = preparar_sinais(barras, rolagens)
+def simular(barras, rolagens, inicio=INICIO, fim=FIM, minutos_sinal=15, minutos_base=5):
+    m15 = preparar_sinais(barras, rolagens, minutos_sinal, minutos_base)
     diarios = {str(d): g for d, g in barras.groupby(barras.index.date)}
     dias = sorted(diarios)
     rolls = {str(x) for x in rolagens}
@@ -109,7 +109,7 @@ def simular(barras, rolagens):
     ignorados = {"rolagem": 0, "sem_17h": 0, "dia_anterior_incompleto": 0, "sem_sinal": 0}
     for i in range(1, len(dias)):
         dia = dias[i]
-        if not INICIO <= dia <= FIM:
+        if not inicio <= dia <= fim:
             continue
         anterior, hoje = diarios[dias[i - 1]], diarios[dia]
         if dia in rolls:
@@ -123,7 +123,7 @@ def simular(barras, rolagens):
             continue
         high, low = int(anterior.high.max()), int(anterior.low.min())
         sinais = m15.loc[dia]
-        resultado = buscar_sinal(sinais, high, low)
+        resultado = buscar_sinal(sinais, high, low, minutos_sinal)
         if resultado is None:
             ignorados["sem_sinal"] += 1
             continue

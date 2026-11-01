@@ -1,0 +1,74 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-11-01T00:56:36+00:00",
+  "estrategia": "codex-fibogap-mesmo-m1-v1",
+  "ativo": "WIN$N",
+  "timeframe": "sinal M1 / execução M1",
+  "trecho": "2026-fev-set-comparavel",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "4eb8a8eeadc0232287828afebbe5f85542cd729b",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2,
+    "ativacao_pts": 300,
+    "distancia_trailing_pts": 150
+  },
+  "ambiguidade": "hipotese-adversa",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-fibonacci-tempos",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "versao_saida": "padrao",
+      "timeframe": "M1",
+      "sinal": "M1",
+      "operacoes": 11,
+      "resultado_brl": 23.5,
+      "por_ano": {
+        "2026": 23.5
+      },
+      "drawdown_max": -290.0,
+      "fator_lucro": 1.064,
+      "acerto_pct": 45.45,
+      "ambiguas": 0,
+      "por_motivo": {
+        "alvo": 5,
+        "stop": 6,
+        "tempo": 0
+      }
+    },
+    {
+      "versao_saida": "trailing",
+      "timeframe": "M1",
+      "sinal": "M1",
+      "operacoes": 11,
+      "resultado_brl": -276.5,
+      "por_ano": {
+        "2026": -276.5
+      },
+      "drawdown_max": -337.5,
+      "fator_lucro": 0.331,
+      "acerto_pct": 36.36,
+      "ambiguas": 4,
+      "por_motivo": {
+        "alvo": 0,
+        "stop": 11,
+        "tempo": 0
+      }
+    }
+  ]
+}

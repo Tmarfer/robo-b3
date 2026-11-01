@@ -15,7 +15,7 @@ def sinal(barra, anterior):
     return 0 if compra == venda else (1 if compra else -1)
 
 
-def simular(df, stop_ticks):
+def simular(df, stop_ticks, minutos=1):
     if stop_ticks not in (3, 5):
         raise ValueError("Stop inválido")
     ops = []
@@ -29,8 +29,8 @@ def simular(df, stop_ticks):
             consecutiva = (
                 anterior is not None
                 and base is not None
-                and (b.Index - anterior.Index).total_seconds() == 60
-                and (anterior.Index - base.Index).total_seconds() == 60
+                and (b.Index - anterior.Index).total_seconds() == minutos * 60
+                and (anterior.Index - base.Index).total_seconds() == minutos * 60
             )
             if pos is None and consecutiva and not ultimo:
                 lado = sinal(anterior, base)

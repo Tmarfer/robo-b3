@@ -32,3 +32,5 @@ Thumbs.db
 
 # operações e barras derivadas para o painel local
 /testes-codex/resultado-fibonacci-tempos.json
+
+/testes-codex/resultado-outros-tempos.json
