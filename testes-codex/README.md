@@ -51,3 +51,6 @@ O teste é exploratório. A rodada de janeiro a setembro de 2026 foi autorizada
 explicitamente por Thiago e registrada separadamente como fora da amostra; outubro
 de 2026 continua reservado. Uma nova regra precisa de nova especificação e de um novo
 manifesto antes de ser comparada com esta.
+
+O trailing curto de 30/15 para Fibogap e retração está em `trailing-curto-30-15.md`.
+No painel, a saída permite escolher padrão, trailing 300/150 ou trailing 30/15.

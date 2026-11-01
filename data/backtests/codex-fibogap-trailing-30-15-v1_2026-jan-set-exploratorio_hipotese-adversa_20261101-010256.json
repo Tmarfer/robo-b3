@@ -1,0 +1,74 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-11-01T01:02:56+00:00",
+  "estrategia": "codex-fibogap-trailing-30-15-v1",
+  "ativo": "WIN$N",
+  "timeframe": "sinal M15 / execução M15",
+  "trecho": "2026-jan-set-exploratorio",
+  "periodo": {
+    "inicio": "2026-01-02",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "34b4a5bf3a88c0dcfb765eddabd08bc44c48af7d",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M5_clear-mt5_20261030.csv",
+    "sha256": "c71792570d658f216067d9e1c08d18d6209732eec23535353a4c2be4eeb7d392"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2,
+    "ativacao_pts": 30,
+    "distancia_trailing_pts": 15
+  },
+  "ambiguidade": "hipotese-adversa",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-trailing-curto",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "versao_saida": "padrao",
+      "timeframe": "M15",
+      "sinal": "M15",
+      "operacoes": 52,
+      "resultado_brl": 1421.0,
+      "por_ano": {
+        "2026": 1421.0
+      },
+      "drawdown_max": -703.0,
+      "fator_lucro": 1.629,
+      "acerto_pct": 65.38,
+      "ambiguas": 0,
+      "por_motivo": {
+        "alvo": 30,
+        "stop": 13,
+        "tempo": 9
+      }
+    },
+    {
+      "versao_saida": "trailing-30-15",
+      "timeframe": "M15",
+      "sinal": "M15",
+      "operacoes": 52,
+      "resultado_brl": 2.0,
+      "por_ano": {
+        "2026": 2.0
+      },
+      "drawdown_max": -74.5,
+      "fator_lucro": 1.027,
+      "acerto_pct": 98.08,
+      "ambiguas": 51,
+      "por_motivo": {
+        "alvo": 0,
+        "stop": 52,
+        "tempo": 0
+      }
+    }
+  ]
+}
