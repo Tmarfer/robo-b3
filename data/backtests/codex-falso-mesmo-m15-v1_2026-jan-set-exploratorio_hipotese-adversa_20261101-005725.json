@@ -1,0 +1,86 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-11-01T00:57:25+00:00",
+  "estrategia": "codex-falso-mesmo-m15-v1",
+  "ativo": "WIN$N",
+  "timeframe": "M15",
+  "trecho": "2026-jan-set-exploratorio",
+  "periodo": {
+    "inicio": "2026-01-02",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "27e85cdc4dcf37597e55b44c73a63591fc2ab6db",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M5_clear-mt5_20261030.csv",
+    "sha256": "c71792570d658f216067d9e1c08d18d6209732eec23535353a4c2be4eeb7d392"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2
+  },
+  "ambiguidade": "hipotese-adversa",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-outros-tempos",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "stop_ticks": 3,
+      "caminho": "adverso-com-confirmacao",
+      "operacoes": 2431,
+      "resultado_brl": -10564.5,
+      "por_mes": {
+        "2026-01": -1167.5,
+        "2026-02": -1059.0,
+        "2026-03": -1342.5,
+        "2026-04": -1066.0,
+        "2026-05": -1127.0,
+        "2026-06": -1202.0,
+        "2026-07": -1263.0,
+        "2026-08": -1088.0,
+        "2026-09": -1249.5
+      },
+      "acerto_pct": 3.09,
+      "fator_lucro": 0.004,
+      "drawdown_max": -10565.0,
+      "por_motivo": {
+        "stop inicial": 2356,
+        "stop móvel": 75,
+        "fim do pregão": 0
+      },
+      "timeframe": "M15"
+    },
+    {
+      "stop_ticks": 5,
+      "caminho": "adverso-com-confirmacao",
+      "operacoes": 2431,
+      "resultado_brl": -14618.5,
+      "por_mes": {
+        "2026-01": -1610.5,
+        "2026-02": -1447.0,
+        "2026-03": -1898.5,
+        "2026-04": -1514.0,
+        "2026-05": -1559.0,
+        "2026-06": -1689.0,
+        "2026-07": -1687.0,
+        "2026-08": -1490.0,
+        "2026-09": -1723.5
+      },
+      "acerto_pct": 6.95,
+      "fator_lucro": 0.006,
+      "drawdown_max": -14619.0,
+      "por_motivo": {
+        "stop inicial": 2262,
+        "stop móvel": 169,
+        "fim do pregão": 0
+      },
+      "timeframe": "M15"
+    }
+  ]
+}

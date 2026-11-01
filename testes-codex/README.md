@@ -32,6 +32,11 @@ interpretar 2026 como validação independente.
 A adaptação da ficha de retração de 38–50% está em `retracao-38-50-v1.md`.
 O painel compara o alvo estrutural com o stop móvel para as mesmas entradas.
 
+As grades com sinais e execução no mesmo tempo estão em `fibonacci-tempos-v1.md`
+e `outros-tempos-v1.md`. M1, M5 e M15 são comparáveis no recorte comum de 2026;
+no histórico mais longo há M5 e M15. As versões anteriores M15/M5 permanecem no
+painel. Na grade Fibonacci comum, 92 pregões não atenderam aos filtros de dados.
+
 O rompimento falso com trailing está em `rompimento-falso-v2.md`. A primeira rodada
 de interpolação linear é inválida para avaliação e está preservada apenas para auditoria.
 O painel mostra o diagnóstico com entrada na barra seguinte e hipótese adversa;

@@ -1,0 +1,84 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-11-01T00:57:26+00:00",
+  "estrategia": "codex-falso-mesmo-m15-v1",
+  "ativo": "WIN$N",
+  "timeframe": "M15",
+  "trecho": "2026-fev-set-comparavel",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "27e85cdc4dcf37597e55b44c73a63591fc2ab6db",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2
+  },
+  "ambiguidade": "hipotese-adversa",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-outros-tempos",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "stop_ticks": 3,
+      "caminho": "adverso-com-confirmacao",
+      "operacoes": 2036,
+      "resultado_brl": -8822.0,
+      "por_mes": {
+        "2026-02": -614.5,
+        "2026-03": -1338.0,
+        "2026-04": -1034.5,
+        "2026-05": -1113.5,
+        "2026-06": -1193.0,
+        "2026-07": -1236.0,
+        "2026-08": -1070.0,
+        "2026-09": -1222.5
+      },
+      "acerto_pct": 3.34,
+      "fator_lucro": 0.004,
+      "drawdown_max": -8822.0,
+      "por_motivo": {
+        "stop inicial": 1968,
+        "stop móvel": 68,
+        "fim do pregão": 0
+      },
+      "timeframe": "M15"
+    },
+    {
+      "stop_ticks": 5,
+      "caminho": "adverso-com-confirmacao",
+      "operacoes": 2036,
+      "resultado_brl": -12205.0,
+      "por_mes": {
+        "2026-02": -825.5,
+        "2026-03": -1892.0,
+        "2026-04": -1468.5,
+        "2026-05": -1539.5,
+        "2026-06": -1676.0,
+        "2026-07": -1648.0,
+        "2026-08": -1464.0,
+        "2026-09": -1691.5
+      },
+      "acerto_pct": 7.22,
+      "fator_lucro": 0.006,
+      "drawdown_max": -12205.0,
+      "por_motivo": {
+        "stop inicial": 1889,
+        "stop móvel": 147,
+        "fim do pregão": 0
+      },
+      "timeframe": "M15"
+    }
+  ]
+}

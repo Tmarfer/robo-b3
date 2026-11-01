@@ -1,0 +1,52 @@
+{
+  "versao_manifesto": 1,
+  "gerado_em_utc": "2026-11-01T00:57:26+00:00",
+  "estrategia": "codex-reteste-mesmo-m15-v1",
+  "ativo": "WIN$N",
+  "timeframe": "M15",
+  "trecho": "2026-fev-set-comparavel",
+  "periodo": {
+    "inicio": "2026-02-11",
+    "fim": "2026-09-30"
+  },
+  "codigo": {
+    "commit": "27e85cdc4dcf37597e55b44c73a63591fc2ab6db",
+    "codigo_alterado": false
+  },
+  "dados": {
+    "arquivo": "WIN-N_M1_clear-mt5_20261029.csv",
+    "sha256": "bed86e6916397127aa3490c27ff449e6164188a77cedc1064d08b35cdf877f3d"
+  },
+  "custos": {
+    "custo_lado_brl": 0.25,
+    "derrapagem_pts": 5,
+    "valor_ponto_brl": 0.2
+  },
+  "ambiguidade": "hipotese-adversa",
+  "entrada_aleatoria": null,
+  "comando": [
+    "robob3",
+    "backtest-codex-outros-tempos",
+    "--confirmo-fora-da-amostra"
+  ],
+  "linhas": [
+    {
+      "timeframe": "M15",
+      "operacoes": 16,
+      "resultado_brl": -25.0,
+      "por_ano": {
+        "2026": -25.0
+      },
+      "acerto_pct": 37.5,
+      "fator_lucro": 0.955,
+      "drawdown_max": -231.0,
+      "ambiguas": 0,
+      "por_motivo": {
+        "alvo": 4,
+        "stop": 9,
+        "sinal": 0,
+        "fim do pregão": 0
+      }
+    }
+  ]
+}
