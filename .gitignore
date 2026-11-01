@@ -29,3 +29,6 @@ dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+# operações e barras derivadas para o painel local
+/testes-codex/resultado-fibonacci-tempos.json

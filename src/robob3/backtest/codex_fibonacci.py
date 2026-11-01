@@ -101,11 +101,15 @@ def cluster(pivos):
     }
 
 
-def fibogap(barras, anterior):
-    if len(barras) < 5 or anterior is None:
+def fibogap(barras, anterior, minutos=15):
+    quantidade = 60 // minutos
+    if len(barras) < quantidade + 1 or anterior is None:
         return
-    primeira = barras.iloc[:4]
-    if list(primeira.index.strftime("%H:%M")) != ["09:00", "09:15", "09:30", "09:45"]:
+    primeira = barras.iloc[:quantidade]
+    esperado = pd.date_range(
+        str(barras.index[0].date()) + " 09:00", periods=quantidade, freq=f"{minutos}min"
+    )
+    if not primeira.index.equals(esperado):
         return
     ab = float(primeira.iloc[0]["open"])
     if ab > anterior.high:
@@ -120,11 +124,11 @@ def fibogap(barras, anterior):
         return
     inferior, superior = low + 0.236 * amp, low + 0.764 * amp
     regs = list(barras.itertuples())
-    for i in range(5, len(regs)):
+    for i in range(quantidade + 1, len(regs)):
         teste, atual = regs[i - 1], regs[i]
         if atual.Index.time() > pd.Timestamp("16:30").time():
             break
-        if (atual.Index - teste.Index).total_seconds() != 900:
+        if (atual.Index - teste.Index).total_seconds() != minutos * 60:
             continue
         compra = (
             teste.low <= low
@@ -217,8 +221,8 @@ def arredondar(n, lado, tipo):
     return int((math.ceil(n / 5) if para_cima else math.floor(n / 5)) * 5)
 
 
-def preparar_entrada(setup, hoje):
-    timestamp = setup["sinal_em"] + pd.Timedelta(minutes=15)
+def preparar_entrada(setup, hoje, minutos_sinal=15):
+    timestamp = setup["sinal_em"] + pd.Timedelta(minutes=minutos_sinal)
     if timestamp.time() > pd.Timestamp("16:45").time() or timestamp not in hoje.index:
         return None
     lado = setup["lado"]
@@ -337,8 +341,8 @@ def resumo(ops, modo):
     }
 
 
-def simular(df, rolagens, estrategia, inicio, fim):
-    m15 = reamostrar_completas(df, 15, 5)
+def simular(df, rolagens, estrategia, inicio, fim, minutos_sinal=15, minutos_base=5):
+    m15 = reamostrar_completas(df, minutos_sinal, minutos_base)
     dias = {str(d): g for d, g in df.groupby(df.index.date)}
     dias15 = {str(d): g for d, g in m15.groupby(m15.index.date)}
     ordenados = sorted(dias)
@@ -361,7 +365,9 @@ def simular(df, rolagens, estrategia, inicio, fim):
             estatisticas["pregao_incompleto"] += 1
             continue
         barras = dias15[dia]
-        if list(barras.index[:4].strftime("%H:%M")) != ["09:00", "09:15", "09:30", "09:45"]:
+        quantidade = 60 // minutos_sinal
+        esperado = pd.date_range(dia + " 09:00", periods=quantidade, freq=f"{minutos_sinal}min")
+        if not barras.index[:quantidade].equals(esperado):
             estatisticas["pregao_incompleto"] += 1
             continue
         if estrategia == "fibogap":
@@ -369,6 +375,7 @@ def simular(df, rolagens, estrategia, inicio, fim):
             candidatos = fibogap(
                 barras,
                 next(ant.iloc[-1:].itertuples(), None) if ant is not None and len(ant) else None,
+                minutos_sinal,
             )
         elif estrategia == "pivo-123-fibo":
             candidatos = sinais_pivo(barras)
@@ -382,7 +389,7 @@ def simular(df, rolagens, estrategia, inicio, fim):
             raise ValueError("Estratégia desconhecida")
         entrada = None
         for c in candidatos:
-            entrada = preparar_entrada(c, hoje)
+            entrada = preparar_entrada(c, hoje, minutos_sinal)
             if entrada:
                 break
         if entrada is None:

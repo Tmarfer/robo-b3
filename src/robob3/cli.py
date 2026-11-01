@@ -409,6 +409,15 @@ def cmd_backtest_codex_fibonacci(args):
     return 0
 
 
+def cmd_backtest_codex_fibonacci_tempos(args):
+    from robob3.backtest.codex_fibonacci_tempos import executar
+
+    if not args.confirmo_fora_da_amostra:
+        raise ValueError("Esta rodada exige --confirmo-fora-da-amostra")
+    executar()
+    return 0
+
+
 def cmd_backtest_codex_retracao(args):
     from robob3.backtest.codex_retracao import executar
 
@@ -540,6 +549,10 @@ def main(argv: list[str] | None = None) -> int:
     fibonacci = sub.add_parser("backtest-codex-fibonacci")
     fibonacci.add_argument("--confirmo-fora-da-amostra", action="store_true")
     fibonacci.set_defaults(func=cmd_backtest_codex_fibonacci)
+
+    fibonacci_tempos = sub.add_parser("backtest-codex-fibonacci-tempos")
+    fibonacci_tempos.add_argument("--confirmo-fora-da-amostra", action="store_true")
+    fibonacci_tempos.set_defaults(func=cmd_backtest_codex_fibonacci_tempos)
 
     retracao = sub.add_parser("backtest-codex-retracao")
     retracao.add_argument("--confirmo-fora-da-amostra", action="store_true")
