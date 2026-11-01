@@ -400,6 +400,15 @@ def cmd_backtest_codex_fichas_trailing(args):
     return 0
 
 
+def cmd_backtest_codex_fibonacci(args):
+    from robob3.backtest.codex_fibonacci import executar
+
+    if not args.confirmo_fora_da_amostra:
+        raise ValueError("Esta rodada exige --confirmo-fora-da-amostra")
+    executar()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="robob3")
     sub = p.add_subparsers(dest="comando", required=True)
@@ -518,6 +527,10 @@ def main(argv: list[str] | None = None) -> int:
     trailing = sub.add_parser("backtest-codex-fichas-trailing")
     trailing.add_argument("--confirmo-fora-da-amostra", action="store_true")
     trailing.set_defaults(func=cmd_backtest_codex_fichas_trailing)
+
+    fibonacci = sub.add_parser("backtest-codex-fibonacci")
+    fibonacci.add_argument("--confirmo-fora-da-amostra", action="store_true")
+    fibonacci.set_defaults(func=cmd_backtest_codex_fibonacci)
 
     falso = sub.add_parser("backtest-codex-falso", help="falso rompimento e trailing em M1")
     falso.add_argument("--confirmo-fora-da-amostra", action="store_true")
