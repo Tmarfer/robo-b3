@@ -62,6 +62,10 @@ desenvolvimento. Filtrar uma estratégia negativa até ela ficar positiva é sob
   **EUA** = S&P 500 futuro; **Dólar** = DXY; **Petróleo** = Brent (alta / queda).
 - **Neutro** quando nenhuma região, o dólar ou o petróleo está forte ou fraco e não há evento.
 - Gap: em unidades de ATR de 20 dias do próprio ativo (WIN ou WDO), só para descrição.
+- **Esclarecimento de 01/11/2026 (rolagem):** gap e ATR de 20 dias são calculados na série com
+  retroajuste aditivo (`robob3 ajustar-rolagem`); no dia da troca, sem o ajuste, o "gap" seria o
+  prêmio entre contratos (1% a 3% no WIN). O "Ajuste anterior" de WIN, WDO e DI1F é sempre o do
+  contrato negociado no dia. Ver `docs/dados.md`.
 - 60 pregões em vez de 20: com 20 valores o desvio-padrão estimado varia ~16%, com 60 ~9%; menos
   troca de rótulo por ruído da própria estimativa.
 
