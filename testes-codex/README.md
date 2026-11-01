@@ -25,6 +25,10 @@ As versões com stop móvel dessas três ideias estão em `fichas-trailing-v2.md
 No painel, a opção “Saída” alterna entre o stop móvel e o alvo fixo original; a
 comparação informa também as operações sujeitas a ambiguidade dentro da barra.
 
+As adaptações das três fichas de Fibonacci estão em `fibonacci-v1.md`. O painel
+apresenta as saídas estruturais e com trailing para as mesmas entradas, sem
+interpretar 2026 como validação independente.
+
 O rompimento falso com trailing está em `rompimento-falso-v2.md`. A primeira rodada
 de interpolação linear é inválida para avaliação e está preservada apenas para auditoria.
 O painel mostra o diagnóstico com entrada na barra seguinte e hipótese adversa;
