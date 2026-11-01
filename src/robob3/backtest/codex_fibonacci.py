@@ -252,7 +252,7 @@ def preparar_entrada(setup, hoje, minutos_sinal=15):
     }
 
 
-def saida(hoje, entrada, modo):
+def saida(hoje, entrada, modo, ativacao_pts=300, distancia_pts=150):
     pos = dict(entrada)
     pos["movimentos_stop"] = [x.copy() for x in entrada["movimentos_stop"]]
     if modo == "trailing":
@@ -291,14 +291,16 @@ def saida(hoje, entrada, modo):
         else:
             mover_stop(pos, abertura, ts)
             stop = pos["stop_atual"]
-            candidato = favoravel - lado * 150
-            melhora = (favoravel - pos["entrada"]) * lado >= 300 and (candidato - stop) * lado > 0
+            candidato = favoravel - lado * distancia_pts
+            melhora = (favoravel - pos["entrada"]) * lado >= ativacao_pts and (
+                candidato - stop
+            ) * lado > 0
             if (adverso - stop) * lado <= 0:
                 fechar(pos, barra, stop - lado * 5, "stop", ops, ambigua=bool(melhora))
                 break
             if melhora:
                 if (adverso - candidato) * lado <= 0:
-                    protecao = pos["entrada"] + lado * 150
+                    protecao = pos["entrada"] + lado * (ativacao_pts - distancia_pts)
                     pior = (
                         max(stop, protecao, adverso) if lado == 1 else min(stop, protecao, adverso)
                     )
@@ -341,7 +343,17 @@ def resumo(ops, modo):
     }
 
 
-def simular(df, rolagens, estrategia, inicio, fim, minutos_sinal=15, minutos_base=5):
+def simular(
+    df,
+    rolagens,
+    estrategia,
+    inicio,
+    fim,
+    minutos_sinal=15,
+    minutos_base=5,
+    ativacao_pts=300,
+    distancia_pts=150,
+):
     m15 = reamostrar_completas(df, minutos_sinal, minutos_base)
     dias = {str(d): g for d, g in df.groupby(df.index.date)}
     dias15 = {str(d): g for d, g in m15.groupby(m15.index.date)}
@@ -396,7 +408,11 @@ def simular(df, rolagens, estrategia, inicio, fim, minutos_sinal=15, minutos_bas
             estatisticas["sem_entrada"] += 1
             continue
         for modo in saidas:
-            saidas[modo].append(saida(hoje, entrada, modo))
+            saidas[modo].append(
+                saida(hoje, entrada, modo, ativacao_pts, distancia_pts)
+                if modo == "trailing"
+                else saida(hoje, entrada, modo)
+            )
     return saidas, estatisticas
 
 
