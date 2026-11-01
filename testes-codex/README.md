@@ -54,3 +54,17 @@ manifesto antes de ser comparada com esta.
 
 O trailing curto de 30/15 para Fibogap e retração está em `trailing-curto-30-15.md`.
 No painel, a saída permite escolher padrão, trailing 300/150 ou trailing 30/15.
+
+## Painel por contrato
+
+`Painel-Contratos-WIN.html` é uma cópia local independente do painel anterior. Compara os
+dois intervalos de 2025 registrados em `analise-contratos-2025.md`, e permite selecionar
+uma estratégia e um contrato para ver o resultado acumulado e operações. O painel separa
+o novo reteste das operações extraídas das rodadas anteriores. O HTML e o projeto gerado
+`painel-contratos/` ficam locais por conterem dados derivados dos CSVs.
+
+O conteúdo React e CSS estão versionados em `DashboardContratos.jsx` e
+`dashboard-contratos.css`. `gerar-dados-painel-contratos.py` lê os três JSONs locais de
+resultados e gera `/private/tmp/robo-b3-snapshot.json` para o preparador de dashboards;
+ele não executa backtests nem modifica dados brutos. A origem e os limites de cada linha
+constam na análise e nos manifestos existentes.
