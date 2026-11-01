@@ -374,6 +374,10 @@ def simular(df, rolagens, estrategia, inicio, fim):
             candidatos = sinais_pivo(barras)
         elif estrategia == "fibo-duas-etapas":
             candidatos = sinais_duas(barras)
+        elif estrategia == "retracao-38-50":
+            from robob3.backtest.codex_retracao import sinais_retracao
+
+            candidatos = sinais_retracao(barras)
         else:
             raise ValueError("Estratégia desconhecida")
         entrada = None
