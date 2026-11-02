@@ -42,7 +42,11 @@ Só o período de desenvolvimento. Fora da amostra (2026) só com pedido explíc
   no DB Backtests). **Próximo passo: o Thiago decide a próxima hipótese.**
 - **Fase 4:** gravador de M1 funcionando na VPS (cron 08:15 seg–sáb). O MT5 **não volta logado
   sozinho** depois de reiniciar ou recriar o container: logar pela tela (noVNC) depois de cada
-  reinício. Ideia pendente: aviso (e-mail/Telegram) quando o gravador falhar.
+  reinício. Solução em três camadas (Wine num volume, desligamento limpo, aviso às 08:00) na
+  branch `fix/mt5-login-definitivo`, aguardando o teste do Codex
+  (`infra/vps/tarefas/2026-11-01-login-definitivo.md`).
+- **Dados:** tratamento conferido em 01/11 (rolagem, look-ahead, custos). Regras para estratégias
+  que usam dias anteriores e testes de robustez a especificar: `docs/dados.md`.
 - **Contexto global:** definição congelada em `docs/contexto-global.md` (z-score de 60 pregões);
   coletor das 08:30 e histórico ainda não escritos — depois de haver estratégia com vantagem.
 
